@@ -1,0 +1,52 @@
+@if (!isAuthenticated) {
+  <app-login></app-login>
+} @else {
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <span class="sidebar__logo-mark">FMS</span>
+        <span class="sidebar__logo-text">{{ title() }}</span>
+      </div>
+
+      <nav class="sidebar__nav">
+        <a routerLink="/dashboard" routerLinkActive="active" class="sidebar__item">
+          <span class="sidebar__icon">📊</span>
+          <span>Tổng quan</span>
+        </a>
+        <a routerLink="/orders" routerLinkActive="active" class="sidebar__item">
+          <span class="sidebar__icon">📦</span>
+          <span>Đơn hàng</span>
+        </a>
+        <a routerLink="/warehouse" routerLinkActive="active" class="sidebar__item">
+          <span class="sidebar__icon">🏭</span>
+          <span>Kho</span>
+        </a>
+        <a routerLink="/settings" routerLinkActive="active" class="sidebar__item">
+          <span class="sidebar__icon">⚙️</span>
+          <span>Cài đặt</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <span class="sidebar__user">Xin chào, {{ getUserDisplayName() }}</span>
+        <button class="sidebar__logout" (click)="onLogout()" title="Đăng xuất">
+          🚪
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="topbar__title">Dashboard</div>
+        <div class="topbar__actions">
+          <button class="topbar__btn">Thông báo</button>
+          <button class="topbar__btn">Hồ sơ</button>
+        </div>
+      </header>
+
+      <section class="page-content">
+        <router-outlet></router-outlet>
+      </section>
+    </main>
+  </div>
+}

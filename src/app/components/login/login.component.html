@@ -1,0 +1,48 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">
+        <span class="logo-mark">FMS</span>
+      </div>
+      <h1 class="login-title">Đăng nhập</h1>
+      <p class="login-subtitle">Vui lòng đăng nhập để tiếp tục</p>
+    </div>
+
+    <div class="login-content">
+      @if (error) {
+        <div class="error-message">
+          <span class="error-icon">⚠️</span>
+          <span>{{ error }}</span>
+        </div>
+      }
+
+      <div class="login-actions">
+        <button 
+          class="btn btn-primary" 
+          (click)="onLogin()"
+          [disabled]="isLoading"
+        >
+          @if (isLoading) {
+            <span class="spinner"></span>
+            <span>Đang đăng nhập...</span>
+          } @else {
+            <span>Đăng nhập với OIDC</span>
+          }
+        </button>
+
+        <div class="divider">
+          <span>hoặc</span>
+        </div>
+
+        <button 
+          class="btn btn-secondary" 
+          (click)="onMockLogin()"
+          [disabled]="isLoading"
+        >
+          <span>Test (Mock Login)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
