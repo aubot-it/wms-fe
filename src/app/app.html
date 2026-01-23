@@ -10,18 +10,54 @@
         <span class="sidebar__icon">📊</span>
         <span>Tổng quan</span>
       </a>
-      <a routerLink="/orders" routerLinkActive="active" class="sidebar__item">
-        <span class="sidebar__icon">📦</span>
-        <span>Đơn hàng</span>
-      </a>
-      <a routerLink="/warehouse" routerLinkActive="active" class="sidebar__item">
-        <span class="sidebar__icon">🏭</span>
-        <span>Kho</span>
-      </a>
-      <a routerLink="/settings" routerLinkActive="active" class="sidebar__item">
-        <span class="sidebar__icon">⚙️</span>
-        <span>Cài đặt</span>
-      </a>
+      
+      <div class="sidebar__group">
+        <div class="sidebar__group-header" (click)="toggleMenu('masterData')">
+          <span class="sidebar__icon">📋</span>
+          <span>Master Data</span>
+          <span class="sidebar__arrow" [class.open]="isMenuOpen('masterData')">▼</span>
+        </div>
+        <div class="sidebar__submenu" [class.open]="isMenuOpen('masterData')">
+          <a routerLink="/master-data/warehouse" routerLinkActive="active" class="sidebar__subitem">
+            <span>Warehouse</span>
+          </a>
+          <a routerLink="/master-data/zone" routerLinkActive="active" class="sidebar__subitem">
+            <span>Zone</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-header" (click)="toggleMenu('inventory')">
+          <span class="sidebar__icon">📦</span>
+          <span>Inventory</span>
+          <span class="sidebar__arrow" [class.open]="isMenuOpen('inventory')">▼</span>
+        </div>
+        <div class="sidebar__submenu" [class.open]="isMenuOpen('inventory')">
+          <a routerLink="/inventory/list" routerLinkActive="active" class="sidebar__subitem">
+            <span>Danh sách</span>
+          </a>
+          <a routerLink="/inventory/stock" routerLinkActive="active" class="sidebar__subitem">
+            <span>Xem tồn</span>
+          </a>
+          <a routerLink="/inventory/history" routerLinkActive="active" class="sidebar__subitem">
+            <span>Lịch sử</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-header" (click)="toggleMenu('shipCentral')">
+          <span class="sidebar__icon">🚚</span>
+          <span>Ship Central</span>
+          <span class="sidebar__arrow" [class.open]="isMenuOpen('shipCentral')">▼</span>
+        </div>
+        <div class="sidebar__submenu" [class.open]="isMenuOpen('shipCentral')">
+          <a routerLink="/ship-central/transportation" routerLinkActive="active" class="sidebar__subitem">
+            <span>Vận chuyển</span>
+          </a>
+        </div>
+      </div>
     </nav>
 
     <div class="sidebar__footer">

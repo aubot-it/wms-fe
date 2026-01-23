@@ -5,17 +5,62 @@ export const routes: Routes = [
     path: 'dashboard',
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
+  // Master Data routes
   {
-    path: 'orders',
-    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
+    path: 'master-data',
+    children: [
+      {
+        path: 'warehouse',
+        loadComponent: () => import('./components/master-data/warehouse/warehouse.component').then(m => m.WarehouseComponent)
+      },
+      {
+        path: 'zone',
+        loadComponent: () => import('./components/master-data/zone/zone.component').then(m => m.ZoneComponent)
+      },
+      {
+        path: '',
+        redirectTo: 'warehouse',
+        pathMatch: 'full'
+      }
+    ]
   },
+  // Inventory routes
   {
-    path: 'warehouse',
-    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
+    path: 'inventory',
+    children: [
+      {
+        path: 'list',
+        loadComponent: () => import('./components/inventory/list/list.component').then(m => m.InventoryListComponent)
+      },
+      {
+        path: 'stock',
+        loadComponent: () => import('./components/inventory/stock/stock.component').then(m => m.InventoryStockComponent)
+      },
+      {
+        path: 'history',
+        loadComponent: () => import('./components/inventory/history/history.component').then(m => m.InventoryHistoryComponent)
+      },
+      {
+        path: '',
+        redirectTo: 'list',
+        pathMatch: 'full'
+      }
+    ]
   },
+  // Ship Central routes
   {
-    path: 'settings',
-    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
+    path: 'ship-central',
+    children: [
+      {
+        path: 'transportation',
+        loadComponent: () => import('./components/ship-central/transportation/transportation.component').then(m => m.TransportationComponent)
+      },
+      {
+        path: '',
+        redirectTo: 'transportation',
+        pathMatch: 'full'
+      }
+    ]
   },
   {
     path: '',
