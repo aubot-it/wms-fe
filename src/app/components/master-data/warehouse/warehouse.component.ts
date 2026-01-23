@@ -14,7 +14,7 @@ import { WarehouseDTO } from '../../../api/wcs.models';
       <div class="warehouse-header">
         <h1 class="warehouse-title">Warehouse</h1>
         <div class="warehouse-actions">
-          <button class="btn btn-primary" (click)="onAdd()">
+          <button class="btn btn-primary" (click)="openCreateDrawer()">
             <span>➕</span>
             <span>Thêm</span>
           </button>
@@ -22,7 +22,7 @@ import { WarehouseDTO } from '../../../api/wcs.models';
             <span>🗑️</span>
             <span>Xóa</span>
           </button>
-          <button class="btn btn-secondary" (click)="onUpdate()" [disabled]="selectedWarehouses().length !== 1">
+          <button class="btn btn-secondary" (click)="openEditDrawer()" [disabled]="selectedWarehouses().length !== 1">
             <span>✏️</span>
             <span>Cập nhật</span>
           </button>
@@ -229,6 +229,72 @@ import { WarehouseDTO } from '../../../api/wcs.models';
         </div>
       </div>
     </div>
+
+    @if (drawerOpen()) {
+      <div class="drawer-backdrop" (click)="closeDrawer()">
+        <div class="drawer-panel" (click)="$event.stopPropagation()">
+          <div class="drawer-header">
+            <h2 class="drawer-title">
+              {{ drawerMode() === 'create' ? 'Thêm Warehouse' : 'Cập nhật Warehouse' }}
+            </h2>
+            <button class="drawer-close" (click)="closeDrawer()">✕</button>
+          </div>
+          <form class="drawer-form" (ngSubmit)="submitDrawer()">
+            <div class="drawer-field">
+              <label>Mã kho (warehouseCode)</label>
+              <input
+                type="text"
+                required
+                [(ngModel)]="drawerForm.warehouseCode"
+                name="warehouseCode"
+                placeholder="VD: WH-HN-001"
+              />
+            </div>
+            <div class="drawer-field">
+              <label>Tên kho (warehouseName)</label>
+              <input
+                type="text"
+                required
+                [(ngModel)]="drawerForm.warehouseName"
+                name="warehouseName"
+                placeholder="VD: Kho Hà Nội"
+              />
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label>Owner Id</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  [(ngModel)]="drawerForm.ownerId"
+                  name="ownerId"
+                  placeholder="VD: 1"
+                />
+              </div>
+              <div class="drawer-field">
+                <label>Owner Group Id</label>
+                <input
+                  type="number"
+                  [(ngModel)]="drawerForm.ownerGroupId"
+                  name="ownerGroupId"
+                  placeholder="VD: 10"
+                />
+              </div>
+            </div>
+
+            <div class="drawer-actions">
+              <button type="button" class="btn btn-clear" (click)="closeDrawer()">
+                Hủy
+              </button>
+              <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+                {{ drawerMode() === 'create' ? 'Lưu' : 'Cập nhật' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
   `,
   styleUrl: './warehouse.component.css'
 })
@@ -244,6 +310,16 @@ export class WarehouseComponent {
   isLastPage = signal<boolean>(false);
   totalItems = signal<number>(0);
   totalPages = signal<number>(1);
+
+  drawerOpen = signal<boolean>(false);
+  drawerMode = signal<'create' | 'edit'>('create');
+  drawerForm: { warehouseCode: string; warehouseName: string; ownerId: number | null; ownerGroupId: number | null } = {
+    warehouseCode: '',
+    warehouseName: '',
+    ownerId: null,
+    ownerGroupId: null
+  };
+  private editingWarehouse: WarehouseDTO | null = null;
 
   filters = {
     name: '',
@@ -397,58 +473,97 @@ export class WarehouseComponent {
   }
 
   onUpdate(): void {
+    // Kept for backward compatibility if needed
+    this.openEditDrawer();
+  }
+
+  openCreateDrawer(): void {
+    this.drawerMode.set('create');
+    this.drawerForm = {
+      warehouseCode: '',
+      warehouseName: '',
+      ownerId: null,
+      ownerGroupId: null
+    };
+    this.editingWarehouse = null;
+    this.drawerOpen.set(true);
+  }
+
+  openEditDrawer(): void {
     const selected = this.selectedWarehouses();
     if (selected.length !== 1) return;
 
     const warehouse = this.allWarehouses().find((w) => this.rowKey(w) === selected[0]);
     if (!warehouse) return;
 
-    const newName = prompt('Nhập warehouseName mới:', warehouse.warehouseName);
-    if (!newName) return;
-
-    this.isLoading.set(true);
-    this.api
-      .updateWarehouse({ ...warehouse, warehouseName: newName })
-      .subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.reloadFromApi();
-          alert(`Đã gửi yêu cầu cập nhật kho "${warehouse.warehouseCode}" (check backend response).`);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
-        }
-      });
+    this.drawerMode.set('edit');
+    this.editingWarehouse = warehouse;
+    this.drawerForm = {
+      warehouseCode: warehouse.warehouseCode,
+      warehouseName: warehouse.warehouseName,
+      ownerId: warehouse.ownerId,
+      ownerGroupId: warehouse.ownerGroupId ?? null
+    };
+    this.drawerOpen.set(true);
   }
 
-  onAdd(): void {
-    const warehouseCode = prompt('Nhập warehouseCode:', 'WH-NEW-001');
-    if (!warehouseCode) return;
-    const warehouseName = prompt('Nhập warehouseName:', 'Kho mới');
-    if (!warehouseName) return;
-    const ownerIdStr = prompt('Nhập ownerId (number):', '1');
-    if (!ownerIdStr) return;
-    const ownerId = Number(ownerIdStr);
-    if (!Number.isFinite(ownerId)) {
-      alert('ownerId không hợp lệ');
+  openAddDrawer(): void {
+    this.openCreateDrawer();
+  }
+
+  closeDrawer(): void {
+    this.drawerOpen.set(false);
+    this.editingWarehouse = null;
+  }
+
+  submitDrawer(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const code = (this.drawerForm.warehouseCode || '').trim();
+    const name = (this.drawerForm.warehouseName || '').trim();
+    const ownerId = this.drawerForm.ownerId;
+
+    if (!code || !name || ownerId == null || !Number.isFinite(ownerId) || ownerId <= 0) {
+      alert('Vui lòng nhập đầy đủ và hợp lệ các trường bắt buộc');
       return;
     }
 
+    const payload: WarehouseDTO = {
+      warehouseCode: code,
+      warehouseName: name,
+      ownerId,
+      ownerGroupId: this.drawerForm.ownerGroupId ?? undefined
+    };
+
     this.isLoading.set(true);
-    this.api
-      .createWarehouse({ warehouseCode, warehouseName, ownerId })
-      .subscribe({
+
+    if (this.drawerMode() === 'create') {
+      this.api.createWarehouse(payload).subscribe({
         next: () => {
           this.isLoading.set(false);
+          this.closeDrawer();
           this.reloadFromApi();
-          alert('Đã gửi yêu cầu tạo kho (check backend response).');
         },
         error: (err) => {
           this.isLoading.set(false);
           this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
         }
       });
+    } else {
+      if (this.editingWarehouse?.warehouseId != null) {
+        payload.warehouseId = this.editingWarehouse.warehouseId;
+      }
+      this.api.updateWarehouse(payload).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.closeDrawer();
+          this.reloadFromApi();
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        }
+      });
+    }
   }
 
   rowKey(w: WarehouseDTO): string {
