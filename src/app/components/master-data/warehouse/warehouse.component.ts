@@ -1,21 +1,9 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import './warehouse.component.css';
-
-export interface Warehouse {
-  id: string;
-  name: string;
-  code: string;
-  address: string;
-  type: string;
-  status: 'active' | 'inactive' | 'maintenance';
-  capacity: number;
-  currentStock: number;
-  manager: string;
-  phone: string;
-  createdAt: string;
-}
+import { WcsWarehouseApi } from '../../../api/wcs-warehouse.api';
+import { WarehouseDTO } from '../../../api/wcs.models';
 
 @Component({
   selector: 'app-warehouse',
@@ -45,13 +33,33 @@ export interface Warehouse {
       <div class="filter-section">
         <div class="filter-row">
           <div class="filter-group">
-            <label class="filter-label">Tên kho</label>
+            <label class="filter-label">Từ khóa</label>
             <input
               type="text"
               class="filter-input"
-              placeholder="Nhập tên kho..."
-              [(ngModel)]="filters.name"
+              placeholder="Nhập keyword..."
+              [(ngModel)]="filters.keyword"
               (input)="applyFilters()"
+            />
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Mã kho (UI)</label>
+            <input
+              type="text"
+              class="filter-input"
+              placeholder="Lọc theo mã kho..."
+              [(ngModel)]="filters.code"
+              (input)="applyClientFilters()"
+            />
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Tên kho (UI)</label>
+            <input
+              type="text"
+              class="filter-input"
+              placeholder="Lọc nhanh theo tên kho..."
+              [(ngModel)]="filters.name"
+              (input)="applyClientFilters()"
             />
           </div>
           <div class="filter-group">
@@ -59,7 +67,9 @@ export interface Warehouse {
             <select
               class="filter-select"
               [(ngModel)]="filters.status"
-              (change)="applyFilters()"
+              (change)="applyClientFilters()"
+              disabled
+              title="Backend chưa cung cấp field/status cho Warehouse"
             >
               <option value="">Tất cả</option>
               <option value="active">Hoạt động</option>
@@ -72,7 +82,9 @@ export interface Warehouse {
             <select
               class="filter-select"
               [(ngModel)]="filters.type"
-              (change)="applyFilters()"
+              (change)="applyClientFilters()"
+              disabled
+              title="Backend chưa cung cấp field/type cho Warehouse"
             >
               <option value="">Tất cả</option>
               <option value="cold">Kho lạnh</option>
@@ -80,16 +92,6 @@ export interface Warehouse {
               <option value="hazardous">Kho nguy hiểm</option>
               <option value="general">Kho thường</option>
             </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Mã kho</label>
-            <input
-              type="text"
-              class="filter-input"
-              placeholder="Nhập mã kho..."
-              [(ngModel)]="filters.code"
-              (input)="applyFilters()"
-            />
           </div>
           <div class="filter-group">
             <button class="btn btn-clear" (click)="clearFilters()">
@@ -111,6 +113,17 @@ export interface Warehouse {
           </div>
         </div>
 
+        @if (isLoading()) {
+          <div class="notice notice--info">Đang tải danh sách warehouse...</div>
+        }
+        @if (errorMessage()) {
+          <div class="notice notice--error">
+            <div><strong>Không tải được dữ liệu .</strong></div>
+            <div class="notice__sub">{{ errorMessage() }}</div>
+            <div class="notice__sub"><a href="http://wcs.aubot.vn:5437/swagger/index.html" target="_blank" rel="noreferrer">Mở Swagger</a></div>
+          </div>
+        }
+
         <div class="table-wrapper">
           <table class="warehouse-table">
             <thead>
@@ -122,22 +135,17 @@ export interface Warehouse {
                     (change)="toggleSelectAll($event)"
                   />
                 </th>
+                <th>ID</th>
                 <th>Mã kho</th>
                 <th>Tên kho</th>
-                <th>Địa chỉ</th>
-                <th>Loại kho</th>
-                <th>Trạng thái</th>
-                <th>Sức chứa</th>
-                <th>Tồn hiện tại</th>
-                <th>Người quản lý</th>
-                <th>Số điện thoại</th>
-                <th>Ngày tạo</th>
+                <th>OwnerId</th>
+                <th>OwnerGroupId</th>
               </tr>
             </thead>
             <tbody>
               @if (filteredWarehouses().length === 0) {
                 <tr>
-                  <td colspan="11" class="empty-state">
+                  <td colspan="6" class="empty-state">
                     <div class="empty-message">
                       <span>📦</span>
                       <p>Không tìm thấy kho nào</p>
@@ -145,37 +153,20 @@ export interface Warehouse {
                   </td>
                 </tr>
               } @else {
-                @for (warehouse of filteredWarehouses(); track warehouse.id) {
-                  <tr [class.selected]="isSelected(warehouse.id)">
+                @for (warehouse of filteredWarehouses(); track rowKey(warehouse)) {
+                  <tr [class.selected]="isSelected(rowKey(warehouse))">
                     <td class="checkbox-col">
                       <input
                         type="checkbox"
-                        [checked]="isSelected(warehouse.id)"
-                        (change)="toggleSelect(warehouse.id)"
+                        [checked]="isSelected(rowKey(warehouse))"
+                        (change)="toggleSelect(rowKey(warehouse))"
                       />
                     </td>
-                    <td><strong>{{ warehouse.code }}</strong></td>
-                    <td>{{ warehouse.name }}</td>
-                    <td>{{ warehouse.address }}</td>
-                    <td>
-                      <span class="badge badge-type">{{ getTypeLabel(warehouse.type) }}</span>
-                    </td>
-                    <td>
-                      <span class="badge" [class.badge-active]="warehouse.status === 'active'"
-                            [class.badge-inactive]="warehouse.status === 'inactive'"
-                            [class.badge-maintenance]="warehouse.status === 'maintenance'">
-                        {{ getStatusLabel(warehouse.status) }}
-                      </span>
-                    </td>
-                    <td>{{ warehouse.capacity | number }} m²</td>
-                    <td>
-                      <span [class.text-warning]="warehouse.currentStock / warehouse.capacity > 0.8">
-                        {{ warehouse.currentStock | number }} m²
-                      </span>
-                    </td>
-                    <td>{{ warehouse.manager }}</td>
-                    <td>{{ warehouse.phone }}</td>
-                    <td>{{ formatDate(warehouse.createdAt) }}</td>
+                    <td><strong>{{ warehouse.warehouseId ?? '-' }}</strong></td>
+                    <td><strong>{{ warehouse.warehouseCode }}</strong></td>
+                    <td>{{ warehouse.warehouseName }}</td>
+                    <td>{{ warehouse.ownerId }}</td>
+                    <td>{{ warehouse.ownerGroupId ?? '-' }}</td>
                   </tr>
                 }
               }
@@ -188,120 +179,51 @@ export interface Warehouse {
   styleUrl: './warehouse.component.css'
 })
 export class WarehouseComponent {
-  // Mock data
-  private warehouses: Warehouse[] = [
-    {
-      id: '1',
-      name: 'Kho Hà Nội',
-      code: 'WH-HN-001',
-      address: '123 Đường ABC, Quận 1, Hà Nội',
-      type: 'general',
-      status: 'active',
-      capacity: 5000,
-      currentStock: 3200,
-      manager: 'Nguyễn Văn A',
-      phone: '0901234567',
-      createdAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      name: 'Kho Hồ Chí Minh',
-      code: 'WH-HCM-001',
-      address: '456 Đường XYZ, Quận 7, TP.HCM',
-      type: 'cold',
-      status: 'active',
-      capacity: 8000,
-      currentStock: 6500,
-      manager: 'Trần Thị B',
-      phone: '0907654321',
-      createdAt: '2024-02-20'
-    },
-    {
-      id: '3',
-      name: 'Kho Đà Nẵng',
-      code: 'WH-DN-001',
-      address: '789 Đường DEF, Quận Hải Châu, Đà Nẵng',
-      type: 'dry',
-      status: 'active',
-      capacity: 3000,
-      currentStock: 1500,
-      manager: 'Lê Văn C',
-      phone: '0912345678',
-      createdAt: '2024-03-10'
-    },
-    {
-      id: '4',
-      name: 'Kho Hải Phòng',
-      code: 'WH-HP-001',
-      address: '321 Đường GHI, Quận Ngô Quyền, Hải Phòng',
-      type: 'hazardous',
-      status: 'maintenance',
-      capacity: 2000,
-      currentStock: 0,
-      manager: 'Phạm Thị D',
-      phone: '0923456789',
-      createdAt: '2024-01-05'
-    },
-    {
-      id: '5',
-      name: 'Kho Cần Thơ',
-      code: 'WH-CT-001',
-      address: '654 Đường JKL, Quận Ninh Kiều, Cần Thơ',
-      type: 'general',
-      status: 'inactive',
-      capacity: 4000,
-      currentStock: 0,
-      manager: 'Hoàng Văn E',
-      phone: '0934567890',
-      createdAt: '2023-12-20'
-    },
-    {
-      id: '6',
-      name: 'Kho Bình Dương',
-      code: 'WH-BD-001',
-      address: '987 Đường MNO, Thủ Dầu Một, Bình Dương',
-      type: 'cold',
-      status: 'active',
-      capacity: 6000,
-      currentStock: 4800,
-      manager: 'Vũ Thị F',
-      phone: '0945678901',
-      createdAt: '2024-02-28'
-    }
-  ];
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly api = inject(WcsWarehouseApi);
 
-  allWarehouses = signal<Warehouse[]>(this.warehouses);
-  filteredWarehouses = signal<Warehouse[]>(this.warehouses);
+  allWarehouses = signal<WarehouseDTO[]>([]);
+  filteredWarehouses = signal<WarehouseDTO[]>([]);
   selectedWarehouses = signal<string[]>([]);
 
   filters = {
     name: '',
     code: '',
     status: '',
-    type: ''
+    type: '',
+    keyword: ''
   };
 
+  isLoading = signal<boolean>(false);
+  errorMessage = signal<string>('');
+
+  constructor() {
+    // SSR-safe: Only call backend from browser
+    if (isPlatformBrowser(this.platformId)) {
+      this.reloadFromApi();
+    }
+  }
+
   applyFilters(): void {
+
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.reloadFromApi();
+  }
+
+  applyClientFilters(): void {
+    // Client-side filters on the fetched list (for UI-only fields)
     let filtered = [...this.allWarehouses()];
 
     if (this.filters.name) {
-      filtered = filtered.filter(w =>
-        w.name.toLowerCase().includes(this.filters.name.toLowerCase())
+      filtered = filtered.filter((w) =>
+        (w.warehouseName || '').toLowerCase().includes(this.filters.name.toLowerCase())
       );
     }
 
     if (this.filters.code) {
-      filtered = filtered.filter(w =>
-        w.code.toLowerCase().includes(this.filters.code.toLowerCase())
+      filtered = filtered.filter((w) =>
+        (w.warehouseCode || '').toLowerCase().includes(this.filters.code.toLowerCase())
       );
-    }
-
-    if (this.filters.status) {
-      filtered = filtered.filter(w => w.status === this.filters.status);
-    }
-
-    if (this.filters.type) {
-      filtered = filtered.filter(w => w.type === this.filters.type);
     }
 
     this.filteredWarehouses.set(filtered);
@@ -312,9 +234,11 @@ export class WarehouseComponent {
       name: '',
       code: '',
       status: '',
-      type: ''
+      type: '',
+      keyword: ''
     };
-    this.filteredWarehouses.set([...this.allWarehouses()]);
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.reloadFromApi();
   }
 
   toggleSelect(id: string): void {
@@ -329,7 +253,7 @@ export class WarehouseComponent {
   toggleSelectAll(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      this.selectedWarehouses.set(this.filteredWarehouses().map(w => w.id));
+      this.selectedWarehouses.set(this.filteredWarehouses().map((w) => this.rowKey(w)));
     } else {
       this.selectedWarehouses.set([]);
     }
@@ -341,11 +265,7 @@ export class WarehouseComponent {
 
   isAllSelected(): boolean {
     const filtered = this.filteredWarehouses();
-    return filtered.length > 0 && filtered.every(w => this.isSelected(w.id));
-  }
-
-  onAdd(): void {
-    alert('Them kho coi như ok');
+    return filtered.length > 0 && filtered.every((w) => this.isSelected(this.rowKey(w)));
   }
 
   onDelete(): void {
@@ -353,11 +273,34 @@ export class WarehouseComponent {
     if (selected.length === 0) return;
 
     if (confirm(`Bạn có chắc chắn muốn xóa ${selected.length} kho đã chọn?`)) {
-      const remaining = this.allWarehouses().filter(w => !selected.includes(w.id));
-      this.allWarehouses.set(remaining);
-      this.applyFilters();
-      this.selectedWarehouses.set([]);
-      alert(`Đã xóa ${selected.length} kho`);
+      const ids = selected
+        .map((k) => Number(k))
+        .filter((n) => Number.isFinite(n)) as number[];
+
+      if (ids.length === 0) {
+        alert('Không xác định được warehouseId để xóa (API yêu cầu id dạng số).');
+        return;
+      }
+
+      // Fire sequential deletes (simple for now)
+      this.isLoading.set(true);
+      let done = 0;
+      ids.forEach((id) => {
+        this.api.deleteWarehouse(id).subscribe({
+          next: () => {
+            done++;
+            if (done === ids.length) {
+              this.isLoading.set(false);
+              this.reloadFromApi();
+              alert(`Đã gửi yêu cầu xóa ${ids.length} kho (check backend response).`);
+            }
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+          }
+        });
+      });
     }
   }
 
@@ -365,31 +308,84 @@ export class WarehouseComponent {
     const selected = this.selectedWarehouses();
     if (selected.length !== 1) return;
 
-    const warehouse = this.allWarehouses().find(w => w.id === selected[0]);
-    alert(`cập nhật kho "${warehouse?.name}" coi như ok`);
+    const warehouse = this.allWarehouses().find((w) => this.rowKey(w) === selected[0]);
+    if (!warehouse) return;
+
+    const newName = prompt('Nhập warehouseName mới:', warehouse.warehouseName);
+    if (!newName) return;
+
+    this.isLoading.set(true);
+    this.api
+      .updateWarehouse({ ...warehouse, warehouseName: newName })
+      .subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.reloadFromApi();
+          alert(`Đã gửi yêu cầu cập nhật kho "${warehouse.warehouseCode}" (check backend response).`);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        }
+      });
   }
 
-  getStatusLabel(status: string): string {
-    const labels: { [key: string]: string } = {
-      'active': 'Hoạt động',
-      'inactive': 'Ngừng hoạt động',
-      'maintenance': 'Bảo trì'
-    };
-    return labels[status] || status;
+  onAdd(): void {
+    const warehouseCode = prompt('Nhập warehouseCode:', 'WH-NEW-001');
+    if (!warehouseCode) return;
+    const warehouseName = prompt('Nhập warehouseName:', 'Kho mới');
+    if (!warehouseName) return;
+    const ownerIdStr = prompt('Nhập ownerId (number):', '1');
+    if (!ownerIdStr) return;
+    const ownerId = Number(ownerIdStr);
+    if (!Number.isFinite(ownerId)) {
+      alert('ownerId không hợp lệ');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.api
+      .createWarehouse({ warehouseCode, warehouseName, ownerId })
+      .subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.reloadFromApi();
+          alert('Đã gửi yêu cầu tạo kho (check backend response).');
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        }
+      });
   }
 
-  getTypeLabel(type: string): string {
-    const labels: { [key: string]: string } = {
-      'cold': 'Kho lạnh',
-      'dry': 'Kho khô',
-      'hazardous': 'Kho nguy hiểm',
-      'general': 'Kho thường'
-    };
-    return labels[type] || type;
+  rowKey(w: WarehouseDTO): string {
+    return w.warehouseId != null ? String(w.warehouseId) : w.warehouseCode;
   }
 
-  formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('vi-VN');
+  private reloadFromApi(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    this.api.getWarehouseList({ keyword: (this.filters.keyword || '').trim(), page: 1, pageSize: 100 }).subscribe({
+      next: (rows) => {
+        this.allWarehouses.set(rows ?? []);
+        this.applyClientFilters();
+        this.selectedWarehouses.set([]);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        const msg =
+          (err?.error && typeof err.error === 'string' ? err.error : '') ||
+          err?.message ||
+          `HTTP ${err?.status ?? ''} ${err?.statusText ?? ''}`.trim();
+        this.errorMessage.set(msg || 'Unknown error');
+        this.allWarehouses.set([]);
+        this.filteredWarehouses.set([]);
+        this.selectedWarehouses.set([]);
+      }
+    });
   }
 }
 

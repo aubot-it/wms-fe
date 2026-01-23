@@ -259,6 +259,32 @@
   font-size: 1rem;
 }
 
+.notice {
+  margin: 0.75rem 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid;
+  font-size: 0.9rem;
+}
+
+.notice__sub {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.notice--info {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1e3a8a;
+}
+
+.notice--error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
 @media (max-width: 768px) {
   .warehouse-header {
     flex-direction: column;
