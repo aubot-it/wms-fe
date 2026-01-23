@@ -1,0 +1,13 @@
+{
+  "/wcs": {
+    "target": "http://wcs.aubot.vn:5437",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/wcs": ""
+    }
+  }
+}
+
+
