@@ -19,4 +19,9 @@ export type ListResponse<T> =
       [k: string]: unknown;
     };
 
+export interface PagedResult<T> {
+  items: T[];
+  total?: number;
+}
+
 

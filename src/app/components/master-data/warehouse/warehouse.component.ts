@@ -105,11 +105,26 @@ import { WarehouseDTO } from '../../../api/wcs.models';
       <!-- Table Section -->
       <div class="table-section">
         <div class="table-header">
-          <div class="table-info">
-            <span>Tổng số: <strong>{{ filteredWarehouses().length }}</strong></span>
-            @if (selectedWarehouses().length > 0) {
-              <span class="selected-info">Đã chọn: <strong>{{ selectedWarehouses().length }}</strong></span>
-            }
+          <div class="table-header-top">
+            <div class="table-page-size">
+              <span class="page-size-text">Show</span>
+              <select
+                class="page-size-select"
+                [ngModel]="pageSize()"
+                (ngModelChange)="onPageSizeChange($event)"
+              >
+                <option [ngValue]="10">10</option>
+                <option [ngValue]="20">20</option>
+                <option [ngValue]="50">50</option>
+              </select>
+              <span class="page-size-text">per page</span>
+            </div>
+            <div class="table-info">
+              <span>Tổng số: <strong>{{ totalItems() }}</strong></span>
+              @if (selectedWarehouses().length > 0) {
+                <span class="selected-info">Đã chọn: <strong>{{ selectedWarehouses().length }}</strong></span>
+              }
+            </div>
           </div>
         </div>
 
@@ -173,6 +188,45 @@ import { WarehouseDTO } from '../../../api/wcs.models';
             </tbody>
           </table>
         </div>
+
+        <div class="table-footer">
+          <div class="footer-info">
+            <span>
+              Showing from
+              <strong>{{ fromIndex() }}</strong>
+              to
+              <strong>{{ toIndex() }}</strong>
+              total
+              <strong>{{ totalItems() }}</strong>
+            </span>
+          </div>
+          <div class="footer-pages">
+            <button
+              class="page-btn"
+              (click)="prevPage()"
+              [disabled]="page() === 1 || isLoading()"
+            >
+              ‹
+            </button>
+            @for (p of pages(); track p) {
+              <button
+                class="page-number"
+                [class.page-number--active]="p === page()"
+                (click)="goToPage(p)"
+                [disabled]="isLoading()"
+              >
+                {{ p }}
+              </button>
+            }
+            <button
+              class="page-btn"
+              (click)="nextPage()"
+              [disabled]="isLastPage() || isLoading()"
+            >
+              ›
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -185,6 +239,11 @@ export class WarehouseComponent {
   allWarehouses = signal<WarehouseDTO[]>([]);
   filteredWarehouses = signal<WarehouseDTO[]>([]);
   selectedWarehouses = signal<string[]>([]);
+  page = signal<number>(1);
+  pageSize = signal<number>(20);
+  isLastPage = signal<boolean>(false);
+  totalItems = signal<number>(0);
+  totalPages = signal<number>(1);
 
   filters = {
     name: '',
@@ -205,8 +264,8 @@ export class WarehouseComponent {
   }
 
   applyFilters(): void {
-
     if (!isPlatformBrowser(this.platformId)) return;
+    this.page.set(1);
     this.reloadFromApi();
   }
 
@@ -238,6 +297,7 @@ export class WarehouseComponent {
       keyword: ''
     };
     if (!isPlatformBrowser(this.platformId)) return;
+    this.page.set(1);
     this.reloadFromApi();
   }
 
@@ -266,6 +326,38 @@ export class WarehouseComponent {
   isAllSelected(): boolean {
     const filtered = this.filteredWarehouses();
     return filtered.length > 0 && filtered.every((w) => this.isSelected(this.rowKey(w)));
+  }
+
+  prevPage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.page() === 1 || this.isLoading()) return;
+    this.page.update((p) => Math.max(1, p - 1));
+    this.reloadFromApi();
+  }
+
+  nextPage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.isLastPage() || this.isLoading()) return;
+    this.page.update((p) => p + 1);
+    this.reloadFromApi();
+  }
+
+  onPageSizeChange(size: number | string): void {
+    const v = Number(size);
+    if (!Number.isFinite(v) || v <= 0) {
+      return;
+    }
+    this.pageSize.set(v);
+    this.page.set(1);
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.reloadFromApi();
+  }
+
+  goToPage(p: number): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (p === this.page() || p < 1 || p > this.totalPages()) return;
+    this.page.set(p);
+    this.reloadFromApi();
   }
 
   onDelete(): void {
@@ -363,29 +455,60 @@ export class WarehouseComponent {
     return w.warehouseId != null ? String(w.warehouseId) : w.warehouseCode;
   }
 
+  fromIndex(): number {
+    if (this.totalItems() === 0) return 0;
+    return (this.page() - 1) * this.pageSize() + 1;
+  }
+
+  toIndex(): number {
+    if (this.totalItems() === 0) return 0;
+    return Math.min(this.totalItems(), (this.page() - 1) * this.pageSize() + this.filteredWarehouses().length);
+  }
+
+  pages(): number[] {
+    const total = this.totalPages();
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
   private reloadFromApi(): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.api.getWarehouseList({ keyword: (this.filters.keyword || '').trim(), page: 1, pageSize: 100 }).subscribe({
-      next: (rows) => {
-        this.allWarehouses.set(rows ?? []);
-        this.applyClientFilters();
-        this.selectedWarehouses.set([]);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        const msg =
-          (err?.error && typeof err.error === 'string' ? err.error : '') ||
-          err?.message ||
-          `HTTP ${err?.status ?? ''} ${err?.statusText ?? ''}`.trim();
-        this.errorMessage.set(msg || 'Unknown error');
-        this.allWarehouses.set([]);
-        this.filteredWarehouses.set([]);
-        this.selectedWarehouses.set([]);
-      }
-    });
+    this.api
+      .getWarehouseList({
+        keyword: (this.filters.keyword || '').trim(),
+        page: this.page(),
+        pageSize: this.pageSize()
+      })
+      .subscribe({
+        next: (result) => {
+          const list = result.items ?? [];
+          const total = result.total ?? list.length;
+
+          this.allWarehouses.set(list);
+          this.applyClientFilters();
+          this.selectedWarehouses.set([]);
+          this.totalItems.set(total);
+          const totalPages = Math.max(1, Math.ceil(total / this.pageSize()));
+          this.totalPages.set(totalPages);
+          this.isLastPage.set(this.page() >= totalPages || list.length < this.pageSize());
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          const msg =
+            (err?.error && typeof err.error === 'string' ? err.error : '') ||
+            err?.message ||
+            `HTTP ${err?.status ?? ''} ${err?.statusText ?? ''}`.trim();
+          this.errorMessage.set(msg || 'Unknown error');
+          this.allWarehouses.set([]);
+          this.filteredWarehouses.set([]);
+          this.selectedWarehouses.set([]);
+          this.totalItems.set(0);
+          this.totalPages.set(1);
+          this.isLastPage.set(true);
+        }
+      });
   }
 }
 

@@ -143,16 +143,118 @@
   background: #f8fafc;
 }
 
+.table-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .table-info {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   font-size: 0.875rem;
   color: #64748b;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.table-page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.page-size-text {
+  white-space: nowrap;
 }
 
 .selected-info {
   color: #667eea;
   font-weight: 500;
+}
+
+.table-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-label {
+  min-width: 60px;
+  text-align: center;
+}
+
+.page-size-label {
+  margin-left: 0.25rem;
+}
+
+.page-size-select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid #cbd5e1;
+  font-size: 0.8rem;
+}
+
+.table-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.footer-pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.page-number {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.page-number--active {
+  background: #6366f1;
+  border-color: #4f46e5;
+  color: white;
+  font-weight: 600;
 }
 
 .table-wrapper {
@@ -310,6 +412,11 @@
 
   .warehouse-table {
     min-width: 1200px;
+  }
+
+  .table-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { ListResponse, WarehouseDTO } from './wcs.models';
+import { ListResponse, PagedResult, WarehouseDTO } from './wcs.models';
 
 @Injectable({ providedIn: 'root' })
 export class WcsWarehouseApi {
@@ -14,7 +14,7 @@ export class WcsWarehouseApi {
 
   constructor(private http: HttpClient) {}
 
-  getWarehouseList(opts?: { keyword?: string; page?: number; pageSize?: number }): Observable<WarehouseDTO[]> {
+  getWarehouseList(opts?: { keyword?: string; page?: number; pageSize?: number }): Observable<PagedResult<WarehouseDTO>> {
     let params = new HttpParams();
     if (opts?.keyword) params = params.set('keyword', opts.keyword);
     if (opts?.page) params = params.set('page', String(opts.page));
@@ -38,9 +38,13 @@ export class WcsWarehouseApi {
     return this.http.delete(`${this.baseUrl}/Warehouse/DeleteWarehouse`, { params });
   }
 
-  private unwrapList<T>(res: ListResponse<T>): T[] {
-    if (Array.isArray(res)) return res;
-    return res.items ?? res.data ?? res.result ?? [];
+  private unwrapList<T>(res: ListResponse<T>): PagedResult<T> {
+    if (Array.isArray(res)) {
+      return { items: res, total: res.length };
+    }
+    const items = res.items ?? res.data ?? res.result ?? [];
+    const total = res.total ?? res.totalCount ?? items.length;
+    return { items, total };
   }
 }
 
