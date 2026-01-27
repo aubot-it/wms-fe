@@ -98,7 +98,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  align-items: start;
+  /* Align items so controls sit on the same baseline */
+  align-items: end;
 }
 
 .filter-group {
@@ -110,7 +111,8 @@
 
 .filter-group.button-group {
   justify-content: flex-end;
-  padding-top: calc(0.875rem + 0.5rem);
+  /* Match the label height + group gap so the button aligns with controls */
+  padding-top: calc(20px + 0.5rem);
 }
 
 .filter-label {
@@ -118,6 +120,12 @@
   font-weight: 500;
   color: #475569;
   margin-bottom: 0;
+  /* Make labels visually centered/balanced above controls */
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .filter-input,
@@ -489,7 +497,9 @@
   color: #475569 !important;
   border: 1px solid #cbd5e1 !important;
   border-radius: 0.5rem !important;
-  padding: 0.625rem 1.25rem !important;
+  /* Match filter control height */
+  height: 40px !important;
+  padding: 0 1.25rem !important;
   font-family: inherit !important;
   font-size: 0.875rem !important;
   font-weight: 500 !important;
@@ -533,10 +543,13 @@
   background: white !important;
   border: 1px solid #cbd5e1 !important;
   border-radius: 0.25rem !important;
-  padding: 0.5rem 0.5rem !important;
-  min-height: auto !important;
-  height: auto !important;
+  /* Make filter controls same size as the clear button */
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 0.5rem !important;
   margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 /* Remove any top margin/padding that Material adds for label */
@@ -557,6 +570,7 @@
   align-items: center !important;
   min-height: auto !important;
   padding: 0 !important;
+  height: 100% !important;
 }
 
 /* Remove any notch or label space */
@@ -584,8 +598,10 @@
   font-family: inherit !important;
   font-size: 0.875rem !important;
   line-height: 1.5 !important;
-  padding: 0 !important;
-  height: auto !important;
+  padding: 0.25rem !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 ::ng-deep .filter-section .mat-mdc-select-arrow-wrapper {
@@ -613,8 +629,23 @@
 }
 
 ::ng-deep .filter-section .mat-mdc-form-field .mdc-text-field__input {
-  padding: 0 !important;
+
+  padding: 0.5rem !important;
+  box-sizing: border-box !important;
   height: auto !important;
+}
+
+/* Mat-select: padding for the inner displayed value (MDC) */
+::ng-deep .filter-section .mat-mdc-form-field .mat-mdc-select-trigger {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  box-sizing: border-box !important;
+}
+
+::ng-deep .filter-section .mat-mdc-form-field .mat-mdc-select-value-text {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  box-sizing: border-box !important;
 }
 
 /* Force remove all label-related spacing */
@@ -957,10 +988,10 @@
   display: none !important;
 }
 
-/* Style wrapper */
+/* Style wrapper (DARK theme) */
 ::ng-deep .drawer-panel .mat-mdc-text-field-wrapper {
-  background: white !important;
-  border: 1px solid #cbd5e1 !important;
+  background: #020617 !important;
+  border: 1px solid #1f2937 !important;
   border-radius: 0.25rem !important;
   padding: 0.5rem 0.5rem !important;
   min-height: auto !important;
@@ -996,17 +1027,17 @@
 }
 
 ::ng-deep .drawer-panel .mat-mdc-form-field:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper:hover {
-  border-color: #94a3b8 !important;
+  border-color: #374151 !important;
 }
 
 ::ng-deep .drawer-panel .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4) !important;
 }
 
 ::ng-deep .drawer-panel .mat-mdc-form-field input {
-  color: #0f172a !important;
-  background: white !important;
+  color: #e5e7eb !important;
+  background: transparent !important;
   font-family: inherit !important;
   font-size: 0.875rem !important;
   line-height: 1.5 !important;
@@ -1014,9 +1045,9 @@
 }
 
 ::ng-deep .drawer-panel .mat-mdc-form-field .mat-mdc-form-field-input-control input {
-  color: #0f172a !important;
+  color: #e5e7eb !important;
   background: transparent !important;
-  -webkit-text-fill-color: #0f172a !important;
+  -webkit-text-fill-color: #e5e7eb !important;
 }
 
 ::ng-deep .drawer-panel .mat-mdc-form-field-subscript-wrapper {
@@ -1024,12 +1055,12 @@
 }
 
 ::ng-deep .drawer-panel button[mat-icon-button].drawer-close {
-  color: #64748b !important;
+  color: #9ca3af !important;
 }
 
 ::ng-deep .drawer-panel button[mat-icon-button].drawer-close:hover {
-  color: #0f172a !important;
-  background: #f1f5f9 !important;
+  color: #e5e7eb !important;
+  background: rgba(255, 255, 255, 0.05) !important;
 }
 
 ::ng-deep .drawer-panel button[mat-raised-button].btn-primary {
@@ -1042,9 +1073,9 @@
 }
 
 ::ng-deep .drawer-panel button[mat-stroked-button].btn-clear {
-  background: #f1f5f9 !important;
-  color: #475569 !important;
-  border: 1px solid #cbd5e1 !important;
+  background: transparent !important;
+  color: #9ca3af !important;
+  border: 1px solid #374151 !important;
   font-family: inherit !important;
   font-size: 0.875rem !important;
   font-weight: 500 !important;
@@ -1052,9 +1083,9 @@
 }
 
 ::ng-deep .drawer-panel button[mat-stroked-button].btn-clear:hover {
-  background: #e2e8f0 !important;
-  border-color: #94a3b8 !important;
-  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: #4b5563 !important;
+  color: #e5e7eb !important;
 }
 
 /* Empty State Icon */
@@ -1077,8 +1108,8 @@
 
 .drawer-panel {
   width: min(420px, 100%);
-  background: white;
-  color: #0f172a;
+  background: #0b1120;
+  color: #e5e7eb;
   box-shadow: -12px 0 30px rgba(15, 23, 42, 0.6);
   display: flex;
   flex-direction: column;
@@ -1096,20 +1127,20 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: #e5e7eb;
 }
 
 .drawer-close {
   border: none;
   background: transparent;
-  color: #64748b;
+  color: #9ca3af;
   cursor: pointer;
   font-size: 1.1rem;
 }
 
 .drawer-close:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .drawer-form {
@@ -1127,7 +1158,7 @@
 .drawer-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: #cbd5f5;
   margin-bottom: 0;
 }
 
