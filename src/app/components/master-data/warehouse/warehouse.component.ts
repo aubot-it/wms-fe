@@ -524,8 +524,8 @@ export class WarehouseComponent {
     this.drawerForm = {
       warehouseCode: warehouse.warehouseCode,
       warehouseName: warehouse.warehouseName,
-      ownerId: String(warehouse.ownerId),
-      ownerGroupId: warehouse.ownerGroupId != null ? String(warehouse.ownerGroupId) : ''
+      ownerId: warehouse.ownerId,
+      ownerGroupId: warehouse.ownerGroupId || ''
     };
     this.drawerOpen.set(true);
   }
@@ -543,18 +543,11 @@ export class WarehouseComponent {
     if (!isPlatformBrowser(this.platformId)) return;
     const code = (this.drawerForm.warehouseCode || '').trim();
     const name = (this.drawerForm.warehouseName || '').trim();
-    const ownerIdStr = (this.drawerForm.ownerId || '').trim();
-    const ownerGroupIdStr = (this.drawerForm.ownerGroupId || '').trim();
+    const ownerId = (this.drawerForm.ownerId || '').trim();
+    const ownerGroupId = (this.drawerForm.ownerGroupId || '').trim();
 
-    const ownerId = Number(ownerIdStr);
-    if (!code || !name || !ownerIdStr || !Number.isFinite(ownerId) || ownerId <= 0) {
-      alert('Vui lòng nhập đầy đủ và hợp lệ các trường bắt buộc (Chủ sở hữu phải là số > 0)');
-      return;
-    }
-
-    const ownerGroupId = ownerGroupIdStr ? Number(ownerGroupIdStr) : undefined;
-    if (ownerGroupIdStr && ownerGroupId !== undefined && (!Number.isFinite(ownerGroupId) || ownerGroupId < 0)) {
-      alert('Group phải là số hợp lệ (>= 0)');
+    if (!code || !name || !ownerId) {
+      alert('Vui lòng nhập đầy đủ các trường bắt buộc');
       return;
     }
 
@@ -562,7 +555,7 @@ export class WarehouseComponent {
       warehouseCode: code,
       warehouseName: name,
       ownerId,
-      ownerGroupId
+      ownerGroupId: ownerGroupId || undefined
     };
 
     this.isLoading.set(true);

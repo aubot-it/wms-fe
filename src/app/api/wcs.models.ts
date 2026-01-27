@@ -2,8 +2,8 @@ export interface WarehouseDTO {
   warehouseId?: number;
   warehouseCode: string;
   warehouseName: string;
-  ownerId: number;
-  ownerGroupId?: number;
+  ownerId: string;
+  ownerGroupId?: string;
 }
 
 export type ListResponse<T> =
