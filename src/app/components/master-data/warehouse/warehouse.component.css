@@ -300,8 +300,15 @@
   background: #f8fafc;
 }
 
-.warehouse-table tbody tr.selected {
-  background: #eff6ff;
+.warehouse-table tbody tr.selected,
+.warehouse-table tbody tr.selected-row {
+  background: #dbeafe;
+  border-left: 4px solid #3b82f6;
+}
+
+.warehouse-table tbody tr.selected:hover,
+.warehouse-table tbody tr.selected-row:hover {
+  background: #bfdbfe;
 }
 
 .checkbox-col {
@@ -660,13 +667,44 @@
   background: #f8fafc !important;
 }
 
-::ng-deep .warehouse-table .mat-row.selected-row {
+/* Selected row highlight - increased specificity */
+::ng-deep .warehouse-table .mat-row.selected-row,
+::ng-deep .warehouse-table tr.mat-row.selected-row,
+::ng-deep .warehouse-table .mat-row.selected,
+::ng-deep .warehouse-table tr.mat-row.selected {
   background: #dbeafe !important;
-  border-left: 3px solid #3b82f6 !important;
+  background-color: #dbeafe !important;
+  border-left: 4px solid #3b82f6 !important;
 }
 
-::ng-deep .warehouse-table .mat-row.selected-row:hover {
+::ng-deep .warehouse-table .mat-row.selected-row:hover,
+::ng-deep .warehouse-table tr.mat-row.selected-row:hover,
+::ng-deep .warehouse-table .mat-row.selected:hover,
+::ng-deep .warehouse-table tr.mat-row.selected:hover {
   background: #bfdbfe !important;
+  background-color: #bfdbfe !important;
+  border-left-color: #2563eb !important;
+}
+
+/* Highlight cells in selected rows */
+::ng-deep .warehouse-table .mat-row.selected-row .mat-mdc-cell,
+::ng-deep .warehouse-table tr.mat-row.selected-row .mat-mdc-cell {
+  background: transparent !important;
+}
+
+/* Ensure selected row is more visible */
+::ng-deep .warehouse-table .mat-row.selected-row td,
+::ng-deep .warehouse-table tr.mat-row.selected-row td {
+  background: transparent !important;
+}
+
+/* Override Material's default row styling for selected rows */
+::ng-deep .warehouse-table tr.mat-row.selected-row.mat-row {
+  background-color: #dbeafe !important;
+}
+
+::ng-deep .warehouse-table tr.mat-row.selected-row.mat-row:hover {
+  background-color: #bfdbfe !important;
 }
 
 /* Override Material Checkbox */

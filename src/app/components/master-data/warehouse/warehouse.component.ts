@@ -207,7 +207,13 @@ import { WarehouseDTO } from '../../../api/wcs.models';
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns" [class.selected-row]="isSelected(rowKey(row))"></tr>
+            <tr 
+              mat-row 
+              *matRowDef="let row; columns: displayedColumns" 
+              [class.selected-row]="isSelected(rowKey(row))"
+              [style.background-color]="isSelected(rowKey(row)) ? '#dbeafe' : ''"
+              [style.border-left]="isSelected(rowKey(row)) ? '4px solid #3b82f6' : ''"
+            ></tr>
             <tr mat-footer-row *matFooterRowDef="['noData']" [hidden]="filteredWarehouses().length > 0"></tr>
           </table>
         </div>
