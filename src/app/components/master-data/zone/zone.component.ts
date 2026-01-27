@@ -1,5 +1,5 @@
-import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,9 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import './zone.component.css';
-import { WcsZoneApi } from '../../../api/wcs-zone.api';
-import { WcsWarehouseApi } from '../../../api/wcs-warehouse.api';
-import { TemperatureControlType, WarehouseDTO, ZoneDTO, ZoneUsage } from '../../../api/wcs.models';
+import { ZoneStore } from './zone.store';
 
 @Component({
   selector: 'app-zone',
@@ -27,6 +25,7 @@ import { TemperatureControlType, WarehouseDTO, ZoneDTO, ZoneUsage } from '../../
     MatSelectModule,
     MatIconModule
   ],
+  providers: [ZoneStore],
   template: `
     <div class="zone-container">
       <div class="zone-header">
@@ -388,408 +387,125 @@ import { TemperatureControlType, WarehouseDTO, ZoneDTO, ZoneUsage } from '../../
   styleUrl: './zone.component.css'
 })
 export class ZoneComponent {
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly api = inject(WcsZoneApi);
-  private readonly warehouseApi = inject(WcsWarehouseApi);
+  private readonly store = inject(ZoneStore);
 
-  temperatureTypes: TemperatureControlType[] = ['NORMAL', 'COLD', 'FROZEN'];
-  zoneUsages: ZoneUsage[] = ['INBOUND', 'OUTBOUND', 'BOTH'];
+  temperatureTypes = this.store.temperatureTypes;
+  zoneUsages = this.store.zoneUsages;
 
-  warehouses = signal<WarehouseDTO[]>([]);
+  warehouses = this.store.warehouses;
 
-  allZones = signal<ZoneDTO[]>([]);
-  filteredZones = signal<ZoneDTO[]>([]);
-  selectedZones = signal<string[]>([]);
-  page = signal<number>(1);
-  pageSize = signal<number>(20);
-  isLastPage = signal<boolean>(false);
-  totalItems = signal<number>(0);
-  totalPages = signal<number>(1);
+  allZones = this.store.allZones;
+  filteredZones = this.store.filteredZones;
+  selectedZones = this.store.selectedZones;
+  page = this.store.page;
+  pageSize = this.store.pageSize;
+  isLastPage = this.store.isLastPage;
+  totalItems = this.store.totalItems;
+  totalPages = this.store.totalPages;
 
-  drawerOpen = signal<boolean>(false);
-  drawerMode = signal<'create' | 'edit'>('create');
-  drawerForm: {
-    warehouseId: number | null;
-    zoneCode: string;
-    zoneName: string;
-    temperatureControlType: TemperatureControlType;
-    zoneUsage: ZoneUsage;
-    zoneType: string;
-    abcCategory: string;
-    mixingStrategy: string;
-    operationMode: string;
-    isExternal: boolean;
-    isActive: boolean;
-  } = {
-    warehouseId: null,
-    zoneCode: '',
-    zoneName: '',
-    temperatureControlType: 'NORMAL',
-    zoneUsage: 'BOTH',
-    zoneType: '',
-    abcCategory: '',
-    mixingStrategy: '',
-    operationMode: '',
-    isExternal: false,
-    isActive: true
-  };
-  private editingZone: ZoneDTO | null = null;
-
-  displayedColumns: string[] = [
-    'select',
-    'zoneID',
-    'zoneCode',
-    'zoneName',
-    'warehouse',
-    'temperatureControlType',
-    'zoneUsage',
-    'isActive'
-  ];
-
-  filters: {
-    keyword: string;
-    warehouseId: number | null;
-    temperatureControlType: '' | TemperatureControlType;
-    zoneUsage: '' | ZoneUsage;
-    code: string;
-    name: string;
-  } = {
-    keyword: '',
-    warehouseId: null,
-    temperatureControlType: '',
-    zoneUsage: '',
-    code: '',
-    name: ''
-  };
-
-  isLoading = signal<boolean>(false);
-  errorMessage = signal<string>('');
-
-  constructor() {
-    // SSR-safe: only call backend from browser
-    if (isPlatformBrowser(this.platformId)) {
-      this.reloadWarehouses();
-      this.reloadFromApi();
-    }
+  drawerOpen = this.store.drawerOpen;
+  drawerMode = this.store.drawerMode;
+  get drawerForm() {
+    return this.store.drawerForm;
+  }
+  set drawerForm(v: any) {
+    this.store.drawerForm = v;
   }
 
+  displayedColumns: string[] = this.store.displayedColumns;
+
+  get filters() {
+    return this.store.filters;
+  }
+  set filters(v: any) {
+    this.store.filters = v;
+  }
+
+  isLoading = this.store.isLoading;
+  errorMessage = this.store.errorMessage;
+
   applyFilters(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.page.set(1);
-    this.reloadFromApi();
+    this.store.applyFilters();
   }
 
   applyClientFilters(): void {
-    let filtered = [...this.allZones()];
-
-    if (this.filters.code) {
-      filtered = filtered.filter((z) => (z.zoneCode || '').toLowerCase().includes(this.filters.code.toLowerCase()));
-    }
-    if (this.filters.name) {
-      filtered = filtered.filter((z) => (z.zoneName || '').toLowerCase().includes(this.filters.name.toLowerCase()));
-    }
-
-    this.filteredZones.set(filtered);
+    this.store.applyClientFilters();
   }
 
   clearFilters(): void {
-    this.filters = {
-      keyword: '',
-      warehouseId: null,
-      temperatureControlType: '',
-      zoneUsage: '',
-      code: '',
-      name: ''
-    };
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.page.set(1);
-    this.reloadFromApi();
+    this.store.clearFilters();
   }
 
   toggleSelect(id: string): void {
-    const selected = this.selectedZones();
-    if (selected.includes(id)) {
-      this.selectedZones.set(selected.filter((s) => s !== id));
-    } else {
-      this.selectedZones.set([...selected, id]);
-    }
+    this.store.toggleSelect(id);
   }
 
-  toggleSelectAll(event: { checked: boolean }): void {
-    const checked = event.checked;
-    if (checked) {
-      this.selectedZones.set(this.filteredZones().map((z) => this.rowKey(z)));
-    } else {
-      this.selectedZones.set([]);
-    }
+  toggleSelectAll(event: any): void {
+    this.store.toggleSelectAll(event);
   }
 
   isSomeSelected(): boolean {
-    const filtered = this.filteredZones();
-    const selectedCount = filtered.filter((z) => this.isSelected(this.rowKey(z))).length;
-    return selectedCount > 0 && selectedCount < filtered.length;
+    return this.store.isSomeSelected();
   }
 
   isSelected(id: string): boolean {
-    return this.selectedZones().includes(id);
+    return this.store.isSelected(id);
   }
 
   isAllSelected(): boolean {
-    const filtered = this.filteredZones();
-    return filtered.length > 0 && filtered.every((z) => this.isSelected(this.rowKey(z)));
+    return this.store.isAllSelected();
   }
 
   prevPage(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    if (this.page() === 1 || this.isLoading()) return;
-    this.page.update((p) => Math.max(1, p - 1));
-    this.reloadFromApi();
+    this.store.prevPage();
   }
 
   nextPage(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    if (this.isLastPage() || this.isLoading()) return;
-    this.page.update((p) => p + 1);
-    this.reloadFromApi();
+    this.store.nextPage();
   }
 
   onPageSizeChange(size: number | string): void {
-    const v = Number(size);
-    if (!Number.isFinite(v) || v <= 0) return;
-    this.pageSize.set(v);
-    this.page.set(1);
-    if (!isPlatformBrowser(this.platformId)) return;
-    this.reloadFromApi();
+    this.store.onPageSizeChange(size);
   }
 
   goToPage(p: number): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    if (p === this.page() || p < 1 || p > this.totalPages()) return;
-    this.page.set(p);
-    this.reloadFromApi();
+    this.store.goToPage(p);
   }
 
   onDelete(): void {
-    const selected = this.selectedZones();
-    if (selected.length === 0) return;
-
-    if (confirm(`Bạn có chắc chắn muốn xóa ${selected.length} zone đã chọn?`)) {
-      const ids = selected.map((k) => Number(k)).filter((n) => Number.isFinite(n)) as number[];
-      if (ids.length === 0) {
-        alert('Không xác định được zoneID để xóa (API yêu cầu id dạng số).');
-        return;
-      }
-
-      this.isLoading.set(true);
-      let done = 0;
-      ids.forEach((id) => {
-        this.api.deleteZone(id).subscribe({
-          next: () => {
-            done++;
-            if (done === ids.length) {
-              this.isLoading.set(false);
-              this.reloadFromApi();
-              alert(`Đã gửi yêu cầu xóa ${ids.length} zone (check backend response).`);
-            }
-          },
-          error: (err) => {
-            this.isLoading.set(false);
-            this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
-          }
-        });
-      });
-    }
+    this.store.onDelete();
   }
 
   openCreateDrawer(): void {
-    this.drawerMode.set('create');
-    this.drawerForm = {
-      warehouseId: this.filters.warehouseId ?? null,
-      zoneCode: '',
-      zoneName: '',
-      temperatureControlType: 'NORMAL',
-      zoneUsage: 'BOTH',
-      zoneType: '',
-      abcCategory: '',
-      mixingStrategy: '',
-      operationMode: '',
-      isExternal: false,
-      isActive: true
-    };
-    this.editingZone = null;
-    this.drawerOpen.set(true);
+    this.store.openCreateDrawer();
   }
 
   openEditDrawer(): void {
-    const selected = this.selectedZones();
-    if (selected.length !== 1) return;
-
-    const zone = this.allZones().find((z) => this.rowKey(z) === selected[0]);
-    if (!zone) return;
-
-    this.drawerMode.set('edit');
-    this.editingZone = zone;
-    this.drawerForm = {
-      warehouseId: zone.warehouseId ?? null,
-      zoneCode: zone.zoneCode,
-      zoneName: zone.zoneName,
-      temperatureControlType: zone.temperatureControlType,
-      zoneUsage: zone.zoneUsage,
-      zoneType: (zone.zoneType ?? '') as string,
-      abcCategory: (zone.abcCategory ?? '') as string,
-      mixingStrategy: (zone.mixingStrategy ?? '') as string,
-      operationMode: (zone.operationMode ?? '') as string,
-      isExternal: Boolean(zone.isExternal),
-      isActive: zone.isActive == null ? true : Boolean(zone.isActive)
-    };
-    this.drawerOpen.set(true);
+    this.store.openEditDrawer();
   }
 
   closeDrawer(): void {
-    this.drawerOpen.set(false);
-    this.editingZone = null;
+    this.store.closeDrawer();
   }
 
   submitDrawer(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    const warehouseId = this.drawerForm.warehouseId;
-    const zoneCode = (this.drawerForm.zoneCode || '').trim();
-    const zoneName = (this.drawerForm.zoneName || '').trim();
-
-    if (warehouseId == null || !Number.isFinite(warehouseId) || !zoneCode || !zoneName) {
-      alert('Vui lòng nhập đầy đủ các trường bắt buộc');
-      return;
-    }
-
-    const payload: ZoneDTO = {
-      warehouseId,
-      zoneCode,
-      zoneName,
-      temperatureControlType: this.drawerForm.temperatureControlType,
-      zoneUsage: this.drawerForm.zoneUsage,
-      zoneType: this.drawerForm.zoneType?.trim() || null,
-      abcCategory: this.drawerForm.abcCategory?.trim() || null,
-      mixingStrategy: this.drawerForm.mixingStrategy?.trim() || null,
-      operationMode: this.drawerForm.operationMode?.trim() || null,
-      isExternal: this.drawerForm.isExternal,
-      isActive: this.drawerForm.isActive
-    };
-
-    this.isLoading.set(true);
-
-    if (this.drawerMode() === 'create') {
-      this.api.createZone(payload).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.closeDrawer();
-          this.reloadFromApi();
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
-        }
-      });
-    } else {
-      if (this.editingZone?.zoneID != null) {
-        payload.zoneID = this.editingZone.zoneID;
-      }
-      this.api.updateZone(payload).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.closeDrawer();
-          this.reloadFromApi();
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
-        }
-      });
-    }
+    this.store.submitDrawer();
   }
 
-  rowKey(z: ZoneDTO): string {
-    return z.zoneID != null ? String(z.zoneID) : z.zoneCode;
-  }
-
-  warehouseKey(w: WarehouseDTO): string {
-    return w.warehouseId != null ? String(w.warehouseId) : w.warehouseCode;
-  }
-
-  warehouseLabel(warehouseId: number): string {
-    const w = this.warehouses().find((x) => x.warehouseId === warehouseId);
-    return w ? `${w.warehouseCode} - ${w.warehouseName}` : String(warehouseId ?? '-');
-  }
+  rowKey = (z: any) => this.store.rowKey(z);
+  warehouseKey = (w: any) => this.store.warehouseKey(w);
+  warehouseLabel = (id: any) => this.store.warehouseLabel(id);
 
   fromIndex(): number {
-    if (this.totalItems() === 0) return 0;
-    return (this.page() - 1) * this.pageSize() + 1;
+    return this.store.fromIndex();
   }
 
   toIndex(): number {
-    if (this.totalItems() === 0) return 0;
-    return Math.min(this.totalItems(), (this.page() - 1) * this.pageSize() + this.filteredZones().length);
+    return this.store.toIndex();
   }
 
   pages(): number[] {
-    const total = this.totalPages();
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-
-  private reloadWarehouses(): void {
-    this.warehouseApi.getWarehouseList({ page: 1, pageSize: 1000 }).subscribe({
-      next: (result) => {
-        this.warehouses.set(result.items ?? []);
-      },
-      error: () => {
-        // keep silent - zones list can still load; user can filter by id manually
-        this.warehouses.set([]);
-      }
-    });
-  }
-
-  private reloadFromApi(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-
-    this.api
-      .getZoneList({
-        keyword: (this.filters.keyword || '').trim(),
-        warehouseId: this.filters.warehouseId ?? undefined,
-        temperatureControlType: this.filters.temperatureControlType || undefined,
-        zoneUsage: this.filters.zoneUsage || undefined,
-        page: this.page(),
-        pageSize: this.pageSize()
-      })
-      .subscribe({
-        next: (result) => {
-          const list = result.items ?? [];
-          const total = result.total ?? list.length;
-
-          this.allZones.set(list);
-          this.applyClientFilters();
-          this.selectedZones.set([]);
-          this.totalItems.set(total);
-          const totalPages = Math.max(1, Math.ceil(total / this.pageSize()));
-          this.totalPages.set(totalPages);
-          this.isLastPage.set(this.page() >= totalPages || list.length < this.pageSize());
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          const msg =
-            (err?.error && typeof err.error === 'string' ? err.error : '') ||
-            err?.message ||
-            `HTTP ${err?.status ?? ''} ${err?.statusText ?? ''}`.trim();
-          this.errorMessage.set(msg || 'Unknown error');
-          this.allZones.set([]);
-          this.filteredZones.set([]);
-          this.selectedZones.set([]);
-          this.totalItems.set(0);
-          this.totalPages.set(1);
-          this.isLastPage.set(true);
-        }
-      });
+    return this.store.pages();
   }
 }
 
