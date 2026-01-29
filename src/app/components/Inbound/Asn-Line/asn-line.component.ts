@@ -12,21 +12,21 @@ import './asn-line.component.css';
 import { AsnLineStore } from './asn-line.store';
 
 @Component({
-    selector: 'app-asn-line',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatTableModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatIconModule
-    ],
-    providers: [AsnLineStore],
-    template: `
+  selector: 'app-asn-line',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule
+  ],
+  providers: [AsnLineStore],
+  template: `
     <div class="asn-line-container">
       <div class="asn-line-header">
         <h1 class="asn-line-title">Chi tiết ASN nhập kho</h1>
@@ -238,7 +238,7 @@ import { AsnLineStore } from './asn-line.store';
         <div class="drawer-panel" (click)="$event.stopPropagation()">
           <div class="drawer-header">
             <h2 class="drawer-title">
-              {{ drawerMode() === 'create' ? 'Thêm ASN Line' : 'Cập nhật ASN Line' }}
+              {{ drawerMode() === 'create' ? 'Phân Loại hàng hóa ASN' : 'Cập nhật ASN Line' }}
             </h2>
             <button mat-icon-button class="drawer-close" (click)="closeDrawer()">
               <mat-icon>close</mat-icon>
@@ -291,123 +291,123 @@ import { AsnLineStore } from './asn-line.store';
       </div>
     }
   `,
-    styleUrl: './asn-line.component.css'
+  styleUrl: './asn-line.component.css'
 })
 export class AsnLineComponent {
-    private readonly store = inject(AsnLineStore);
+  private readonly store = inject(AsnLineStore);
 
-    asns = this.store.asns;
-    skus = this.store.skus;
+  asns = this.store.asns;
+  skus = this.store.skus;
 
-    allAsnLines = this.store.allAsnLines;
-    filteredAsnLines = this.store.filteredAsnLines;
-    selectedAsnLines = this.store.selectedAsnLines;
-    page = this.store.page;
-    pageSize = this.store.pageSize;
-    isLastPage = this.store.isLastPage;
-    totalItems = this.store.totalItems;
-    totalPages = this.store.totalPages;
+  allAsnLines = this.store.allAsnLines;
+  filteredAsnLines = this.store.filteredAsnLines;
+  selectedAsnLines = this.store.selectedAsnLines;
+  page = this.store.page;
+  pageSize = this.store.pageSize;
+  isLastPage = this.store.isLastPage;
+  totalItems = this.store.totalItems;
+  totalPages = this.store.totalPages;
 
-    drawerOpen = this.store.drawerOpen;
-    drawerMode = this.store.drawerMode;
-    get drawerForm() {
-        return this.store.drawerForm;
-    }
-    set drawerForm(v: any) {
-        this.store.drawerForm = v;
-    }
+  drawerOpen = this.store.drawerOpen;
+  drawerMode = this.store.drawerMode;
+  get drawerForm() {
+    return this.store.drawerForm;
+  }
+  set drawerForm(v: any) {
+    this.store.drawerForm = v;
+  }
 
-    displayedColumns: string[] = this.store.displayedColumns;
+  displayedColumns: string[] = this.store.displayedColumns;
 
-    get filters() {
-        return this.store.filters;
-    }
-    set filters(v: any) {
-        this.store.filters = v;
-    }
+  get filters() {
+    return this.store.filters;
+  }
+  set filters(v: any) {
+    this.store.filters = v;
+  }
 
-    isLoading = this.store.isLoading;
-    errorMessage = this.store.errorMessage;
+  isLoading = this.store.isLoading;
+  errorMessage = this.store.errorMessage;
 
-    applyFilters(): void {
-        this.store.applyFilters();
-    }
+  applyFilters(): void {
+    this.store.applyFilters();
+  }
 
-    clearFilters(): void {
-        this.store.clearFilters();
-    }
+  clearFilters(): void {
+    this.store.clearFilters();
+  }
 
-    toggleSelect(id: string): void {
-        this.store.toggleSelect(id);
-    }
+  toggleSelect(id: string): void {
+    this.store.toggleSelect(id);
+  }
 
-    toggleSelectAll(event: any): void {
-        this.store.toggleSelectAll(event);
-    }
+  toggleSelectAll(event: any): void {
+    this.store.toggleSelectAll(event);
+  }
 
-    isSomeSelected(): boolean {
-        return this.store.isSomeSelected();
-    }
+  isSomeSelected(): boolean {
+    return this.store.isSomeSelected();
+  }
 
-    isSelected(id: string): boolean {
-        return this.store.isSelected(id);
-    }
+  isSelected(id: string): boolean {
+    return this.store.isSelected(id);
+  }
 
-    isAllSelected(): boolean {
-        return this.store.isAllSelected();
-    }
+  isAllSelected(): boolean {
+    return this.store.isAllSelected();
+  }
 
-    prevPage(): void {
-        this.store.prevPage();
-    }
+  prevPage(): void {
+    this.store.prevPage();
+  }
 
-    nextPage(): void {
-        this.store.nextPage();
-    }
+  nextPage(): void {
+    this.store.nextPage();
+  }
 
-    onPageSizeChange(size: number | string): void {
-        this.store.onPageSizeChange(size);
-    }
+  onPageSizeChange(size: number | string): void {
+    this.store.onPageSizeChange(size);
+  }
 
-    goToPage(p: number): void {
-        this.store.goToPage(p);
-    }
+  goToPage(p: number): void {
+    this.store.goToPage(p);
+  }
 
-    onDelete(): void {
-        this.store.onDelete();
-    }
+  onDelete(): void {
+    this.store.onDelete();
+  }
 
-    openCreateDrawer(): void {
-        this.store.openCreateDrawer();
-    }
+  openCreateDrawer(): void {
+    this.store.openCreateDrawer();
+  }
 
-    openEditDrawer(): void {
-        this.store.openEditDrawer();
-    }
+  openEditDrawer(): void {
+    this.store.openEditDrawer();
+  }
 
-    closeDrawer(): void {
-        this.store.closeDrawer();
-    }
+  closeDrawer(): void {
+    this.store.closeDrawer();
+  }
 
-    submitDrawer(): void {
-        this.store.submitDrawer();
-    }
+  submitDrawer(): void {
+    this.store.submitDrawer();
+  }
 
-    rowKey = (line: any) => this.store.rowKey(line);
-    asnKey = (asn: any) => this.store.asnKey(asn);
-    asnLabel = (id: any) => this.store.asnLabel(id);
-    skuKey = (sku: any) => this.store.skuKey(sku);
-    skuLabel = (id: any) => this.store.skuLabel(id);
+  rowKey = (line: any) => this.store.rowKey(line);
+  asnKey = (asn: any) => this.store.asnKey(asn);
+  asnLabel = (id: any) => this.store.asnLabel(id);
+  skuKey = (sku: any) => this.store.skuKey(sku);
+  skuLabel = (id: any) => this.store.skuLabel(id);
 
-    fromIndex(): number {
-        return this.store.fromIndex();
-    }
+  fromIndex(): number {
+    return this.store.fromIndex();
+  }
 
-    toIndex(): number {
-        return this.store.toIndex();
-    }
+  toIndex(): number {
+    return this.store.toIndex();
+  }
 
-    pages(): number[] {
-        return this.store.pages();
-    }
+  pages(): number[] {
+    return this.store.pages();
+  }
 }
