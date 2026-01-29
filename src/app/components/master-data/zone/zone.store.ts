@@ -2,7 +2,14 @@ import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { WcsZoneApi } from '../../../api/wcs-zone.api';
 import { WcsWarehouseApi } from '../../../api/wcs-warehouse.api';
-import { TemperatureControlType, WarehouseDTO, ZoneDTO, ZoneUsage } from '../../../api/wcs.models';
+import {
+  LocationDTO,
+  LocationTypeDTO,
+  TemperatureControlType,
+  WarehouseDTO,
+  ZoneDTO,
+  ZoneUsage
+} from '../../../api/wcs.models';
 
 @Injectable()
 export class ZoneStore {
@@ -61,7 +68,8 @@ export class ZoneStore {
     'warehouse',
     'temperatureControlType',
     'zoneUsage',
-    'isActive'
+    'isActive',
+    'actions'
   ];
 
   filters: {
@@ -82,6 +90,46 @@ export class ZoneStore {
 
   isLoading = signal<boolean>(false);
   errorMessage = signal<string>('');
+
+  // Detail: current zone in focus + its location types / locations
+  detailOpen = signal<boolean>(false);
+  detailZone = signal<ZoneDTO | null>(null);
+  locationTypes = signal<LocationTypeDTO[]>([]);
+  locations = signal<LocationDTO[]>([]);
+  selectedLocationTypeKeys = signal<string[]>([]);
+  selectedLocationKeys = signal<string[]>([]);
+  locationFilters: { locationTypeId: number | null } = { locationTypeId: null };
+
+  // LocationType drawer
+  locationTypeDrawerOpen = signal<boolean>(false);
+  locationTypeDrawerMode = signal<'create' | 'edit'>('create');
+  locationTypeDrawerForm: {
+    locationTypeCode: string;
+    locationTypeName: string;
+    heightCm: number;
+    widthCm: number;
+    depthCm: number;
+    maxWeightKg: number;
+    maxVolumeM3: number;
+    maxPallets: number;
+    maxLayers: number;
+    shelfType: string;
+    oneToManyConfig: boolean;
+    isActive: boolean;
+  } = {
+    locationTypeCode: '',
+    locationTypeName: '',
+    heightCm: 0,
+    widthCm: 0,
+    depthCm: 0,
+    maxWeightKg: 0,
+    maxVolumeM3: 0,
+    maxPallets: 0,
+    maxLayers: 0,
+    shelfType: '',
+    oneToManyConfig: true,
+    isActive: true
+  };
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -400,6 +448,180 @@ export class ZoneStore {
           this.isLastPage.set(true);
         }
       });
+  }
+
+  // ---------- Detail: open / close ----------
+  openDetail(zone: ZoneDTO): void {
+    this.detailZone.set(zone);
+    this.detailOpen.set(true);
+    this.locationFilters = { locationTypeId: null };
+    this.reloadDetailForCurrentZone();
+  }
+
+  closeDetail(): void {
+    this.detailOpen.set(false);
+  }
+
+  // ---------- Detail: LocationType + Location ----------
+  private getDetailZone(): ZoneDTO | null {
+    return this.detailZone();
+  }
+
+  private reloadDetailForCurrentZone(): void {
+    const zone = this.getDetailZone();
+    if (!zone || zone.zoneID == null || zone.warehouseId == null) {
+      this.locationTypes.set([]);
+      this.locations.set([]);
+      this.selectedLocationTypeKeys.set([]);
+      this.selectedLocationKeys.set([]);
+      return;
+    }
+
+    // Load all location types (not filtered by zone)
+    this.api
+      .getLocationTypeList({ page: 1, pageSize: 1000 })
+      .subscribe({
+        next: (res) => this.locationTypes.set(res.items ?? []),
+        error: () => this.locationTypes.set([])
+      });
+
+    this.reloadLocationsForZone(zone);
+  }
+
+  reloadLocations(): void {
+    this.reloadLocationsForZone(this.getDetailZone());
+  }
+
+  private reloadLocationsForZone(zone: ZoneDTO | null): void {
+    if (!zone || zone.zoneID == null || zone.warehouseId == null) {
+      this.locations.set([]);
+      this.selectedLocationKeys.set([]);
+      return;
+    }
+
+    const locationTypeId = this.locationFilters.locationTypeId;
+
+    this.api
+      .getLocationList({
+        keyword: undefined,
+        warehouseId: zone.warehouseId,
+        zoneId: zone.zoneID,
+        locationTypeId: locationTypeId ?? undefined,
+        page: 1,
+        pageSize: 1000
+      })
+      .subscribe({
+        next: (res) => this.locations.set(res.items ?? []),
+        error: () => this.locations.set([])
+      });
+  }
+
+  // Selection for LocationType and Location (for future actions)
+  toggleLocationTypeSelect(id: string): void {
+    const selected = this.selectedLocationTypeKeys();
+    if (selected.includes(id)) {
+      this.selectedLocationTypeKeys.set(selected.filter((s) => s !== id));
+    } else {
+      this.selectedLocationTypeKeys.set([...selected, id]);
+    }
+  }
+
+  isLocationTypeSelected(id: string): boolean {
+    return this.selectedLocationTypeKeys().includes(id);
+  }
+
+  locationTypeKey(lt: LocationTypeDTO): string {
+    return lt.locationTypeID != null ? String(lt.locationTypeID) : lt.locationTypeCode;
+  }
+
+  toggleLocationSelect(id: string): void {
+    const selected = this.selectedLocationKeys();
+    if (selected.includes(id)) {
+      this.selectedLocationKeys.set(selected.filter((s) => s !== id));
+    } else {
+      this.selectedLocationKeys.set([...selected, id]);
+    }
+  }
+
+  isLocationSelected(id: string): boolean {
+    return this.selectedLocationKeys().includes(id);
+  }
+
+  locationKey(l: LocationDTO): string {
+    return l.locationID != null ? String(l.locationID) : l.locationCode;
+  }
+
+
+  createLocationType(): void {
+    // Mở drawer create LocationType
+    this.locationTypeDrawerMode.set('create');
+    this.locationTypeDrawerForm = {
+      locationTypeCode: '',
+      locationTypeName: '',
+      heightCm: 0,
+      widthCm: 0,
+      depthCm: 0,
+      maxWeightKg: 0,
+      maxVolumeM3: 0,
+      maxPallets: 0,
+      maxLayers: 0,
+      shelfType: '',
+      oneToManyConfig: true,
+      isActive: true
+    };
+    this.locationTypeDrawerOpen.set(true);
+  }
+
+  closeLocationTypeDrawer(): void {
+    this.locationTypeDrawerOpen.set(false);
+  }
+
+  submitLocationTypeDrawer(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const f = this.locationTypeDrawerForm;
+    const code = (f.locationTypeCode || '').trim();
+    const name = (f.locationTypeName || '').trim();
+
+    if (!code || !name) {
+      alert('Vui lòng nhập đầy đủ LocationTypeCode và LocationTypeName');
+      return;
+    }
+
+    const payload: LocationTypeDTO = {
+      locationTypeCode: code,
+      locationTypeName: name,
+      heightCm: Number.isFinite(f.heightCm) ? f.heightCm : 0,
+      widthCm: Number.isFinite(f.widthCm) ? f.widthCm : 0,
+      depthCm: Number.isFinite(f.depthCm) ? f.depthCm : 0,
+      maxWeightKg: Number.isFinite(f.maxWeightKg) ? f.maxWeightKg : 0,
+      maxVolumeM3: Number.isFinite(f.maxVolumeM3) ? f.maxVolumeM3 : 0,
+      maxPallets: Number.isFinite(f.maxPallets) ? f.maxPallets : 0,
+      maxLayers: Number.isFinite(f.maxLayers) ? f.maxLayers : 0,
+      locationType: null,
+      shelfType: f.shelfType?.trim() || null,
+      oneToManyConfig: f.oneToManyConfig,
+      isActive: f.isActive
+    };
+
+    this.isLoading.set(true);
+    this.api.createLocationType(payload).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.closeLocationTypeDrawer();
+        this.reloadDetailForCurrentZone();
+        alert('Tạo LocationType thành công');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        alert('Tạo LocationType thất bại, vui lòng kiểm tra log / backend.');
+      }
+    });
+  }
+
+  createLocation(): void {
+    alert('Triển khai sau');
   }
 }
 

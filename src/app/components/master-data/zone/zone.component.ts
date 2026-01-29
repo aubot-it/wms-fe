@@ -206,9 +206,24 @@ import { ZoneStore } from './zone.store';
               <td mat-cell *matCellDef="let z">{{ z.isActive == null ? '-' : (z.isActive ? 'Yes' : 'No') }}</td>
             </ng-container>
 
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="actions-col">Thao tác</th>
+              <td mat-cell *matCellDef="let z" class="actions-col">
+                <button
+                  mat-stroked-button
+                  class="btn btn-clear btn-detail"
+                  type="button"
+                  (click)="openDetail(z)"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
             <!-- Empty State -->
             <ng-container matColumnDef="noData">
-              <td mat-footer-cell *matFooterCellDef colspan="8" class="empty-state">
+              <td mat-footer-cell *matFooterCellDef colspan="9" class="empty-state">
                 <div class="empty-message">
                   <mat-icon>grid_view</mat-icon>
                   <p>Không tìm thấy zone nào</p>
@@ -271,6 +286,129 @@ import { ZoneStore } from './zone.store';
         </div>
       </div>
     </div>
+
+    <!-- Floating detail dialog -->
+    @if (detailOpen()) {
+      <div class="zone-detail-backdrop" (click)="closeDetail()">
+        <div class="zone-detail-modal" (click)="$event.stopPropagation()">
+          <div class="zone-detail-modal__header">
+            <div>
+              <h2 class="zone-detail-modal__title">Chi tiết Zone</h2>
+              <div class="zone-detail-modal__subtitle">
+                {{ detailZone()?.zoneCode }} - {{ detailZone()?.zoneName }}
+              </div>
+            </div>
+            <button mat-icon-button class="drawer-close" type="button" (click)="closeDetail()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <div class="zone-detail-modal__body">
+            <div class="zone-detail-grid">
+              <!-- Location Types -->
+              <div class="zone-detail-card">
+                <div class="zone-detail-card__header">
+                  <h2 class="zone-detail-card__title">Location Types</h2>
+                </div>
+                <div class="table-wrapper">
+                  <table mat-table [dataSource]="locationTypes()" class="warehouse-table">
+                    <ng-container matColumnDef="ltCode">
+                      <th mat-header-cell *matHeaderCellDef>Code</th>
+                      <td mat-cell *matCellDef="let lt"><strong>{{ lt.locationTypeCode }}</strong></td>
+                    </ng-container>
+                    <ng-container matColumnDef="ltName">
+                      <th mat-header-cell *matHeaderCellDef>Name</th>
+                      <td mat-cell *matCellDef="let lt">{{ lt.locationTypeName }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="ltActive">
+                      <th mat-header-cell *matHeaderCellDef>Active</th>
+                      <td mat-cell *matCellDef="let lt">
+                        {{ lt.isActive == null ? '-' : (lt.isActive ? 'Yes' : 'No') }}
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['ltCode', 'ltName', 'ltActive']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['ltCode', 'ltName', 'ltActive']"></tr>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Locations -->
+              <div class="zone-detail-card">
+                <div class="zone-detail-card__header">
+                  <h2 class="zone-detail-card__title">Locations (vật lý)</h2>
+                </div>
+
+                <div class="zone-detail-filters">
+                  <div class="filter-group">
+                    <label class="filter-label">Location Type</label>
+                    <mat-form-field appearance="outline" class="filter-field">
+                      <mat-select
+                        [(ngModel)]="locationFilters.locationTypeId"
+                        (selectionChange)="reloadLocations()"
+                      >
+                        <mat-option [value]="null">Tất cả</mat-option>
+                        @for (lt of locationTypes(); track lt.locationTypeID) {
+                          <mat-option [value]="lt.locationTypeID ?? null">
+                            {{ lt.locationTypeCode }} - {{ lt.locationTypeName }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div class="table-wrapper">
+                  <table mat-table [dataSource]="locations()" class="warehouse-table">
+                    <ng-container matColumnDef="locCode">
+                      <th mat-header-cell *matHeaderCellDef>Code</th>
+                      <td mat-cell *matCellDef="let l"><strong>{{ l.locationCode }}</strong></td>
+                    </ng-container>
+                    <ng-container matColumnDef="aisle">
+                      <th mat-header-cell *matHeaderCellDef>Aisle</th>
+                      <td mat-cell *matCellDef="let l">{{ l.aisle }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="bay">
+                      <th mat-header-cell *matHeaderCellDef>Bay</th>
+                      <td mat-cell *matCellDef="let l">{{ l.bay }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="layer">
+                      <th mat-header-cell *matHeaderCellDef>Layer</th>
+                      <td mat-cell *matCellDef="let l">{{ l.layer }}</td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['locCode', 'aisle', 'bay', 'layer']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['locCode', 'aisle', 'bay', 'layer']"></tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="zone-detail-modal__footer">
+              <button
+                mat-stroked-button
+                type="button"
+                class="btn btn-clear"
+                (click)="openLocationTypeDrawer()"
+              >
+                <mat-icon>add</mat-icon>
+                <span>Tạo LocationType</span>
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="button"
+                class="btn btn-primary"
+                (click)="createLocation()"
+              >
+                <mat-icon>add_location</mat-icon>
+                <span>Tạo Location</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
 
     @if (drawerOpen()) {
       <div class="drawer-backdrop" (click)="closeDrawer()">
@@ -383,6 +521,182 @@ import { ZoneStore } from './zone.store';
         </div>
       </div>
     }
+
+    @if (locationTypeDrawerOpen()) {
+      <div class="drawer-backdrop" (click)="closeLocationTypeDrawer()">
+        <div class="drawer-panel" (click)="$event.stopPropagation()">
+          <div class="drawer-header">
+            <h2 class="drawer-title">
+              {{ locationTypeDrawerMode() === 'create' ? 'Thêm LocationType' : 'Cập nhật LocationType' }}
+            </h2>
+            <button mat-icon-button class="drawer-close" (click)="closeLocationTypeDrawer()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <form class="drawer-form" (ngSubmit)="submitLocationTypeDrawer()">
+            <div class="drawer-field">
+              <label class="drawer-label">LocationTypeCode <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input
+                  matInput
+                  type="text"
+                  required
+                  [(ngModel)]="locationTypeDrawerForm.locationTypeCode"
+                  name="locationTypeCode"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">LocationTypeName <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input
+                  matInput
+                  type="text"
+                  required
+                  [(ngModel)]="locationTypeDrawerForm.locationTypeName"
+                  name="locationTypeName"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Height (cm)</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="number"
+                    [(ngModel)]="locationTypeDrawerForm.heightCm"
+                    name="heightCm"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Width (cm)</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="number"
+                    [(ngModel)]="locationTypeDrawerForm.widthCm"
+                    name="widthCm"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Depth (cm)</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="number"
+                    [(ngModel)]="locationTypeDrawerForm.depthCm"
+                    name="depthCm"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Max Weight (kg)</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="number"
+                    [(ngModel)]="locationTypeDrawerForm.maxWeightKg"
+                    name="maxWeightKg"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Max Volume (m3)</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="number"
+                    [(ngModel)]="locationTypeDrawerForm.maxVolumeM3"
+                    name="maxVolumeM3"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Max Pallets</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="number"
+                    [(ngModel)]="locationTypeDrawerForm.maxPallets"
+                    name="maxPallets"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Max Layers</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="number"
+                    [(ngModel)]="locationTypeDrawerForm.maxLayers"
+                    name="maxLayers"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Shelf Type</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input
+                    matInput
+                    type="text"
+                    [(ngModel)]="locationTypeDrawerForm.shelfType"
+                    name="shelfType"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="drawer-row drawer-row--checks">
+              <mat-checkbox
+                [(ngModel)]="locationTypeDrawerForm.oneToManyConfig"
+                name="oneToManyConfig"
+              >
+                One-to-Many Config
+              </mat-checkbox>
+              <mat-checkbox
+                [(ngModel)]="locationTypeDrawerForm.isActive"
+                name="ltIsActive"
+              >
+                Active
+              </mat-checkbox>
+            </div>
+
+            <div class="drawer-actions">
+              <button
+                mat-stroked-button
+                type="button"
+                class="btn btn-clear"
+                (click)="closeLocationTypeDrawer()"
+              >
+                Hủy
+              </button>
+              <button
+                mat-raised-button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="isLoading()"
+              >
+                {{ locationTypeDrawerMode() === 'create' ? 'Lưu' : 'Cập nhật' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
   `,
   styleUrl: './zone.component.css'
 })
@@ -397,6 +711,10 @@ export class ZoneComponent {
   allZones = this.store.allZones;
   filteredZones = this.store.filteredZones;
   selectedZones = this.store.selectedZones;
+
+  // Detail: LocationTypes & Locations
+  locationTypes = this.store.locationTypes;
+  locations = this.store.locations;
   page = this.store.page;
   pageSize = this.store.pageSize;
   isLastPage = this.store.isLastPage;
@@ -423,6 +741,18 @@ export class ZoneComponent {
 
   isLoading = this.store.isLoading;
   errorMessage = this.store.errorMessage;
+  detailOpen = this.store.detailOpen;
+  detailZone = this.store.detailZone;
+
+  // LocationType drawer
+  locationTypeDrawerOpen = this.store.locationTypeDrawerOpen;
+  locationTypeDrawerMode = this.store.locationTypeDrawerMode;
+  get locationTypeDrawerForm() {
+    return this.store.locationTypeDrawerForm;
+  }
+  set locationTypeDrawerForm(v: any) {
+    this.store.locationTypeDrawerForm = v;
+  }
 
   applyFilters(): void {
     this.store.applyFilters();
@@ -492,6 +822,14 @@ export class ZoneComponent {
     this.store.submitDrawer();
   }
 
+  openDetail(zone: any): void {
+    this.store.openDetail(zone);
+  }
+
+  closeDetail(): void {
+    this.store.closeDetail();
+  }
+
   rowKey = (z: any) => this.store.rowKey(z);
   warehouseKey = (w: any) => this.store.warehouseKey(w);
   warehouseLabel = (id: any) => this.store.warehouseLabel(id);
@@ -506,6 +844,34 @@ export class ZoneComponent {
 
   pages(): number[] {
     return this.store.pages();
+  }
+
+  // Detail filters / actions
+  get locationFilters() {
+    return this.store.locationFilters;
+  }
+  set locationFilters(v: any) {
+    this.store.locationFilters = v;
+  }
+
+  reloadLocations(): void {
+    this.store.reloadLocations();
+  }
+
+  openLocationTypeDrawer(): void {
+    this.store.createLocationType();
+  }
+
+  closeLocationTypeDrawer(): void {
+    this.store.closeLocationTypeDrawer();
+  }
+
+  submitLocationTypeDrawer(): void {
+    this.store.submitLocationTypeDrawer();
+  }
+
+  createLocation(): void {
+    this.store.createLocation();
   }
 }
 
