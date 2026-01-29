@@ -11,19 +11,20 @@
         <span>Tổng quan</span>
       </a>
       <div class="sidebar__group">
-        <div class="sidebar__group-header" (click)="toggleMenu('inventory')">
+        <div class="sidebar__group-header" (click)="toggleMenu('Inbound')">
           <span class="sidebar__icon">📦</span>
-          <span>Inbound</span>
-          <span class="sidebar__arrow" [class.open]="isMenuOpen('inventory')">▼</span>
+          <span>Nhập kho</span>
+          <span class="sidebar__arrow" [class.open]="isMenuOpen('Inbound')">▼</span>
         </div>
-        <div class="sidebar__submenu" [class.open]="isMenuOpen('inventory')">
-          <a routerLink="/Inbound/Asn" routerLinkActive="active" class="sidebar__subitem">
+        <div class="sidebar__submenu" [class.open]="isMenuOpen('Inbound')">
+          <a routerLink="/inbound/Asn" routerLinkActive="active" href="/inbound/Asn" class="sidebar__subitem">
             <span>Quản lý nhập</span>
           </a>
-          <a routerLink="/Inbound/asn-line" routerLinkActive="active" class="sidebar__subitem">
+          <a routerLink="/inbound/asn-line" routerLinkActive="active" href="/inbound/asn-line" class="sidebar__subitem">
             <span>Chi tiết ASN nhập kho</span>
           </a>
-          <a routerLink="/Inbound/Lpn/GetList" routerLinkActive="active" class="sidebar__subitem">
+          <a routerLink="/Inbound/Lpn/GetList" routerLinkActive="active" href="/Inbound/Lpn/GetList"
+            class="sidebar__subitem">
             <span>Quản lý Pallet</span>
           </a>
         </div>

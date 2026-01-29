@@ -62,19 +62,86 @@ export interface LocationDTO {
 export type ListResponse<T> =
   | T[]
   | {
-      items?: T[];
-      data?: T[];
-      result?: T[];
-      total?: number;
-      totalCount?: number;
-      page?: number;
-      pageSize?: number;
-      [k: string]: unknown;
-    };
+    items?: T[];
+    data?: T[];
+    result?: T[];
+    total?: number;
+    totalCount?: number;
+    page?: number;
+    pageSize?: number;
+    [k: string]: unknown;
+  };
 
 export interface PagedResult<T> {
   items: T[];
   total?: number;
+}
+
+export type AsnType = 'PO' | 'RTV' | 'TRANSFER';
+export type AsnStatus = 'CREATED' | 'IN_TRANSIT' | 'ARRIVED' | 'RECEIVING' | 'COMPLETED' | 'CANCELLED';
+
+export interface AsnDTO {
+  asnId?: number;
+  ownerID: number;
+  asnNo: string;
+  warehouseID: number;
+  asnType: AsnType;
+  status: AsnStatus;
+  carrierID?: number;
+  vehicleNo?: string;
+  driverName?: string;
+  driverPhone?: string;
+  routeCode?: string;
+  dockCode?: string;
+  expectedArrival?: string;
+  expectedDeparture?: string;
+  actualArrival?: string;
+  numOfSku?: number;
+}
+
+
+export interface OwnerDTO {
+  ownerId?: number;
+  ownerCode: string;
+  ownerName: string;
+  ownerType?: string;
+  status?: string;
+  createdDate?: string;
+  createdBy?: string;
+  updatedDate?: string;
+  updatedBy?: string;
+}
+
+
+export interface SkuDTO {
+  skuID?: number;
+  brandId?: number;
+  ownerId?: number;
+  temperatureType?: string;
+  skuCode: string;
+  skuName: string;
+  baseUom?: string;
+  caseUom?: string;
+  palletUom?: string;
+  caseQty?: number;
+  palletQty?: number;
+  verificationStatus?: string;
+  isBatchControl?: boolean;
+  isExpiryControl?: boolean;
+  isSerialControl?: boolean;
+  abc_Rule?: number;
+  velocityClass?: string;
+  defaultWeightKg?: number;
+  defaultVolumeM3?: number;
+  status?: string;
+  isActive?: boolean;
+}
+
+export interface AsnLineDTO {
+  asnLineId?: number;
+  asnId: number;
+  skuId: number;
+  expectedQty: number;
 }
 
 

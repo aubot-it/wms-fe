@@ -24,6 +24,25 @@ export const routes: Routes = [
       }
     ]
   },
+  // Inbound routes
+  {
+    path: 'inbound',
+    children: [
+      {
+        path: 'asn',
+        loadComponent: () => import('./components/Inbound/Asn/asn.component').then(m => m.AsnComponent)
+      },
+      {
+        path: 'asn-line',
+        loadComponent: () => import('./components/Inbound/Asn-Line/asn-line.component').then(m => m.AsnLineComponent)
+      },
+      {
+        path: '',
+        redirectTo: 'asn',
+        pathMatch: 'full'
+      }
+    ]
+  },
   // Inventory routes
   {
     path: 'inventory',
