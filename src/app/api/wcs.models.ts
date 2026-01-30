@@ -147,13 +147,22 @@ export interface AsnLineDTO {
 export interface LpnDTO {
   lpnId?: number;
   lpnCode: string;
+  ownerId?: number;
+  warehouseId?: number;
+  location?: string;
+  parentLpnId?: number | null;
   lpnLevel: string;
   qty: number;
   status: string;
-  weightKg?: number;
-  volumeM3?: number;
-  closedAt?: string;
-  asnLineIds: number[];
+  weightKg?: number | null;
+  volumeM3?: number | null;
+  closedAt?: string | null;
+  createdDate?: string;
+  createdBy?: string | null;
+  updatedDate?: string | null;
+  updatedBy?: string | null;
+  asnLineIds?: number[];
 }
+
 
 

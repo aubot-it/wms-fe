@@ -1,0 +1,30 @@
+/* Reuse the same visual language as other Inbound components for consistency */
+@import '../../master-data/warehouse/warehouse.component.css';
+
+.pallet-container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.pallet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pallet-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+}
+
+.pallet-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}

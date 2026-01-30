@@ -239,6 +239,38 @@ export class AsnStore {
         });
     }
 
+    onExportInvoice(): void {
+        const selected = this.selectedAsns();
+        if (selected.length !== 1) {
+            alert('Vui lòng chọn đúng 1 ASN để xuất hóa đơn.');
+            return;
+        }
+
+        const asn = this.allAsns().find((a) => this.rowKey(a) === selected[0]);
+        if (!asn) {
+            alert('Không tìm thấy ASN đã chọn.');
+            return;
+        }
+
+        // TODO: Implement actual invoice export logic here
+        // This could be a call to a backend API to generate PDF or Excel
+        // For now, show the ASN details
+        const asnInfo = `
+            Thông tin ASN:
+            - ASN No: ${asn.asnNo}
+            - Kho: ${this.warehouseLabel(asn.warehouseID)}
+            - Chủ sở hữu: ${this.ownerLabel(asn.ownerID)}
+            - Loại: ${asn.asnType}
+            - Trạng thái: ${asn.status}
+            - Tài xế: ${asn.driverName || 'N/A'}
+            - Số xe: ${asn.vehicleNo || 'N/A'}
+            - Số lượng SKU: ${asn.numOfSku ?? 'N/A'}
+            - Ngày đến dự kiến: ${asn.expectedArrival || 'N/A'}
+        `.trim();
+
+        alert(`Xuất hóa đơn đầu vào:\n\n${asnInfo}\n\n(Tính năng này sẽ được triển khai để xuất file PDF/Excel)`);
+    }
+
     openCreateDrawer(): void {
         this.drawerMode.set('create');
         this.drawerForm = {

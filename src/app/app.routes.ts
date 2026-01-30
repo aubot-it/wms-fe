@@ -37,6 +37,10 @@ export const routes: Routes = [
         loadComponent: () => import('./components/Inbound/Asn-Line/asn-line.component').then(m => m.AsnLineComponent)
       },
       {
+        path: 'pallet',
+        loadComponent: () => import('./components/Inbound/Pallet/pallet.component').then(m => m.PalletComponent)
+      },
+      {
         path: '',
         redirectTo: 'asn',
         pathMatch: 'full'
