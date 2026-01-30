@@ -1103,7 +1103,8 @@
   background: rgba(15, 23, 42, 0.35);
   display: flex;
   justify-content: flex-end;
-  z-index: 40;
+
+  z-index: 1100;
 }
 
 .drawer-panel {
