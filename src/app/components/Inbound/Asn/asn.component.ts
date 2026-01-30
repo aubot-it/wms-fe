@@ -75,7 +75,7 @@ import { AsnStore } from './asn.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">ASN Type (server)</label>
+            <label class="filter-label">Loại ASN</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.asnType" (selectionChange)="applyFilters()">
                 <mat-option value="">Tất cả</mat-option>
@@ -87,7 +87,7 @@ import { AsnStore } from './asn.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Status (server)</label>
+            <label class="filter-label">Trạng thái</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.status" (selectionChange)="applyFilters()">
                 <mat-option value="">Tất cả</mat-option>
@@ -99,14 +99,14 @@ import { AsnStore } from './asn.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Số Asn (client)</label>
+            <label class="filter-label">Số Asn</label>
             <mat-form-field appearance="outline" class="filter-field">
               <input matInput placeholder="Lọc nhanh theo ASN No..." [(ngModel)]="filters.asnNo" (input)="applyClientFilters()" />
             </mat-form-field>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Tên tài xế (client)</label>
+            <label class="filter-label">Tên tài xế</label>
             <mat-form-field appearance="outline" class="filter-field">
               <input matInput placeholder="Lọc nhanh theo driver..." [(ngModel)]="filters.driverName" (input)="applyClientFilters()" />
             </mat-form-field>
@@ -126,7 +126,7 @@ import { AsnStore } from './asn.store';
         <div class="table-header">
           <div class="table-header-top">
             <div class="table-page-size">
-              <span class="page-size-text">Show</span>
+              <span class="page-size-text">Hiển thị</span>
               <mat-form-field appearance="outline" class="page-size-field">
                 <mat-select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
                   <mat-option [value]="10">10</mat-option>
@@ -134,7 +134,7 @@ import { AsnStore } from './asn.store';
                   <mat-option [value]="50">50</mat-option>
                 </mat-select>
               </mat-form-field>
-              <span class="page-size-text">per page</span>
+              <span class="page-size-text">trên trang</span>
             </div>
             <div class="table-info">
               <span>Tổng số: <strong>{{ totalItems() }}</strong></span>

@@ -49,12 +49,12 @@ export class AsnLineStore {
 
     filters: {
         keyword: string;
-        asnId: number | null;
-        skuId: number | null;
+        asnId: number | null | undefined;
+        skuId: number | null | undefined;
     } = {
             keyword: '',
-            asnId: null,
-            skuId: null
+            asnId: undefined,
+            skuId: undefined
         };
 
     isLoading = signal<boolean>(false);
@@ -97,8 +97,8 @@ export class AsnLineStore {
     clearFilters(): void {
         this.filters = {
             keyword: '',
-            asnId: null,
-            skuId: null
+            asnId: undefined,
+            skuId: undefined
         };
         if (!isPlatformBrowser(this.platformId)) return;
         this.page.set(1);

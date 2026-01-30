@@ -12,21 +12,21 @@ import './pallet.component.css';
 import { PalletStore } from './pallet.store';
 
 @Component({
-    selector: 'app-pallet',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatTableModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatIconModule
-    ],
-    providers: [PalletStore],
-    template: `
+  selector: 'app-pallet',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule
+  ],
+  providers: [PalletStore],
+  template: `
     <div class="pallet-container">
       <div class="pallet-header">
         <h1 class="pallet-title">Quản lý Pallet (LPN)</h1>
@@ -50,28 +50,28 @@ import { PalletStore } from './pallet.store';
       <div class="filter-section">
         <div class="filter-row">
           <div class="filter-group">
-            <label class="filter-label">Từ khóa (server)</label>
+            <label class="filter-label">Từ khóa</label>
             <mat-form-field appearance="outline" class="filter-field">
               <input matInput placeholder="Nhập keyword..." [(ngModel)]="filters.keyword" (input)="applyFilters()" />
             </mat-form-field>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">LPN Code (client)</label>
+            <label class="filter-label">Mã Pallet</label>
             <mat-form-field appearance="outline" class="filter-field">
               <input matInput placeholder="Lọc theo LPN Code..." [(ngModel)]="filters.lpnCode" (input)="applyClientFilters()" />
             </mat-form-field>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Location (client)</label>
+            <label class="filter-label">Vị trí</label>
             <mat-form-field appearance="outline" class="filter-field">
               <input matInput placeholder="Lọc theo Location..." [(ngModel)]="filters.location" (input)="applyClientFilters()" />
             </mat-form-field>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Status (client)</label>
+            <label class="filter-label">Trạng thái</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.status" (selectionChange)="applyClientFilters()">
                 <mat-option value="">Tất cả</mat-option>
@@ -84,7 +84,7 @@ import { PalletStore } from './pallet.store';
           <div class="filter-group button-group">
             <button mat-stroked-button class="btn btn-clear" (click)="clearFilters()">
               <mat-icon>refresh</mat-icon>
-              <span>Xóa bộ lọc</span>
+              <span>Làm mới</span>
             </button>
           </div>
         </div>
@@ -95,7 +95,7 @@ import { PalletStore } from './pallet.store';
         <div class="table-header">
           <div class="table-header-top">
             <div class="table-page-size">
-              <span class="page-size-text">Show</span>
+              <span class="page-size-text">Hiển thị</span>
               <mat-form-field appearance="outline" class="page-size-field">
                 <mat-select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
                   <mat-option [value]="10">10</mat-option>
@@ -103,7 +103,7 @@ import { PalletStore } from './pallet.store';
                   <mat-option [value]="50">50</mat-option>
                 </mat-select>
               </mat-form-field>
-              <span class="page-size-text">per page</span>
+              <span class="page-size-text">trên trang</span>
             </div>
             <div class="table-info">
               <span>Tổng số: <strong>{{ totalItems() }}</strong></span>
@@ -336,119 +336,119 @@ import { PalletStore } from './pallet.store';
       </div>
     }
   `,
-    styleUrl: './pallet.component.css'
+  styleUrl: './pallet.component.css'
 })
 export class PalletComponent {
-    private readonly store = inject(PalletStore);
+  private readonly store = inject(PalletStore);
 
-    allPallets = this.store.allPallets;
-    filteredPallets = this.store.filteredPallets;
-    selectedPallets = this.store.selectedPallets;
-    page = this.store.page;
-    pageSize = this.store.pageSize;
-    isLastPage = this.store.isLastPage;
-    totalItems = this.store.totalItems;
-    totalPages = this.store.totalPages;
+  allPallets = this.store.allPallets;
+  filteredPallets = this.store.filteredPallets;
+  selectedPallets = this.store.selectedPallets;
+  page = this.store.page;
+  pageSize = this.store.pageSize;
+  isLastPage = this.store.isLastPage;
+  totalItems = this.store.totalItems;
+  totalPages = this.store.totalPages;
 
-    drawerOpen = this.store.drawerOpen;
-    get drawerForm() {
-        return this.store.drawerForm;
-    }
-    set drawerForm(v: any) {
-        this.store.drawerForm = v;
-    }
+  drawerOpen = this.store.drawerOpen;
+  get drawerForm() {
+    return this.store.drawerForm;
+  }
+  set drawerForm(v: any) {
+    this.store.drawerForm = v;
+  }
 
-    displayedColumns: string[] = this.store.displayedColumns;
+  displayedColumns: string[] = this.store.displayedColumns;
 
-    get filters() {
-        return this.store.filters;
-    }
-    set filters(v: any) {
-        this.store.filters = v;
-    }
+  get filters() {
+    return this.store.filters;
+  }
+  set filters(v: any) {
+    this.store.filters = v;
+  }
 
-    isLoading = this.store.isLoading;
-    errorMessage = this.store.errorMessage;
+  isLoading = this.store.isLoading;
+  errorMessage = this.store.errorMessage;
 
-    applyFilters(): void {
-        this.store.applyFilters();
-    }
+  applyFilters(): void {
+    this.store.applyFilters();
+  }
 
-    applyClientFilters(): void {
-        this.store.applyClientFilters();
-    }
+  applyClientFilters(): void {
+    this.store.applyClientFilters();
+  }
 
-    clearFilters(): void {
-        this.store.clearFilters();
-    }
+  clearFilters(): void {
+    this.store.clearFilters();
+  }
 
-    toggleSelect(id: string): void {
-        this.store.toggleSelect(id);
-    }
+  toggleSelect(id: string): void {
+    this.store.toggleSelect(id);
+  }
 
-    toggleSelectAll(event: any): void {
-        this.store.toggleSelectAll(event);
-    }
+  toggleSelectAll(event: any): void {
+    this.store.toggleSelectAll(event);
+  }
 
-    isSomeSelected(): boolean {
-        return this.store.isSomeSelected();
-    }
+  isSomeSelected(): boolean {
+    return this.store.isSomeSelected();
+  }
 
-    isSelected(id: string): boolean {
-        return this.store.isSelected(id);
-    }
+  isSelected(id: string): boolean {
+    return this.store.isSelected(id);
+  }
 
-    isAllSelected(): boolean {
-        return this.store.isAllSelected();
-    }
+  isAllSelected(): boolean {
+    return this.store.isAllSelected();
+  }
 
-    prevPage(): void {
-        this.store.prevPage();
-    }
+  prevPage(): void {
+    this.store.prevPage();
+  }
 
-    nextPage(): void {
-        this.store.nextPage();
-    }
+  nextPage(): void {
+    this.store.nextPage();
+  }
 
-    onPageSizeChange(size: number | string): void {
-        this.store.onPageSizeChange(size);
-    }
+  onPageSizeChange(size: number | string): void {
+    this.store.onPageSizeChange(size);
+  }
 
-    goToPage(p: number): void {
-        this.store.goToPage(p);
-    }
+  goToPage(p: number): void {
+    this.store.goToPage(p);
+  }
 
-    onDelete(): void {
-        this.store.onDelete();
-    }
+  onDelete(): void {
+    this.store.onDelete();
+  }
 
-    onConfirmPallet(): void {
-        this.store.onConfirmPallet();
-    }
+  onConfirmPallet(): void {
+    this.store.onConfirmPallet();
+  }
 
-    openCreateDrawer(): void {
-        this.store.openCreateDrawer();
-    }
+  openCreateDrawer(): void {
+    this.store.openCreateDrawer();
+  }
 
-    closeDrawer(): void {
-        this.store.closeDrawer();
-    }
+  closeDrawer(): void {
+    this.store.closeDrawer();
+  }
 
-    submitDrawer(): void {
-        this.store.submitDrawer();
-    }
+  submitDrawer(): void {
+    this.store.submitDrawer();
+  }
 
-    rowKey = (p: any) => this.store.rowKey(p);
+  rowKey = (p: any) => this.store.rowKey(p);
 
-    fromIndex(): number {
-        return this.store.fromIndex();
-    }
+  fromIndex(): number {
+    return this.store.fromIndex();
+  }
 
-    toIndex(): number {
-        return this.store.toIndex();
-    }
+  toIndex(): number {
+    return this.store.toIndex();
+  }
 
-    pages(): number[] {
-        return this.store.pages();
-    }
+  pages(): number[] {
+    return this.store.pages();
+  }
 }

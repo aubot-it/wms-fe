@@ -61,12 +61,12 @@ import { AsnLineStore } from './asn-line.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">ASN</label>
+            <label class="filter-label">Số ASN</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.asnId" (selectionChange)="applyFilters()">
-                <mat-option [value]="null">Tất cả</mat-option>
+                <mat-option [value]="undefined"  >Tất cả</mat-option>
                 @for (asn of asns(); track asnKey(asn)) {
-                  <mat-option [value]="asn.asnId ?? null">
+                  <mat-option [value]="asn.asnId">
                     {{ asn.asnNo }} (ID: {{ asn.asnId }})
                   </mat-option>
                 }
@@ -78,9 +78,9 @@ import { AsnLineStore } from './asn-line.store';
             <label class="filter-label">SKU</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.skuId" (selectionChange)="applyFilters()">
-                <mat-option [value]="null">Tất cả</mat-option>
+                <mat-option [value]="undefined">Tất cả</mat-option>
                 @for (sku of skus(); track skuKey(sku)) {
-                  <mat-option [value]="sku.skuID ?? null">
+                  <mat-option [value]="sku.skuID">
                     {{ sku.skuCode }} - {{ sku.skuName }}
                   </mat-option>
                 }
@@ -102,7 +102,7 @@ import { AsnLineStore } from './asn-line.store';
         <div class="table-header">
           <div class="table-header-top">
             <div class="table-page-size">
-              <span class="page-size-text">Show</span>
+              <span class="page-size-text">Hiển thị</span>
               <mat-form-field appearance="outline" class="page-size-field">
                 <mat-select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
                   <mat-option [value]="10">10</mat-option>
@@ -110,7 +110,7 @@ import { AsnLineStore } from './asn-line.store';
                   <mat-option [value]="50">50</mat-option>
                 </mat-select>
               </mat-form-field>
-              <span class="page-size-text">per page</span>
+              <span class="page-size-text">trên trang</span>
             </div>
             <div class="table-info">
               <span>Tổng số: <strong>{{ totalItems() }}</strong></span>
