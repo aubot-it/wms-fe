@@ -35,6 +35,10 @@ import { AsnLineStore } from './asn-line.store';
             <mat-icon>add</mat-icon>
             <span>Thêm</span>
           </button>
+          <button mat-raised-button class="btn btn-success" (click)="openLpnDrawer()" [disabled]="selectedAsnLines().length === 0">
+            <mat-icon>inventory</mat-icon>
+            <span>Tạo Pallet</span>
+          </button>
           <button mat-raised-button class="btn btn-danger" (click)="onDelete()" [disabled]="selectedAsnLines().length === 0">
             <mat-icon>delete</mat-icon>
             <span>Xóa</span>
@@ -251,7 +255,7 @@ import { AsnLineStore } from './asn-line.store';
                 <mat-select required [(ngModel)]="drawerForm.asnId" name="asnId">
                   @for (asn of asns(); track asnKey(asn)) {
                     <mat-option [value]="asn.asnId ?? null">
-                      {{ asn.asnNo }} (ID: {{ asn.asnId }})
+                      {{ asn.asnNo }} (ID: {{ asn.asnId }} - Số lượng SKU: {{asn.numOfSku}})
                     </mat-option>
                   }
                 </mat-select>
@@ -284,6 +288,83 @@ import { AsnLineStore } from './asn-line.store';
               </button>
               <button mat-raised-button type="submit" class="btn btn-primary" [disabled]="isLoading()">
                 {{ drawerMode() === 'create' ? 'Lưu' : 'Cập nhật' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+
+    @if (lpnDrawerOpen()) {
+      <div class="drawer-backdrop" (click)="closeLpnDrawer()">
+        <div class="drawer-panel" (click)="$event.stopPropagation()">
+          <div class="drawer-header">
+            <h2 class="drawer-title">Tạo Pallet từ ASN Line</h2>
+            <button mat-icon-button class="drawer-close" (click)="closeLpnDrawer()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <form class="drawer-form" (ngSubmit)="submitLpnDrawer()">
+            <div class="drawer-field">
+              <label class="drawer-label">LPN Code <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput required [(ngModel)]="lpnDrawerForm.lpnCode" name="lpnCode" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">LPN Level <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput required [(ngModel)]="lpnDrawerForm.lpnLevel" name="lpnLevel" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Số lượng <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="number" required [(ngModel)]="lpnDrawerForm.qty" name="qty" min="1" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Status <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput required [(ngModel)]="lpnDrawerForm.status" name="status" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Trọng lượng (Kg)</label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="number" [(ngModel)]="lpnDrawerForm.weightKg" name="weightKg" min="0" step="0.01" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Thể tích (M³)</label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="number" [(ngModel)]="lpnDrawerForm.volumeM3" name="volumeM3" min="0" step="0.01" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Ngày đóng</label>
+              <div class="datetime-input-wrapper">
+                <input type="datetime-local" [(ngModel)]="lpnDrawerForm.closedAt" name="closedAt" class="datetime-input" />
+              </div>
+            </div>
+
+            <div class="drawer-info">
+              <mat-icon>info</mat-icon>
+              <span>Đang tạo pallet cho {{ selectedAsnLines().length }} ASN Line đã chọn</span>
+            </div>
+
+            <div class="drawer-actions">
+              <button mat-stroked-button type="button" class="btn btn-clear" (click)="closeLpnDrawer()">
+                Hủy
+              </button>
+              <button mat-raised-button type="submit" class="btn btn-success" [disabled]="isLoading()">
+                Tạo Pallet
               </button>
             </div>
           </form>
@@ -409,5 +490,26 @@ export class AsnLineComponent {
 
   pages(): number[] {
     return this.store.pages();
+  }
+
+  // LPN Methods
+  lpnDrawerOpen = this.store.lpnDrawerOpen;
+  get lpnDrawerForm() {
+    return this.store.lpnDrawerForm;
+  }
+  set lpnDrawerForm(v: any) {
+    this.store.lpnDrawerForm = v;
+  }
+
+  openLpnDrawer(): void {
+    this.store.openLpnDrawer();
+  }
+
+  closeLpnDrawer(): void {
+    this.store.closeLpnDrawer();
+  }
+
+  submitLpnDrawer(): void {
+    this.store.submitLpnDrawer();
   }
 }

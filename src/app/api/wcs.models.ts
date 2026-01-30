@@ -144,4 +144,16 @@ export interface AsnLineDTO {
   expectedQty: number;
 }
 
+export interface LpnDTO {
+  lpnId?: number;
+  lpnCode: string;
+  lpnLevel: string;
+  qty: number;
+  status: string;
+  weightKg?: number;
+  volumeM3?: number;
+  closedAt?: string;
+  asnLineIds: number[];
+}
+
 
