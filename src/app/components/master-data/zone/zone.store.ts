@@ -131,6 +131,40 @@ export class ZoneStore {
     isActive: true
   };
 
+  // Location drawer (create location in current zone)
+  locationDrawerOpen = signal<boolean>(false);
+  locationDrawerForm: {
+    locationCode: string;
+    warehouseId: number | null;
+    zoneId: number | null;
+    locationTypeId: number | null;
+    aisle: string;
+    shelfGroup: string;
+    depth: string;
+    layer: number;
+    bay: number;
+    side: string;
+    pickPriority: number;
+    putawayPriority: number;
+    isLocked: boolean;
+    status: string;
+  } = {
+    locationCode: '',
+    warehouseId: null,
+    zoneId: null,
+    locationTypeId: null,
+    aisle: '',
+    shelfGroup: '',
+    depth: '',
+    layer: 0,
+    bay: 0,
+    side: '',
+    pickPriority: 0,
+    putawayPriority: 0,
+    isLocked: false,
+    status: ''
+  };
+
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       this.reloadWarehouses();
@@ -620,8 +654,80 @@ export class ZoneStore {
     });
   }
 
-  createLocation(): void {
-    alert('Triển khai sau');
+  openLocationDrawer(): void {
+    const zone = this.getDetailZone();
+    if (!zone || zone.zoneID == null || zone.warehouseId == null) {
+      alert('Vui lòng mở chi tiết Zone trước khi tạo Location.');
+      return;
+    }
+    this.locationDrawerForm = {
+      locationCode: '',
+      warehouseId: zone.warehouseId,
+      zoneId: zone.zoneID,
+      locationTypeId: this.locationFilters.locationTypeId ?? null,
+      aisle: '',
+      shelfGroup: '',
+      depth: '',
+      layer: 0,
+      bay: 0,
+      side: '',
+      pickPriority: 0,
+      putawayPriority: 0,
+      isLocked: false,
+      status: ''
+    };
+    this.locationDrawerOpen.set(true);
+  }
+
+  closeLocationDrawer(): void {
+    this.locationDrawerOpen.set(false);
+  }
+
+  submitLocationDrawer(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const f = this.locationDrawerForm;
+    const locationCode = (f.locationCode || '').trim();
+    const warehouseId = f.warehouseId;
+    const zoneId = f.zoneId;
+    const locationTypeId = f.locationTypeId;
+
+    if (!locationCode || warehouseId == null || zoneId == null || locationTypeId == null) {
+      alert('Vui lòng nhập LocationCode và chọn Warehouse, Zone, LocationType.');
+      return;
+    }
+
+    const payload: LocationDTO = {
+      locationCode,
+      warehouseID: warehouseId,
+      zoneID: zoneId,
+      locationTypeID: locationTypeId,
+      aisle: (f.aisle || '').trim(),
+      shelfGroup: (f.shelfGroup || '').trim(),
+      depth: (f.depth || '').trim(),
+      layer: Number.isFinite(f.layer) ? f.layer : 0,
+      bay: Number.isFinite(f.bay) ? f.bay : 0,
+      side: (f.side || '').trim(),
+      pickPriority: Number.isFinite(f.pickPriority) ? f.pickPriority : 0,
+      putawayPriority: Number.isFinite(f.putawayPriority) ? f.putawayPriority : 0,
+      isLocked: f.isLocked,
+      status: (f.status || '').trim() || undefined
+    };
+
+    this.isLoading.set(true);
+    this.api.createLocation(payload).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.closeLocationDrawer();
+        this.reloadDetailForCurrentZone();
+        alert('Tạo Location thành công.');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        alert('Tạo Location thất bại');
+      }
+    });
   }
 }
 

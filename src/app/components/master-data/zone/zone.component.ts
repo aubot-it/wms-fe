@@ -697,6 +697,111 @@ import { ZoneStore } from './zone.store';
         </div>
       </div>
     }
+
+    @if (locationDrawerOpen()) {
+      <div class="drawer-backdrop" (click)="closeLocationDrawer()">
+        <div class="drawer-panel" (click)="$event.stopPropagation()">
+          <div class="drawer-header">
+            <h2 class="drawer-title">Thêm Location</h2>
+            <button mat-icon-button class="drawer-close" (click)="closeLocationDrawer()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <form class="drawer-form" (ngSubmit)="submitLocationDrawer()">
+            <div class="drawer-field">
+              <label class="drawer-label">Zone</label>
+              <p class="drawer-readonly">{{ detailZone()?.zoneCode }} - {{ detailZone()?.zoneName }}</p>
+            </div>
+            <div class="drawer-field">
+              <label class="drawer-label">LocationCode <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="text" required [(ngModel)]="locationDrawerForm.locationCode" name="locationCode" />
+              </mat-form-field>
+            </div>
+            <div class="drawer-field">
+              <label class="drawer-label">LocationType <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <mat-select required [(ngModel)]="locationDrawerForm.locationTypeId" name="locationTypeId">
+                  <mat-option [value]="null">-- Chọn --</mat-option>
+                  @for (lt of locationTypes(); track lt.locationTypeID) {
+                    <mat-option [value]="lt.locationTypeID ?? null">{{ lt.locationTypeCode }} - {{ lt.locationTypeName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Aisle</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.aisle" name="aisle" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">ShelfGroup</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.shelfGroup" name="shelfGroup" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Depth</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.depth" name="depth" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Side</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.side" name="side" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Layer</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.layer" name="layer" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Bay</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.bay" name="bay" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">PickPriority</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.pickPriority" name="pickPriority" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">PutawayPriority</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.putawayPriority" name="putawayPriority" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-field">
+              <label class="drawer-label">Status</label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="text" [(ngModel)]="locationDrawerForm.status" name="status" />
+              </mat-form-field>
+            </div>
+            <div class="drawer-row drawer-row--checks">
+              <mat-checkbox [(ngModel)]="locationDrawerForm.isLocked" name="isLocked">IsLocked</mat-checkbox>
+            </div>
+            <div class="drawer-actions">
+              <button mat-stroked-button type="button" class="btn btn-clear" (click)="closeLocationDrawer()">Hủy</button>
+              <button mat-raised-button type="submit" class="btn btn-primary" [disabled]="isLoading()">Lưu</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
   `,
   styleUrl: './zone.component.css'
 })
@@ -871,7 +976,23 @@ export class ZoneComponent {
   }
 
   createLocation(): void {
-    this.store.createLocation();
+    this.store.openLocationDrawer();
+  }
+
+  locationDrawerOpen = this.store.locationDrawerOpen;
+  get locationDrawerForm() {
+    return this.store.locationDrawerForm;
+  }
+  set locationDrawerForm(v: typeof this.store.locationDrawerForm) {
+    this.store.locationDrawerForm = v;
+  }
+
+  closeLocationDrawer(): void {
+    this.store.closeLocationDrawer();
+  }
+
+  submitLocationDrawer(): void {
+    this.store.submitLocationDrawer();
   }
 }
 
