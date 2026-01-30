@@ -95,6 +95,7 @@ export class ZoneStore {
   detailOpen = signal<boolean>(false);
   detailZone = signal<ZoneDTO | null>(null);
   locationTypes = signal<LocationTypeDTO[]>([]);
+  locationTypesError = signal<string>('');
   locations = signal<LocationDTO[]>([]);
   selectedLocationTypeKeys = signal<string[]>([]);
   selectedLocationKeys = signal<string[]>([]);
@@ -129,6 +130,40 @@ export class ZoneStore {
     shelfType: '',
     oneToManyConfig: true,
     isActive: true
+  };
+
+  // Location drawer (create location in current zone)
+  locationDrawerOpen = signal<boolean>(false);
+  locationDrawerForm: {
+    locationCode: string;
+    warehouseId: number | null;
+    zoneId: number | null;
+    locationTypeId: number | null;
+    aisle: string;
+    shelfGroup: string;
+    depth: string;
+    layer: number;
+    bay: number;
+    side: string;
+    pickPriority: number;
+    putawayPriority: number;
+    isLocked: boolean;
+    status: string;
+  } = {
+    locationCode: '',
+    warehouseId: null,
+    zoneId: null,
+    locationTypeId: null,
+    aisle: '',
+    shelfGroup: '',
+    depth: '',
+    layer: 0,
+    bay: 0,
+    side: '',
+    pickPriority: 0,
+    putawayPriority: 0,
+    isLocked: false,
+    status: ''
   };
 
   constructor() {
@@ -367,6 +402,14 @@ export class ZoneStore {
     });
   }
 
+  /** Chuẩn hóa zone từ API: backend có thể trả zoneId/ZoneId thay vì zoneID */
+  private normalizeZone(z: ZoneDTO): ZoneDTO {
+    const raw = z as unknown as Record<string, unknown>;
+    const id = raw['zoneID'] ?? raw['zoneId'] ?? raw['ZoneId'];
+    const numId = id != null && Number.isFinite(Number(id)) ? Number(id) : undefined;
+    return { ...z, zoneID: numId ?? z.zoneID };
+  }
+
   rowKey(z: ZoneDTO): string {
     return z.zoneID != null ? String(z.zoneID) : z.zoneCode;
   }
@@ -421,7 +464,8 @@ export class ZoneStore {
       })
       .subscribe({
         next: (result) => {
-          const list = result.items ?? [];
+          const rawList = result.items ?? [];
+          const list = rawList.map((z) => this.normalizeZone(z));
           const total = result.total ?? list.length;
 
           this.allZones.set(list);
@@ -469,6 +513,7 @@ export class ZoneStore {
 
   private reloadDetailForCurrentZone(): void {
     const zone = this.getDetailZone();
+    this.locationTypesError.set('');
     if (!zone || zone.zoneID == null || zone.warehouseId == null) {
       this.locationTypes.set([]);
       this.locations.set([]);
@@ -477,12 +522,18 @@ export class ZoneStore {
       return;
     }
 
-    // Load all location types (not filtered by zone)
+    // Load all location types (keyword optional; backend may return items/data/result/locationTypes)
     this.api
       .getLocationTypeList({ page: 1, pageSize: 1000 })
       .subscribe({
-        next: (res) => this.locationTypes.set(res.items ?? []),
-        error: () => this.locationTypes.set([])
+        next: (res) => {
+          this.locationTypes.set(res?.items ?? []);
+          this.locationTypesError.set('');
+        },
+        error: (err) => {
+          this.locationTypes.set([]);
+          this.locationTypesError.set(err?.error?.message ?? err?.message ?? 'Không tải được danh sách Location Type');
+        }
       });
 
     this.reloadLocationsForZone(zone);
@@ -490,6 +541,12 @@ export class ZoneStore {
 
   reloadLocations(): void {
     this.reloadLocationsForZone(this.getDetailZone());
+  }
+
+  /** Chọn Location Type ở bảng giữa để lọc danh sách location vật lý bên trái */
+  selectLocationTypeForFilter(lt: LocationTypeDTO | null): void {
+    this.locationFilters = { locationTypeId: lt?.locationTypeID ?? null };
+    this.reloadLocations();
   }
 
   private reloadLocationsForZone(zone: ZoneDTO | null): void {
@@ -582,9 +639,42 @@ export class ZoneStore {
     const f = this.locationTypeDrawerForm;
     const code = (f.locationTypeCode || '').trim();
     const name = (f.locationTypeName || '').trim();
+    const shelfType = (f.shelfType || '').trim();
 
     if (!code || !name) {
       alert('Vui lòng nhập đầy đủ LocationTypeCode và LocationTypeName');
+      return;
+    }
+    if (!Number.isFinite(f.heightCm) && f.heightCm !== 0) {
+      alert('Vui lòng nhập Height (cm)');
+      return;
+    }
+    if (!Number.isFinite(f.widthCm) && f.widthCm !== 0) {
+      alert('Vui lòng nhập Width (cm)');
+      return;
+    }
+    if (!Number.isFinite(f.depthCm) && f.depthCm !== 0) {
+      alert('Vui lòng nhập Depth (cm)');
+      return;
+    }
+    if (!Number.isFinite(f.maxWeightKg) && f.maxWeightKg !== 0) {
+      alert('Vui lòng nhập Max Weight (kg)');
+      return;
+    }
+    if (!Number.isFinite(f.maxVolumeM3) && f.maxVolumeM3 !== 0) {
+      alert('Vui lòng nhập Max Volume (m3)');
+      return;
+    }
+    if (!Number.isFinite(f.maxPallets) && f.maxPallets !== 0) {
+      alert('Vui lòng nhập Max Pallets');
+      return;
+    }
+    if (!Number.isFinite(f.maxLayers) && f.maxLayers !== 0) {
+      alert('Vui lòng nhập Max Layers');
+      return;
+    }
+    if (!shelfType) {
+      alert('Vui lòng nhập Shelf Type');
       return;
     }
 
@@ -599,7 +689,7 @@ export class ZoneStore {
       maxPallets: Number.isFinite(f.maxPallets) ? f.maxPallets : 0,
       maxLayers: Number.isFinite(f.maxLayers) ? f.maxLayers : 0,
       locationType: null,
-      shelfType: f.shelfType?.trim() || null,
+      shelfType: shelfType || null,
       oneToManyConfig: f.oneToManyConfig,
       isActive: f.isActive
     };
@@ -620,8 +710,80 @@ export class ZoneStore {
     });
   }
 
-  createLocation(): void {
-    alert('Triển khai sau');
+  openLocationDrawer(): void {
+    const zone = this.getDetailZone();
+    if (!zone || zone.zoneID == null || zone.warehouseId == null) {
+      alert('Vui lòng mở chi tiết Zone trước khi tạo Location.');
+      return;
+    }
+    this.locationDrawerForm = {
+      locationCode: '',
+      warehouseId: zone.warehouseId,
+      zoneId: zone.zoneID,
+      locationTypeId: this.locationFilters.locationTypeId ?? null,
+      aisle: '',
+      shelfGroup: '',
+      depth: '',
+      layer: 0,
+      bay: 0,
+      side: '',
+      pickPriority: 0,
+      putawayPriority: 0,
+      isLocked: false,
+      status: ''
+    };
+    this.locationDrawerOpen.set(true);
+  }
+
+  closeLocationDrawer(): void {
+    this.locationDrawerOpen.set(false);
+  }
+
+  submitLocationDrawer(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const f = this.locationDrawerForm;
+    const locationCode = (f.locationCode || '').trim();
+    const warehouseId = f.warehouseId;
+    const zoneId = f.zoneId;
+    const locationTypeId = f.locationTypeId;
+
+    if (!locationCode || warehouseId == null || zoneId == null || locationTypeId == null) {
+      alert('Vui lòng nhập LocationCode và chọn Warehouse, Zone, LocationType.');
+      return;
+    }
+
+    const payload: LocationDTO = {
+      locationCode,
+      warehouseID: warehouseId,
+      zoneID: zoneId,
+      locationTypeID: locationTypeId,
+      aisle: (f.aisle || '').trim(),
+      shelfGroup: (f.shelfGroup || '').trim(),
+      depth: (f.depth || '').trim(),
+      layer: Number.isFinite(f.layer) ? f.layer : 0,
+      bay: Number.isFinite(f.bay) ? f.bay : 0,
+      side: (f.side || '').trim(),
+      pickPriority: Number.isFinite(f.pickPriority) ? f.pickPriority : 0,
+      putawayPriority: Number.isFinite(f.putawayPriority) ? f.putawayPriority : 0,
+      isLocked: f.isLocked,
+      status: (f.status || '').trim() || undefined
+    };
+
+    this.isLoading.set(true);
+    this.api.createLocation(payload).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.closeLocationDrawer();
+        this.reloadDetailForCurrentZone();
+        alert('Tạo Location thành công.');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        alert('Tạo Location thất bại');
+      }
+    });
   }
 }
 

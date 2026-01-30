@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import './zone.component.css';
 import { ZoneStore } from './zone.store';
+import type { LocationTypeDTO } from '../../../api/wcs.models';
 
 @Component({
   selector: 'app-zone',
@@ -287,125 +288,167 @@ import { ZoneStore } from './zone.store';
       </div>
     </div>
 
-    <!-- Floating detail dialog -->
+    <!-- Zone detail -->
     @if (detailOpen()) {
-      <div class="zone-detail-backdrop" (click)="closeDetail()">
-        <div class="zone-detail-modal" (click)="$event.stopPropagation()">
-          <div class="zone-detail-modal__header">
-            <div>
-              <h2 class="zone-detail-modal__title">Chi tiết Zone</h2>
-              <div class="zone-detail-modal__subtitle">
-                {{ detailZone()?.zoneCode }} - {{ detailZone()?.zoneName }}
+      <div class="zone-detail-fullscreen">
+        <div class="zone-detail-fullscreen__header">
+          <div>
+            <h2 class="zone-detail-fullscreen__title">Chi tiết Zone</h2>
+            <div class="zone-detail-fullscreen__subtitle">
+              {{ detailZone()?.zoneCode }} - {{ detailZone()?.zoneName }}
+            </div>
+          </div>
+          <button mat-icon-button class="drawer-close" type="button" (click)="closeDetail()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="zone-detail-fullscreen__body">
+          <!-- Trái -->
+          <div class="zone-detail-panel zone-detail-panel--left">
+            <div class="zone-detail-card">
+              <div class="zone-detail-card__header">
+                <h2 class="zone-detail-card__title">Locations (vật lý)</h2>
+              </div>
+              <div class="table-wrapper">
+                <table mat-table [dataSource]="locations()" class="warehouse-table">
+                  <ng-container matColumnDef="locCode">
+                    <th mat-header-cell *matHeaderCellDef>Code</th>
+                    <td mat-cell *matCellDef="let l"><strong>{{ l.locationCode }}</strong></td>
+                  </ng-container>
+                  <ng-container matColumnDef="aisle">
+                    <th mat-header-cell *matHeaderCellDef>Aisle</th>
+                    <td mat-cell *matCellDef="let l">{{ l.aisle }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="bay">
+                    <th mat-header-cell *matHeaderCellDef>Bay</th>
+                    <td mat-cell *matCellDef="let l">{{ l.bay }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="layer">
+                    <th mat-header-cell *matHeaderCellDef>Layer</th>
+                    <td mat-cell *matCellDef="let l">{{ l.layer }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="['locCode', 'aisle', 'bay', 'layer']"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['locCode', 'aisle', 'bay', 'layer']"></tr>
+                </table>
               </div>
             </div>
-            <button mat-icon-button class="drawer-close" type="button" (click)="closeDetail()">
-              <mat-icon>close</mat-icon>
-            </button>
           </div>
 
-          <div class="zone-detail-modal__body">
-            <div class="zone-detail-grid">
-              <!-- Location Types -->
-              <div class="zone-detail-card">
-                <div class="zone-detail-card__header">
-                  <h2 class="zone-detail-card__title">Location Types</h2>
-                </div>
-                <div class="table-wrapper">
-                  <table mat-table [dataSource]="locationTypes()" class="warehouse-table">
-                    <ng-container matColumnDef="ltCode">
-                      <th mat-header-cell *matHeaderCellDef>Code</th>
-                      <td mat-cell *matCellDef="let lt"><strong>{{ lt.locationTypeCode }}</strong></td>
-                    </ng-container>
-                    <ng-container matColumnDef="ltName">
-                      <th mat-header-cell *matHeaderCellDef>Name</th>
-                      <td mat-cell *matCellDef="let lt">{{ lt.locationTypeName }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="ltActive">
-                      <th mat-header-cell *matHeaderCellDef>Active</th>
-                      <td mat-cell *matCellDef="let lt">
-                        {{ lt.isActive == null ? '-' : (lt.isActive ? 'Yes' : 'No') }}
-                      </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="['ltCode', 'ltName', 'ltActive']"></tr>
-                    <tr mat-row *matRowDef="let row; columns: ['ltCode', 'ltName', 'ltActive']"></tr>
-                  </table>
-                </div>
+          <!-- Giữa-->
+          <div class="zone-detail-panel zone-detail-panel--center">
+            <div class="zone-detail-card">
+              <div class="zone-detail-card__header zone-detail-card__header--with-action">
+                <h2 class="zone-detail-card__title">Location Types</h2>
+                <button mat-stroked-button type="button" class="btn btn-clear btn-sm" (click)="selectLocationTypeForFilter(null)">
+                  Tất cả
+                </button>
               </div>
-
-              <!-- Locations -->
-              <div class="zone-detail-card">
-                <div class="zone-detail-card__header">
-                  <h2 class="zone-detail-card__title">Locations (vật lý)</h2>
+              @if (locationTypesError()) {
+                <div class="notice notice--error zone-detail-notice">
+                  <div><strong>Lỗi:</strong> {{ locationTypesError() }}</div>
                 </div>
+              }
+              <div class="table-wrapper">
+                <table mat-table [dataSource]="locationTypes()" class="warehouse-table">
+                  <ng-container matColumnDef="ltCode">
+                    <th mat-header-cell *matHeaderCellDef>Code</th>
+                    <td mat-cell *matCellDef="let lt"><strong>{{ lt.locationTypeCode }}</strong></td>
+                  </ng-container>
+                  <ng-container matColumnDef="ltName">
+                    <th mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let lt">{{ lt.locationTypeName }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="ltActive">
+                    <th mat-header-cell *matHeaderCellDef>Active</th>
+                    <td mat-cell *matCellDef="let lt">
+                      {{ lt.isActive == null ? '-' : (lt.isActive ? 'Yes' : 'No') }}
+                    </td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="['ltCode', 'ltName', 'ltActive']"></tr>
+                  <tr
+                    mat-row
+                    *matRowDef="let row; columns: ['ltCode', 'ltName', 'ltActive']"
+                    class="zone-detail-lt-row"
+                    [class.zone-detail-lt-row--selected]="locationFilters.locationTypeId === row.locationTypeID"
+                    (click)="selectLocationTypeForFilter(row)"
+                  ></tr>
+                </table>
+              </div>
+            </div>
+          </div>
 
-                <div class="zone-detail-filters">
-                  <div class="filter-group">
-                    <label class="filter-label">Location Type</label>
-                    <mat-form-field appearance="outline" class="filter-field">
-                      <mat-select
-                        [(ngModel)]="locationFilters.locationTypeId"
-                        (selectionChange)="reloadLocations()"
-                      >
-                        <mat-option [value]="null">Tất cả</mat-option>
-                        @for (lt of locationTypes(); track lt.locationTypeID) {
-                          <mat-option [value]="lt.locationTypeID ?? null">
-                            {{ lt.locationTypeCode }} - {{ lt.locationTypeName }}
-                          </mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
+          <!-- Phải -->
+          <div class="zone-detail-panel zone-detail-panel--right">
+            <div class="zone-detail-card zone-detail-card--attrs">
+              <div class="zone-detail-card__header">
+                <h2 class="zone-detail-card__title">Thuộc tính Zone</h2>
+              </div>
+              @if (detailZone(); as zone) {
+                <div class="zone-detail-attrs zone-detail-attrs--grid">
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Zone ID</span>
+                    <span class="zone-detail-attr__value">{{ zone.zoneID ?? '-' }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Zone Code</span>
+                    <span class="zone-detail-attr__value">{{ zone.zoneCode }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Zone Name</span>
+                    <span class="zone-detail-attr__value">{{ zone.zoneName }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Warehouse</span>
+                    <span class="zone-detail-attr__value">{{ warehouseLabel(zone.warehouseId) }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Temperature</span>
+                    <span class="zone-detail-attr__value">{{ zone.temperatureControlType }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Usage</span>
+                    <span class="zone-detail-attr__value">{{ zone.zoneUsage }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Zone Type</span>
+                    <span class="zone-detail-attr__value">{{ zone.zoneType ?? '-' }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">ABC Category</span>
+                    <span class="zone-detail-attr__value">{{ zone.abcCategory ?? '-' }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Mixing Strategy</span>
+                    <span class="zone-detail-attr__value">{{ zone.mixingStrategy ?? '-' }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Operation Mode</span>
+                    <span class="zone-detail-attr__value">{{ zone.operationMode ?? '-' }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">External</span>
+                    <span class="zone-detail-attr__value">{{ zone.isExternal == null ? '-' : (zone.isExternal ? 'Yes' : 'No') }}</span>
+                  </div>
+                  <div class="zone-detail-attr">
+                    <span class="zone-detail-attr__label">Active</span>
+                    <span class="zone-detail-attr__value">{{ zone.isActive == null ? '-' : (zone.isActive ? 'Yes' : 'No') }}</span>
                   </div>
                 </div>
-
-                <div class="table-wrapper">
-                  <table mat-table [dataSource]="locations()" class="warehouse-table">
-                    <ng-container matColumnDef="locCode">
-                      <th mat-header-cell *matHeaderCellDef>Code</th>
-                      <td mat-cell *matCellDef="let l"><strong>{{ l.locationCode }}</strong></td>
-                    </ng-container>
-                    <ng-container matColumnDef="aisle">
-                      <th mat-header-cell *matHeaderCellDef>Aisle</th>
-                      <td mat-cell *matCellDef="let l">{{ l.aisle }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="bay">
-                      <th mat-header-cell *matHeaderCellDef>Bay</th>
-                      <td mat-cell *matCellDef="let l">{{ l.bay }}</td>
-                    </ng-container>
-                    <ng-container matColumnDef="layer">
-                      <th mat-header-cell *matHeaderCellDef>Layer</th>
-                      <td mat-cell *matCellDef="let l">{{ l.layer }}</td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="['locCode', 'aisle', 'bay', 'layer']"></tr>
-                    <tr mat-row *matRowDef="let row; columns: ['locCode', 'aisle', 'bay', 'layer']"></tr>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <div class="zone-detail-modal__footer">
-              <button
-                mat-stroked-button
-                type="button"
-                class="btn btn-clear"
-                (click)="openLocationTypeDrawer()"
-              >
-                <mat-icon>add</mat-icon>
-                <span>Tạo LocationType</span>
-              </button>
-              <button
-                mat-raised-button
-                color="primary"
-                type="button"
-                class="btn btn-primary"
-                (click)="createLocation()"
-              >
-                <mat-icon>add_location</mat-icon>
-                <span>Tạo Location</span>
-              </button>
+              }
             </div>
           </div>
+        </div>
+
+        <div class="zone-detail-fullscreen__footer">
+          <button mat-stroked-button type="button" class="btn btn-clear" (click)="openLocationTypeDrawer()">
+            <mat-icon>add</mat-icon>
+            <span>Tạo LocationType</span>
+          </button>
+          <button mat-raised-button color="primary" type="button" class="btn btn-primary" (click)="createLocation()">
+            <mat-icon>add_location</mat-icon>
+            <span>Tạo Location</span>
+          </button>
         </div>
       </div>
     }
@@ -562,22 +605,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Height (cm)</label>
+                <label class="drawer-label">Height (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.heightCm"
                     name="heightCm"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Width (cm)</label>
+                <label class="drawer-label">Width (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.widthCm"
                     name="widthCm"
                   />
@@ -587,22 +632,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Depth (cm)</label>
+                <label class="drawer-label">Depth (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.depthCm"
                     name="depthCm"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Max Weight (kg)</label>
+                <label class="drawer-label">Max Weight (kg) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxWeightKg"
                     name="maxWeightKg"
                   />
@@ -612,22 +659,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Max Volume (m3)</label>
+                <label class="drawer-label">Max Volume (m3) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxVolumeM3"
                     name="maxVolumeM3"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Max Pallets</label>
+                <label class="drawer-label">Max Pallets <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxPallets"
                     name="maxPallets"
                   />
@@ -637,22 +686,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Max Layers</label>
+                <label class="drawer-label">Max Layers <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxLayers"
                     name="maxLayers"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Shelf Type</label>
+                <label class="drawer-label">Shelf Type <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="text"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.shelfType"
                     name="shelfType"
                   />
@@ -697,6 +748,111 @@ import { ZoneStore } from './zone.store';
         </div>
       </div>
     }
+
+    @if (locationDrawerOpen()) {
+      <div class="drawer-backdrop" (click)="closeLocationDrawer()">
+        <div class="drawer-panel" (click)="$event.stopPropagation()">
+          <div class="drawer-header">
+            <h2 class="drawer-title">Thêm Location</h2>
+            <button mat-icon-button class="drawer-close" (click)="closeLocationDrawer()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <form class="drawer-form" (ngSubmit)="submitLocationDrawer()">
+            <div class="drawer-field">
+              <label class="drawer-label">Zone</label>
+              <p class="drawer-readonly">{{ detailZone()?.zoneCode }} - {{ detailZone()?.zoneName }}</p>
+            </div>
+            <div class="drawer-field">
+              <label class="drawer-label">LocationCode <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="text" required [(ngModel)]="locationDrawerForm.locationCode" name="locationCode" />
+              </mat-form-field>
+            </div>
+            <div class="drawer-field">
+              <label class="drawer-label">LocationType <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <mat-select required [(ngModel)]="locationDrawerForm.locationTypeId" name="locationTypeId">
+                  <mat-option [value]="null">-- Chọn --</mat-option>
+                  @for (lt of locationTypes(); track lt.locationTypeID) {
+                    <mat-option [value]="lt.locationTypeID ?? null">{{ lt.locationTypeCode }} - {{ lt.locationTypeName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Aisle</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.aisle" name="aisle" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">ShelfGroup</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.shelfGroup" name="shelfGroup" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Depth</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.depth" name="depth" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Side</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="text" [(ngModel)]="locationDrawerForm.side" name="side" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">Layer</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.layer" name="layer" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">Bay</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.bay" name="bay" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-row">
+              <div class="drawer-field">
+                <label class="drawer-label">PickPriority</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.pickPriority" name="pickPriority" />
+                </mat-form-field>
+              </div>
+              <div class="drawer-field">
+                <label class="drawer-label">PutawayPriority</label>
+                <mat-form-field appearance="outline" class="drawer-form-field-half">
+                  <input matInput type="number" [(ngModel)]="locationDrawerForm.putawayPriority" name="putawayPriority" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="drawer-field">
+              <label class="drawer-label">Status</label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="text" [(ngModel)]="locationDrawerForm.status" name="status" />
+              </mat-form-field>
+            </div>
+            <div class="drawer-row drawer-row--checks">
+              <mat-checkbox [(ngModel)]="locationDrawerForm.isLocked" name="isLocked">IsLocked</mat-checkbox>
+            </div>
+            <div class="drawer-actions">
+              <button mat-stroked-button type="button" class="btn btn-clear" (click)="closeLocationDrawer()">Hủy</button>
+              <button mat-raised-button type="submit" class="btn btn-primary" [disabled]="isLoading()">Lưu</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
   `,
   styleUrl: './zone.component.css'
 })
@@ -714,6 +870,7 @@ export class ZoneComponent {
 
   // Detail: LocationTypes & Locations
   locationTypes = this.store.locationTypes;
+  locationTypesError = this.store.locationTypesError;
   locations = this.store.locations;
   page = this.store.page;
   pageSize = this.store.pageSize;
@@ -858,6 +1015,10 @@ export class ZoneComponent {
     this.store.reloadLocations();
   }
 
+  selectLocationTypeForFilter(lt: LocationTypeDTO | null): void {
+    this.store.selectLocationTypeForFilter(lt);
+  }
+
   openLocationTypeDrawer(): void {
     this.store.createLocationType();
   }
@@ -871,7 +1032,23 @@ export class ZoneComponent {
   }
 
   createLocation(): void {
-    this.store.createLocation();
+    this.store.openLocationDrawer();
+  }
+
+  locationDrawerOpen = this.store.locationDrawerOpen;
+  get locationDrawerForm() {
+    return this.store.locationDrawerForm;
+  }
+  set locationDrawerForm(v: typeof this.store.locationDrawerForm) {
+    this.store.locationDrawerForm = v;
+  }
+
+  closeLocationDrawer(): void {
+    this.store.closeLocationDrawer();
+  }
+
+  submitLocationDrawer(): void {
+    this.store.submitLocationDrawer();
   }
 }
 

@@ -111,8 +111,11 @@ export class WcsZoneApi {
 
   private unwrapList<T>(res: ListResponse<T>): PagedResult<T> {
     if (Array.isArray(res)) return { items: res, total: res.length };
-    const items = res.items ?? res.data ?? res.result ?? [];
-    const total = res.total ?? res.totalCount ?? items.length;
+    const raw = res as Record<string, unknown>;
+    const rawItems =
+      raw['items'] ?? raw['data'] ?? raw['Data'] ?? raw['result'] ?? raw['locationTypes'] ?? raw['value'] ?? raw['content'];
+    const items = Array.isArray(rawItems) ? (rawItems as T[]) : [];
+    const total = Number(raw['total'] ?? raw['totalCount'] ?? raw['totalRecords']) || items.length;
     return { items, total };
   }
 }
