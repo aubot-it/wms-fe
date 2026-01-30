@@ -616,9 +616,42 @@ export class ZoneStore {
     const f = this.locationTypeDrawerForm;
     const code = (f.locationTypeCode || '').trim();
     const name = (f.locationTypeName || '').trim();
+    const shelfType = (f.shelfType || '').trim();
 
     if (!code || !name) {
       alert('Vui lòng nhập đầy đủ LocationTypeCode và LocationTypeName');
+      return;
+    }
+    if (!Number.isFinite(f.heightCm) && f.heightCm !== 0) {
+      alert('Vui lòng nhập Height (cm)');
+      return;
+    }
+    if (!Number.isFinite(f.widthCm) && f.widthCm !== 0) {
+      alert('Vui lòng nhập Width (cm)');
+      return;
+    }
+    if (!Number.isFinite(f.depthCm) && f.depthCm !== 0) {
+      alert('Vui lòng nhập Depth (cm)');
+      return;
+    }
+    if (!Number.isFinite(f.maxWeightKg) && f.maxWeightKg !== 0) {
+      alert('Vui lòng nhập Max Weight (kg)');
+      return;
+    }
+    if (!Number.isFinite(f.maxVolumeM3) && f.maxVolumeM3 !== 0) {
+      alert('Vui lòng nhập Max Volume (m3)');
+      return;
+    }
+    if (!Number.isFinite(f.maxPallets) && f.maxPallets !== 0) {
+      alert('Vui lòng nhập Max Pallets');
+      return;
+    }
+    if (!Number.isFinite(f.maxLayers) && f.maxLayers !== 0) {
+      alert('Vui lòng nhập Max Layers');
+      return;
+    }
+    if (!shelfType) {
+      alert('Vui lòng nhập Shelf Type');
       return;
     }
 
@@ -633,7 +666,7 @@ export class ZoneStore {
       maxPallets: Number.isFinite(f.maxPallets) ? f.maxPallets : 0,
       maxLayers: Number.isFinite(f.maxLayers) ? f.maxLayers : 0,
       locationType: null,
-      shelfType: f.shelfType?.trim() || null,
+      shelfType: shelfType || null,
       oneToManyConfig: f.oneToManyConfig,
       isActive: f.isActive
     };

@@ -562,22 +562,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Height (cm)</label>
+                <label class="drawer-label">Height (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.heightCm"
                     name="heightCm"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Width (cm)</label>
+                <label class="drawer-label">Width (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.widthCm"
                     name="widthCm"
                   />
@@ -587,22 +589,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Depth (cm)</label>
+                <label class="drawer-label">Depth (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.depthCm"
                     name="depthCm"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Max Weight (kg)</label>
+                <label class="drawer-label">Max Weight (kg) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxWeightKg"
                     name="maxWeightKg"
                   />
@@ -612,22 +616,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Max Volume (m3)</label>
+                <label class="drawer-label">Max Volume (m3) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxVolumeM3"
                     name="maxVolumeM3"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Max Pallets</label>
+                <label class="drawer-label">Max Pallets <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxPallets"
                     name="maxPallets"
                   />
@@ -637,22 +643,24 @@ import { ZoneStore } from './zone.store';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Max Layers</label>
+                <label class="drawer-label">Max Layers <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="number"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.maxLayers"
                     name="maxLayers"
                   />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Shelf Type</label>
+                <label class="drawer-label">Shelf Type <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
                     type="text"
+                    required
                     [(ngModel)]="locationTypeDrawerForm.shelfType"
                     name="shelfType"
                   />
