@@ -31,10 +31,10 @@ import { PalletStore } from './pallet.store';
       <div class="pallet-header">
         <h1 class="pallet-title">Quản lý Pallet (LPN)</h1>
         <div class="pallet-actions">
-          <button mat-raised-button class="btn btn-primary" (click)="openCreateDrawer()">
+          <!-- <button mat-raised-button class="btn btn-primary" (click)="openCreateDrawer()">
             <mat-icon>add</mat-icon>
             <span>Thêm</span>
-          </button>
+          </button> -->
           <button mat-raised-button class="btn btn-success" (click)="onConfirmPallet()" [disabled]="selectedPallets().length !== 1">
             <mat-icon>check_circle</mat-icon>
             <span>Xác nhận Pallet</span>

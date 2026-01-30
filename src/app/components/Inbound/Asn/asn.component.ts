@@ -64,7 +64,7 @@ import { AsnStore } from './asn.store';
             <label class="filter-label">Warehouse (server)</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.warehouseID" (selectionChange)="applyFilters()">
-                <mat-option [value]="null">Tất cả</mat-option>
+                <mat-option [value]="">Tất cả</mat-option>
                 @for (w of warehouses(); track warehouseKey(w)) {
                   <mat-option [value]="w.warehouseId ?? null">
                     {{ w.warehouseCode }} - {{ w.warehouseName }}
