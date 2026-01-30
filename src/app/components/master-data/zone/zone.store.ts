@@ -543,6 +543,12 @@ export class ZoneStore {
     this.reloadLocationsForZone(this.getDetailZone());
   }
 
+  /** Chọn Location Type ở bảng giữa để lọc danh sách location vật lý bên trái */
+  selectLocationTypeForFilter(lt: LocationTypeDTO | null): void {
+    this.locationFilters = { locationTypeId: lt?.locationTypeID ?? null };
+    this.reloadLocations();
+  }
+
   private reloadLocationsForZone(zone: ZoneDTO | null): void {
     if (!zone || zone.zoneID == null || zone.warehouseId == null) {
       this.locations.set([]);

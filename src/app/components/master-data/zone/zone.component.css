@@ -47,64 +47,110 @@
   padding-inline: 0.75rem;
 }
 
-.zone-detail-backdrop {
+/* Zone detail: full screen - Trái: Locations | Giữa: Location Types | Phải: Thuộc tính Zone */
+.zone-detail-fullscreen {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
-}
-
-.zone-detail-modal {
-  background: #ffffff;
-  border-radius: 0.75rem;
-  max-width: 1200px;
-  width: 100%;
-  max-height: 90vh;
+  background: #f1f5f9;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
   overflow: hidden;
 }
 
-.zone-detail-modal__header {
+.zone-detail-fullscreen__header {
+  flex-shrink: 0;
   padding: 1rem 1.5rem;
+  background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.zone-detail-modal__title {
+.zone-detail-fullscreen__title {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: #0f172a;
 }
 
-.zone-detail-modal__subtitle {
-  margin-top: 0.15rem;
+.zone-detail-fullscreen__subtitle {
+  margin-top: 0.25rem;
   font-size: 0.875rem;
   color: #64748b;
 }
 
-.zone-detail-modal__body {
-  padding: 1.25rem 1.5rem 1.5rem;
-  overflow: auto;
+.zone-detail-fullscreen__footer {
+  flex-shrink: 0;
+  padding: 0.75rem 1.5rem;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.zone-detail-grid {
+.zone-detail-fullscreen__body {
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+  grid-template-columns: 1fr 1fr minmax(280px, 0.9fr);
   gap: 1rem;
+  padding: 1rem;
+  overflow: hidden;
 }
 
-@media (max-width: 1024px) {
-  .zone-detail-grid {
-    grid-template-columns: minmax(0, 1fr);
+.zone-detail-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.zone-detail-panel--left {
+  /* Locations */
+}
+
+.zone-detail-panel--center {
+  /* Location Types */
+}
+
+.zone-detail-panel--right {
+  /* Thuộc tính Zone */
+}
+
+@media (max-width: 1200px) {
+  .zone-detail-fullscreen__body {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .zone-detail-panel--left {
+    grid-column: 1;
+  }
+
+  .zone-detail-panel--center {
+    grid-column: 2;
+  }
+
+  .zone-detail-panel--right {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .zone-detail-fullscreen__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .zone-detail-panel--left,
+  .zone-detail-panel--center,
+  .zone-detail-panel--right {
+    grid-column: 1;
   }
 }
 
@@ -115,12 +161,31 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.zone-detail-card .table-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+.zone-detail-card--attrs {
+  overflow: auto;
 }
 
 .zone-detail-card__header {
+  flex-shrink: 0;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
+}
+
+.zone-detail-card__header--with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .zone-detail-card__title {
@@ -130,8 +195,67 @@
   color: #0f172a;
 }
 
+.btn-sm {
+  font-size: 0.8125rem;
+  padding: 0.35rem 0.75rem;
+  min-height: 32px;
+}
+
+/* Location Type row: chọn để lọc location vật lý bên trái */
+.zone-detail-lt-row {
+  cursor: pointer;
+}
+
+.zone-detail-lt-row:hover {
+  background: #f1f5f9;
+}
+
+.zone-detail-lt-row--selected {
+  background: #dbeafe;
+  border-left: 4px solid #3b82f6;
+}
+
 .zone-detail-filters {
+  flex-shrink: 0;
   padding: 0.75rem 1rem 0;
+}
+
+/* Thuộc tính Zone (panel phải): 2 cột, mỗi thuộc tính trong ô */
+.zone-detail-attrs {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.zone-detail-attrs--grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.zone-detail-attr {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+}
+
+.zone-detail-attr__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.zone-detail-attr__value {
+  font-size: 0.9375rem;
+  color: #0f172a;
 }
 
 .zone-detail-notice {
