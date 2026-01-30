@@ -321,7 +321,7 @@ import { AsnLineStore } from './asn-line.store';
 
             <div class="drawer-field">
               <label class="drawer-label">Số lượng <span class="required">*</span></label>
-              <mat-form-field appearance="outline" class="drawer-form-field">
+              <mat-form-field appearance="outline" class="drawer-form-field" [class.over-limit]="lpnDrawerForm.qty != null && lpnDrawerForm.qty > 1000">
                 <input matInput type="number" required [(ngModel)]="lpnDrawerForm.qty" name="qty" min="1" />
               </mat-form-field>
             </div>

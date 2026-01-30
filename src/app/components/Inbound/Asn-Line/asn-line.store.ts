@@ -387,10 +387,15 @@ export class AsnLineStore {
             return;
         }
 
+        // Calculate total quantity from selected ASN lines
+        const totalQty = this.allAsnLines()
+            .filter((line) => selected.includes(this.rowKey(line)))
+            .reduce((sum, line) => sum + (line.expectedQty || 0), 0);
+
         this.lpnDrawerForm = {
             lpnCode: '',
             lpnLevel: '',
-            qty: null,
+            qty: totalQty,
             status: 'PENDING',
             weightKg: null,
             volumeM3: null,
