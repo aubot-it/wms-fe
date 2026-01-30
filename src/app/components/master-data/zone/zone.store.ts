@@ -95,6 +95,7 @@ export class ZoneStore {
   detailOpen = signal<boolean>(false);
   detailZone = signal<ZoneDTO | null>(null);
   locationTypes = signal<LocationTypeDTO[]>([]);
+  locationTypesError = signal<string>('');
   locations = signal<LocationDTO[]>([]);
   selectedLocationTypeKeys = signal<string[]>([]);
   selectedLocationKeys = signal<string[]>([]);
@@ -401,6 +402,14 @@ export class ZoneStore {
     });
   }
 
+  /** Chuẩn hóa zone từ API: backend có thể trả zoneId/ZoneId thay vì zoneID */
+  private normalizeZone(z: ZoneDTO): ZoneDTO {
+    const raw = z as unknown as Record<string, unknown>;
+    const id = raw['zoneID'] ?? raw['zoneId'] ?? raw['ZoneId'];
+    const numId = id != null && Number.isFinite(Number(id)) ? Number(id) : undefined;
+    return { ...z, zoneID: numId ?? z.zoneID };
+  }
+
   rowKey(z: ZoneDTO): string {
     return z.zoneID != null ? String(z.zoneID) : z.zoneCode;
   }
@@ -455,7 +464,8 @@ export class ZoneStore {
       })
       .subscribe({
         next: (result) => {
-          const list = result.items ?? [];
+          const rawList = result.items ?? [];
+          const list = rawList.map((z) => this.normalizeZone(z));
           const total = result.total ?? list.length;
 
           this.allZones.set(list);
@@ -503,6 +513,7 @@ export class ZoneStore {
 
   private reloadDetailForCurrentZone(): void {
     const zone = this.getDetailZone();
+    this.locationTypesError.set('');
     if (!zone || zone.zoneID == null || zone.warehouseId == null) {
       this.locationTypes.set([]);
       this.locations.set([]);
@@ -511,12 +522,18 @@ export class ZoneStore {
       return;
     }
 
-    // Load all location types (not filtered by zone)
+    // Load all location types (keyword optional; backend may return items/data/result/locationTypes)
     this.api
       .getLocationTypeList({ page: 1, pageSize: 1000 })
       .subscribe({
-        next: (res) => this.locationTypes.set(res.items ?? []),
-        error: () => this.locationTypes.set([])
+        next: (res) => {
+          this.locationTypes.set(res?.items ?? []);
+          this.locationTypesError.set('');
+        },
+        error: (err) => {
+          this.locationTypes.set([]);
+          this.locationTypesError.set(err?.error?.message ?? err?.message ?? 'Không tải được danh sách Location Type');
+        }
       });
 
     this.reloadLocationsForZone(zone);

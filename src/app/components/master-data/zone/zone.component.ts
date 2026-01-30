@@ -310,6 +310,11 @@ import { ZoneStore } from './zone.store';
                 <div class="zone-detail-card__header">
                   <h2 class="zone-detail-card__title">Location Types</h2>
                 </div>
+                @if (locationTypesError()) {
+                  <div class="notice notice--error zone-detail-notice">
+                    <div><strong>Lỗi:</strong> {{ locationTypesError() }}</div>
+                  </div>
+                }
                 <div class="table-wrapper">
                   <table mat-table [dataSource]="locationTypes()" class="warehouse-table">
                     <ng-container matColumnDef="ltCode">
@@ -827,6 +832,7 @@ export class ZoneComponent {
 
   // Detail: LocationTypes & Locations
   locationTypes = this.store.locationTypes;
+  locationTypesError = this.store.locationTypesError;
   locations = this.store.locations;
   page = this.store.page;
   pageSize = this.store.pageSize;
