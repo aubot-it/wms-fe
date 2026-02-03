@@ -521,7 +521,11 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
               <div class="drawer-field">
                 <label class="drawer-label">ZoneType</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
-                  <input matInput type="text" [(ngModel)]="drawerForm.zoneType" name="zoneType" />
+                  <mat-select [(ngModel)]="drawerForm.zoneType" name="zoneType">
+                    @for (z of zoneTypes; track z) {
+                      <mat-option [value]="z">{{ z }}</mat-option>
+                    }
+                  </mat-select>
                 </mat-form-field>
               </div>
               <div class="drawer-field">
@@ -536,13 +540,21 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
               <div class="drawer-field">
                 <label class="drawer-label">MixingStrategy</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
-                  <input matInput type="text" [(ngModel)]="drawerForm.mixingStrategy" name="mixingStrategy" />
+                  <mat-select [(ngModel)]="drawerForm.mixingStrategy" name="mixingStrategy">
+                    @for (m of mixingStrategies; track m) {
+                      <mat-option [value]="m">{{ m }}</mat-option>
+                    }
+                  </mat-select>
                 </mat-form-field>
               </div>
               <div class="drawer-field">
                 <label class="drawer-label">OperationMode</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
-                  <input matInput type="text" [(ngModel)]="drawerForm.operationMode" name="operationMode" />
+                  <mat-select [(ngModel)]="drawerForm.operationMode" name="operationMode">
+                    @for (o of operationModes; track o) {
+                      <mat-option [value]="o">{{ o }}</mat-option>
+                    }
+                  </mat-select>
                 </mat-form-field>
               </div>
             </div>
@@ -861,6 +873,9 @@ export class ZoneComponent {
 
   temperatureTypes = this.store.temperatureTypes;
   zoneUsages = this.store.zoneUsages;
+  zoneTypes = this.store.zoneTypes;
+  mixingStrategies = this.store.mixingStrategies;
+  operationModes = this.store.operationModes;
 
   warehouses = this.store.warehouses;
 

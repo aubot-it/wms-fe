@@ -9,6 +9,19 @@ export interface WarehouseDTO {
 export type TemperatureControlType = 'NORMAL' | 'COLD' | 'FROZEN';
 export type ZoneUsage = 'INBOUND' | 'OUTBOUND' | 'BOTH';
 
+export type ZoneType =
+  | 'STORAGE'
+  | 'PICK'
+  | 'STAGING'
+  | 'RECEIVING'
+  | 'QC'
+  | 'RETURNS'
+  | 'VAS';
+
+export type MixingStrategy = 'Yes' | 'No';
+
+export type OperationMode = 'ASRS' | 'COM';
+
 export interface ZoneDTO {
   zoneID?: number;
   warehouseId: number;
@@ -16,10 +29,10 @@ export interface ZoneDTO {
   zoneName: string;
   temperatureControlType: TemperatureControlType;
   zoneUsage: ZoneUsage;
-  zoneType?: string | null;
+  zoneType?: ZoneType | null;
   abcCategory?: string | null;
-  mixingStrategy?: string | null;
-  operationMode?: string | null;
+  mixingStrategy?: MixingStrategy | null;
+  operationMode?: OperationMode | null;
   isExternal?: boolean | null;
   isActive?: boolean | null;
 }

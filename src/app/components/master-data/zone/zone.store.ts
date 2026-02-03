@@ -8,7 +8,10 @@ import {
   TemperatureControlType,
   WarehouseDTO,
   ZoneDTO,
-  ZoneUsage
+  ZoneUsage,
+  ZoneType,
+  MixingStrategy,
+  OperationMode
 } from '../../../api/wcs.models';
 
 @Injectable()
@@ -19,6 +22,9 @@ export class ZoneStore {
 
   temperatureTypes: TemperatureControlType[] = ['NORMAL', 'COLD', 'FROZEN'];
   zoneUsages: ZoneUsage[] = ['INBOUND', 'OUTBOUND', 'BOTH'];
+  zoneTypes: ZoneType[] = ['STORAGE', 'PICK', 'STAGING', 'RECEIVING', 'QC', 'RETURNS', 'VAS'];
+  mixingStrategies: MixingStrategy[] = ['Yes', 'No'];
+  operationModes: OperationMode[] = ['ASRS', 'COM'];
 
   warehouses = signal<WarehouseDTO[]>([]);
 
@@ -39,10 +45,10 @@ export class ZoneStore {
     zoneName: string;
     temperatureControlType: TemperatureControlType;
     zoneUsage: ZoneUsage;
-    zoneType: string;
+    zoneType: ZoneType | '';
     abcCategory: string;
-    mixingStrategy: string;
-    operationMode: string;
+    mixingStrategy: MixingStrategy | '';
+    operationMode: OperationMode | '';
     isExternal: boolean;
     isActive: boolean;
   } = {
@@ -51,10 +57,10 @@ export class ZoneStore {
     zoneName: '',
     temperatureControlType: 'NORMAL',
     zoneUsage: 'BOTH',
-    zoneType: '',
+    zoneType: 'STORAGE',
     abcCategory: '',
-    mixingStrategy: '',
-    operationMode: '',
+    mixingStrategy: 'Yes',
+    operationMode: 'ASRS',
     isExternal: false,
     isActive: true
   };
@@ -313,10 +319,10 @@ export class ZoneStore {
       zoneName: '',
       temperatureControlType: 'NORMAL',
       zoneUsage: 'BOTH',
-      zoneType: '',
+      zoneType: 'STORAGE',
       abcCategory: '',
-      mixingStrategy: '',
-      operationMode: '',
+      mixingStrategy: 'Yes',
+      operationMode: 'ASRS',
       isExternal: false,
       isActive: true
     };
@@ -339,10 +345,10 @@ export class ZoneStore {
       zoneName: zone.zoneName,
       temperatureControlType: zone.temperatureControlType,
       zoneUsage: zone.zoneUsage,
-      zoneType: (zone.zoneType ?? '') as string,
+      zoneType: (zone.zoneType ?? '') as ZoneType | '',
       abcCategory: (zone.abcCategory ?? '') as string,
-      mixingStrategy: (zone.mixingStrategy ?? '') as string,
-      operationMode: (zone.operationMode ?? '') as string,
+      mixingStrategy: (zone.mixingStrategy ?? '') as MixingStrategy | '',
+      operationMode: (zone.operationMode ?? '') as OperationMode | '',
       isExternal: Boolean(zone.isExternal),
       isActive: zone.isActive == null ? true : Boolean(zone.isActive)
     };
@@ -372,10 +378,14 @@ export class ZoneStore {
       zoneName,
       temperatureControlType: this.drawerForm.temperatureControlType,
       zoneUsage: this.drawerForm.zoneUsage,
-      zoneType: this.drawerForm.zoneType?.trim() || null,
+      zoneType: this.drawerForm.zoneType ? (this.drawerForm.zoneType as ZoneType) : null,
       abcCategory: this.drawerForm.abcCategory?.trim() || null,
-      mixingStrategy: this.drawerForm.mixingStrategy?.trim() || null,
-      operationMode: this.drawerForm.operationMode?.trim() || null,
+      mixingStrategy: this.drawerForm.mixingStrategy
+        ? (this.drawerForm.mixingStrategy as MixingStrategy)
+        : null,
+      operationMode: this.drawerForm.operationMode
+        ? (this.drawerForm.operationMode as OperationMode)
+        : null,
       isExternal: this.drawerForm.isExternal,
       isActive: this.drawerForm.isActive
     };
