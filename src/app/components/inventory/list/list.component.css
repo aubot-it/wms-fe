@@ -1,18 +1,319 @@
-.page-container {
+@import '../../master-data/warehouse/warehouse.component.css';
+
+.inventory-container {
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.page-title {
-  font-size: 2rem;
+.inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.inventory-title {
+  font-size: 1.75rem;
   font-weight: 600;
   color: #0f172a;
-  margin-bottom: 1.5rem;
+  margin: 0;
 }
 
-.page-content {
+.filter-section {
   background: white;
   border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group.button-group {
+  justify-content: flex-end;
+  padding-top: calc(20px + 0.5rem);
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 0;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.filter-field {
+  width: 100%;
+}
+
+.table-section {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.table-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.table-page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.page-size-field {
+  width: 70px;
+}
+
+.table-info {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-table th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.inventory-table td {
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.inventory-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+::ng-deep .inventory-table .mat-mdc-header-row {
+  background: #f8fafc !important;
+}
+
+::ng-deep .inventory-table .mat-mdc-row {
+  background: #fff !important;
+}
+
+::ng-deep .inventory-table .mat-mdc-row:hover {
+  background: #f8fafc !important;
+}
+
+::ng-deep .inventory-table .mat-mdc-cell {
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+::ng-deep .inventory-table .mat-mdc-header-cell {
+  color: #475569;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.actions-col {
+  white-space: nowrap;
+}
+
+.btn-detail {
+  padding-inline: 0.75rem;
+}
+
+.actions-col .btn-sm {
+  margin-right: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.btn-sm {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  min-height: 28px;
+}
+
+.table-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.footer-pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.page-btn {
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+}
+
+.page-number {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.page-number--active {
+  background: #6366f1;
+  border-color: #4f46e5;
+  color: white;
+}
+
+/* Đồng bộ pagination & page-size với warehouse (ghi đè Material theme) */
+::ng-deep .footer-pages button[mat-icon-button].page-btn {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: white !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+}
+
+::ng-deep .footer-pages button[mat-icon-button].page-btn:hover:not(:disabled) {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+::ng-deep .footer-pages button[mat-mini-fab].page-number {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  border-radius: 999px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: white !important;
+  color: #0f172a !important;
+  font-size: 0.8rem !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+::ng-deep .footer-pages button[mat-mini-fab].page-number.page-number--active {
+  background: #6366f1 !important;
+  border-color: #4f46e5 !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+::ng-deep .footer-pages button[mat-mini-fab].page-number.page-number--active:hover:not(:disabled) {
+  background: #4f46e5 !important;
+  border-color: #4338ca !important;
+  color: white !important;
+}
+
+::ng-deep .footer-pages button[mat-mini-fab].page-number:hover:not(:disabled):not(.page-number--active) {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+::ng-deep .page-size-field .mat-mdc-form-field {
+  box-shadow: none !important;
+  display: inline-block !important;
+}
+
+::ng-deep .page-size-field .mat-mdc-text-field-wrapper {
+  background: white !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.4rem !important;
+  min-height: 24px !important;
+  height: 30px !important;
+}
+
+::ng-deep .page-size-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #94a3b8;
+}
+
+.empty-message p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.notice {
+  margin: 0.75rem 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid;
+  font-size: 0.9rem;
+}
+
+.notice--info {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1e3a8a;
+}
+
+.notice--error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.notice__sub {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+}
