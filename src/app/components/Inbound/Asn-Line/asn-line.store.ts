@@ -44,17 +44,18 @@ export class AsnLineStore {
         'asnLineId',
         'asnId',
         'skuId',
-        'expectedQty'
+        'expectedQty',
+        'createdDate'
     ];
 
     filters: {
         keyword: string;
-        asnId: number | null | undefined;
-        skuId: number | null | undefined;
+        asnId: number | string | null | undefined;
+        skuId: number | string | null | undefined;
     } = {
             keyword: '',
-            asnId: undefined,
-            skuId: undefined
+            asnId: '',
+            skuId: ''
         };
 
     isLoading = signal<boolean>(false);
@@ -97,8 +98,8 @@ export class AsnLineStore {
     clearFilters(): void {
         this.filters = {
             keyword: '',
-            asnId: undefined,
-            skuId: undefined
+            asnId: '',
+            skuId: ''
         };
         if (!isPlatformBrowser(this.platformId)) return;
         this.page.set(1);
@@ -203,7 +204,7 @@ export class AsnLineStore {
     openCreateDrawer(): void {
         this.drawerMode.set('create');
         this.drawerForm = {
-            asnId: this.filters.asnId ?? null,
+            asnId: this.filters.asnId === '' || this.filters.asnId == null ? null : (this.filters.asnId as number),
             skuId: null,
             expectedQty: null
         };
@@ -239,7 +240,6 @@ export class AsnLineStore {
         const asnId = this.drawerForm.asnId;
         const skuId = this.drawerForm.skuId;
         const expectedQty = this.drawerForm.expectedQty;
-
         if (asnId == null || skuId == null || expectedQty == null || expectedQty <= 0) {
             alert('Vui lòng nhập đầy đủ các trường: ASN, SKU, Expected Qty (> 0)');
             return;
@@ -340,11 +340,15 @@ export class AsnLineStore {
         this.isLoading.set(true);
         this.errorMessage.set('');
 
+        // Convert empty string to undefined for API
+        const asnId = this.filters.asnId === '' ? undefined : (this.filters.asnId as number | undefined);
+        const skuId = this.filters.skuId === '' ? undefined : (this.filters.skuId as number | undefined);
+
         this.api
             .getAsnLineList({
                 keyword: (this.filters.keyword || '').trim(),
-                asnId: this.filters.asnId ?? undefined,
-                skuId: this.filters.skuId ?? undefined,
+                asnId,
+                skuId,
                 page: this.page(),
                 pageSize: this.pageSize()
             })

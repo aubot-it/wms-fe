@@ -142,6 +142,7 @@ export interface AsnLineDTO {
   asnId: number;
   skuId: number;
   expectedQty: number;
+  createdDate?: string;
 }
 
 export interface LpnDTO {

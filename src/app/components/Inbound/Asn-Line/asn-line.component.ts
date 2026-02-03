@@ -64,7 +64,7 @@ import { AsnLineStore } from './asn-line.store';
             <label class="filter-label">Số ASN</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.asnId" (selectionChange)="applyFilters()">
-                <mat-option [value]="undefined"  >Tất cả</mat-option>
+                  <mat-option value="">Tất cả</mat-option>
                 @for (asn of asns(); track asnKey(asn)) {
                   <mat-option [value]="asn.asnId">
                     {{ asn.asnNo }} (ID: {{ asn.asnId }})
@@ -78,7 +78,7 @@ import { AsnLineStore } from './asn-line.store';
             <label class="filter-label">SKU</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.skuId" (selectionChange)="applyFilters()">
-                <mat-option [value]="undefined">Tất cả</mat-option>
+                  <mat-option value="">Tất cả</mat-option>
                 @for (sku of skus(); track skuKey(sku)) {
                   <mat-option [value]="sku.skuID">
                     {{ sku.skuCode }} - {{ sku.skuName }}
@@ -170,10 +170,13 @@ import { AsnLineStore } from './asn-line.store';
               <th mat-header-cell *matHeaderCellDef>Số lượng dự kiến</th>
               <td mat-cell *matCellDef="let line">{{ line.expectedQty }}</td>
             </ng-container>
-
+            <ng-container matColumnDef="createdDate">
+              <th mat-header-cell *matHeaderCellDef>Ngày tạo</th>
+              <td mat-cell *matCellDef="let line">{{ line.createdDate || '-' }}</td>
+            </ng-container>
             <!-- Empty State -->
             <ng-container matColumnDef="noData">
-              <td mat-footer-cell *matFooterCellDef colspan="5" class="empty-state">
+              <td mat-footer-cell *matFooterCellDef colspan="6" class="empty-state">
                 <div class="empty-message">
                   <mat-icon>inventory_2</mat-icon>
                   <p>Không tìm thấy ASN Line nào</p>
