@@ -1,0 +1,79 @@
+@import '../../master-data/warehouse/warehouse.component.css';
+
+/* Cửa sổ chi tiết tồn kho */
+.inventory-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.inventory-detail-panel {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-width: 480px;
+  width: 100%;
+  max-height: calc(100vh - 3rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.inventory-detail-header {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.inventory-detail-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.inventory-detail-attrs {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+}
+
+.inventory-detail-attr {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.inventory-detail-attr__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.inventory-detail-attr__value {
+  font-size: 0.875rem;
+  color: #0f172a;
+}
+
+.inventory-detail-actions {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
