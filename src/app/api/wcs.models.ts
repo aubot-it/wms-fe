@@ -172,5 +172,21 @@ export interface InventoryDTO {
   updatedBy?: string | null;
 }
 
+/**  lịch sử    */
+export interface InventoryHistoryDTO {
+  id?: number;
+  logId?: number;
+  inventoryId?: number;
+  skuCode?: string | null;
+  locationId?: number | null;
+  actionType?: string | null;
+  quantityChange?: number | null;
+  oldQuantity?: number | null;
+  newQuantity?: number | null;
+  reason?: string | null;
+  createdDate?: string | null;
+  createdBy?: string | null;
+  refNo?: string | null;
+}
 
 
