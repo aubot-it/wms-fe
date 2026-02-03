@@ -1,18 +1,77 @@
-.page-container {
+@import '../list/list.component.css';
+
+.history-container {
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.page-title {
-  font-size: 2rem;
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.history-title {
+  font-size: 1.75rem;
   font-weight: 600;
   color: #0f172a;
-  margin-bottom: 1.5rem;
+  margin: 0;
 }
 
-.page-content {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.history-table th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
 }
 
+.history-table td {
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.history-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+::ng-deep .history-table .mat-mdc-header-row {
+  background: #f8fafc !important;
+}
+
+::ng-deep .history-table .mat-mdc-row {
+  background: #fff !important;
+}
+
+::ng-deep .history-table .mat-mdc-row:hover {
+  background: #f8fafc !important;
+}
+
+::ng-deep .history-table .mat-mdc-cell {
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+::ng-deep .history-table .mat-mdc-header-cell {
+  color: #475569;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.qty-positive {
+  color: #059669;
+  font-weight: 500;
+}
+
+.qty-negative {
+  color: #dc2626;
+  font-weight: 500;
+}
