@@ -39,7 +39,7 @@ export class WcsAsnLineApi {
         if (opts?.skuId != null) params = params.set('skuId', String(opts.skuId));
         if (opts?.page != null) params = params.set('page', String(opts.page));
         if (opts?.pageSize != null) params = params.set('pageSize', String(opts.pageSize));
-
+        console.log(params);
         return this.http
             .get<AsnLineApiResponse>(`${this.baseUrl}/Inbound/Asn_Line/GetList`, { params })
             .pipe(

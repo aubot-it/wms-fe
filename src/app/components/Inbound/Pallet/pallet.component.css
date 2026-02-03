@@ -1,15 +1,14 @@
-/* Reuse the same visual language as Master-Data/Warehouse for consistency */
+/* Reuse the same visual language as other Inbound components for consistency */
 @import '../../master-data/warehouse/warehouse.component.css';
 
-.asn-line-container {
-    /* mirror .warehouse-container */
+.pallet-container {
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.asn-line-header {
+.pallet-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -17,21 +16,15 @@
     gap: 1rem;
 }
 
-.asn-line-title {
+.pallet-title {
     font-size: 1.75rem;
     font-weight: 600;
     color: #0f172a;
     margin: 0;
 }
 
-.asn-line-actions {
+.pallet-actions {
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
-}
-
-/* Highlight quantity over 1000kg in red */
-.over-limit input {
-    color: #dc2626 !important;
-    font-weight: 600;
 }

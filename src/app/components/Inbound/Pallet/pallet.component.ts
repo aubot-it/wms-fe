@@ -8,11 +8,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import './asn-line.component.css';
-import { AsnLineStore } from './asn-line.store';
+import './pallet.component.css';
+import { PalletStore } from './pallet.store';
 
 @Component({
-  selector: 'app-asn-line',
+  selector: 'app-pallet',
   standalone: true,
   imports: [
     CommonModule,
@@ -25,27 +25,23 @@ import { AsnLineStore } from './asn-line.store';
     MatSelectModule,
     MatIconModule
   ],
-  providers: [AsnLineStore],
+  providers: [PalletStore],
   template: `
-    <div class="asn-line-container">
-      <div class="asn-line-header">
-        <h1 class="asn-line-title">Chi tiết ASN nhập kho</h1>
-        <div class="asn-line-actions">
-          <button mat-raised-button class="btn btn-primary" (click)="openCreateDrawer()">
+    <div class="pallet-container">
+      <div class="pallet-header">
+        <h1 class="pallet-title">Quản lý Pallet (LPN)</h1>
+        <div class="pallet-actions">
+          <!-- <button mat-raised-button class="btn btn-primary" (click)="openCreateDrawer()">
             <mat-icon>add</mat-icon>
             <span>Thêm</span>
+          </button> -->
+          <button mat-raised-button class="btn btn-success" (click)="onConfirmPallet()" [disabled]="selectedPallets().length !== 1">
+            <mat-icon>check_circle</mat-icon>
+            <span>Xác nhận Pallet</span>
           </button>
-          <button mat-raised-button class="btn btn-success" (click)="openLpnDrawer()" [disabled]="selectedAsnLines().length === 0">
-            <mat-icon>inventory</mat-icon>
-            <span>Tạo Pallet</span>
-          </button>
-          <button mat-raised-button class="btn btn-danger" (click)="onDelete()" [disabled]="selectedAsnLines().length === 0">
+          <button mat-raised-button class="btn btn-danger" (click)="onDelete()" [disabled]="selectedPallets().length === 0">
             <mat-icon>delete</mat-icon>
             <span>Xóa</span>
-          </button>
-          <button mat-raised-button class="btn btn-secondary" (click)="openEditDrawer()" [disabled]="selectedAsnLines().length !== 1">
-            <mat-icon>edit</mat-icon>
-            <span>Cập nhật</span>
           </button>
         </div>
       </div>
@@ -61,29 +57,26 @@ import { AsnLineStore } from './asn-line.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Số ASN</label>
+            <label class="filter-label">Mã Pallet</label>
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-select [(ngModel)]="filters.asnId" (selectionChange)="applyFilters()">
-                  <mat-option value="">Tất cả</mat-option>
-                @for (asn of asns(); track asnKey(asn)) {
-                  <mat-option [value]="asn.asnId">
-                    {{ asn.asnNo }} (ID: {{ asn.asnId }})
-                  </mat-option>
-                }
-              </mat-select>
+              <input matInput placeholder="Lọc theo LPN Code..." [(ngModel)]="filters.lpnCode" (input)="applyClientFilters()" />
             </mat-form-field>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">SKU</label>
+            <label class="filter-label">Vị trí</label>
             <mat-form-field appearance="outline" class="filter-field">
-              <mat-select [(ngModel)]="filters.skuId" (selectionChange)="applyFilters()">
-                  <mat-option value="">Tất cả</mat-option>
-                @for (sku of skus(); track skuKey(sku)) {
-                  <mat-option [value]="sku.skuID">
-                    {{ sku.skuCode }} - {{ sku.skuName }}
-                  </mat-option>
-                }
+              <input matInput placeholder="Lọc theo Location..." [(ngModel)]="filters.location" (input)="applyClientFilters()" />
+            </mat-form-field>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Trạng thái</label>
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-select [(ngModel)]="filters.status" (selectionChange)="applyClientFilters()">
+                <mat-option value="">Tất cả</mat-option>
+                <mat-option value="NEW">NEW</mat-option>
+                <mat-option value="CONFIRMED">CONFIRMED</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -91,7 +84,7 @@ import { AsnLineStore } from './asn-line.store';
           <div class="filter-group button-group">
             <button mat-stroked-button class="btn btn-clear" (click)="clearFilters()">
               <mat-icon>refresh</mat-icon>
-              <span>Xóa bộ lọc</span>
+              <span>Làm mới</span>
             </button>
           </div>
         </div>
@@ -114,15 +107,15 @@ import { AsnLineStore } from './asn-line.store';
             </div>
             <div class="table-info">
               <span>Tổng số: <strong>{{ totalItems() }}</strong></span>
-              @if (selectedAsnLines().length > 0) {
-                <span class="selected-info">Đã chọn: <strong>{{ selectedAsnLines().length }}</strong></span>
+              @if (selectedPallets().length > 0) {
+                <span class="selected-info">Đã chọn: <strong>{{ selectedPallets().length }}</strong></span>
               }
             </div>
           </div>
         </div>
 
         @if (isLoading()) {
-          <div class="notice notice--info">Đang tải danh sách ASN Line...</div>
+          <div class="notice notice--info">Đang tải danh sách Pallet...</div>
         }
         @if (errorMessage()) {
           <div class="notice notice--error">
@@ -133,7 +126,7 @@ import { AsnLineStore } from './asn-line.store';
         }
 
         <div class="table-wrapper">
-          <table mat-table [dataSource]="filteredAsnLines()" class="warehouse-table">
+          <table mat-table [dataSource]="filteredPallets()" class="warehouse-table">
             <!-- Checkbox Column -->
             <ng-container matColumnDef="select">
               <th mat-header-cell *matHeaderCellDef class="checkbox-col">
@@ -143,43 +136,64 @@ import { AsnLineStore } from './asn-line.store';
                   [indeterminate]="isSomeSelected()"
                 ></mat-checkbox>
               </th>
-              <td mat-cell *matCellDef="let line" class="checkbox-col">
+              <td mat-cell *matCellDef="let pallet" class="checkbox-col">
                 <mat-checkbox
-                  [checked]="isSelected(rowKey(line))"
-                  (change)="toggleSelect(rowKey(line))"
+                  [checked]="isSelected(rowKey(pallet))"
+                  (change)="toggleSelect(rowKey(pallet))"
                 ></mat-checkbox>
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="asnLineId">
+            <ng-container matColumnDef="lpnId">
               <th mat-header-cell *matHeaderCellDef>ID</th>
-              <td mat-cell *matCellDef="let line"><strong>{{ line.asnLineId ?? '-' }}</strong></td>
+              <td mat-cell *matCellDef="let p"><strong>{{ p.lpnId ?? '-' }}</strong></td>
             </ng-container>
 
-            <ng-container matColumnDef="asnId">
-              <th mat-header-cell *matHeaderCellDef>ASN</th>
-              <td mat-cell *matCellDef="let line">{{ asnLabel(line.asnId) }}</td>
+            <ng-container matColumnDef="lpnCode">
+              <th mat-header-cell *matHeaderCellDef>LPN Code</th>
+              <td mat-cell *matCellDef="let p"><strong>{{ p.lpnCode }}</strong></td>
             </ng-container>
 
-            <ng-container matColumnDef="skuId">
-              <th mat-header-cell *matHeaderCellDef>SKU</th>
-              <td mat-cell *matCellDef="let line">{{ skuLabel(line.skuId) }}</td>
+            <ng-container matColumnDef="location">
+              <th mat-header-cell *matHeaderCellDef>Location</th>
+              <td mat-cell *matCellDef="let p">{{ p.location || '-' }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="expectedQty">
-              <th mat-header-cell *matHeaderCellDef>Số lượng dự kiến</th>
-              <td mat-cell *matCellDef="let line">{{ line.expectedQty }}</td>
+            <ng-container matColumnDef="lpnLevel">
+              <th mat-header-cell *matHeaderCellDef>Level</th>
+              <td mat-cell *matCellDef="let p">{{ p.lpnLevel }}</td>
             </ng-container>
-            <ng-container matColumnDef="createdDate">
-              <th mat-header-cell *matHeaderCellDef>Ngày tạo</th>
-              <td mat-cell *matCellDef="let line">{{ line.createdDate || '-' }}</td>
+
+            <ng-container matColumnDef="qty">
+              <th mat-header-cell *matHeaderCellDef>Quantity</th>
+              <td mat-cell *matCellDef="let p">{{ p.qty }}</td>
             </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let p">
+                <span [class]="'status-badge status-' + (p.status || 'unknown').toLowerCase()">
+                  {{ p.status }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="weightKg">
+              <th mat-header-cell *matHeaderCellDef>Weight (kg)</th>
+              <td mat-cell *matCellDef="let p">{{ p.weightKg ?? '-' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="closedAt">
+              <th mat-header-cell *matHeaderCellDef>Closed At</th>
+              <td mat-cell *matCellDef="let p">{{ p.closedAt ? (p.closedAt | date:'short') : '-' }}</td>
+            </ng-container>
+
             <!-- Empty State -->
             <ng-container matColumnDef="noData">
-              <td mat-footer-cell *matFooterCellDef colspan="6" class="empty-state">
+              <td mat-footer-cell *matFooterCellDef colspan="9" class="empty-state">
                 <div class="empty-message">
                   <mat-icon>inventory_2</mat-icon>
-                  <p>Không tìm thấy ASN Line nào</p>
+                  <p>Không tìm thấy Pallet nào</p>
                 </div>
               </td>
             </ng-container>
@@ -192,7 +206,7 @@ import { AsnLineStore } from './asn-line.store';
               [style.background-color]="isSelected(rowKey(row)) ? '#dbeafe' : ''"
               [style.border-left]="isSelected(rowKey(row)) ? '4px solid #3b82f6' : ''"
             ></tr>
-            <tr mat-footer-row *matFooterRowDef="['noData']" [hidden]="filteredAsnLines().length > 0"></tr>
+            <tr mat-footer-row *matFooterRowDef="['noData']" [hidden]="filteredPallets().length > 0"></tr>
           </table>
         </div>
 
@@ -244,45 +258,69 @@ import { AsnLineStore } from './asn-line.store';
       <div class="drawer-backdrop" (click)="closeDrawer()">
         <div class="drawer-panel" (click)="$event.stopPropagation()">
           <div class="drawer-header">
-            <h2 class="drawer-title">
-              {{ drawerMode() === 'create' ? 'Phân Loại hàng hóa ASN' : 'Cập nhật ASN Line' }}
-            </h2>
+            <h2 class="drawer-title">Tạo Pallet mới</h2>
             <button mat-icon-button class="drawer-close" (click)="closeDrawer()">
               <mat-icon>close</mat-icon>
             </button>
           </div>
           <form class="drawer-form" (ngSubmit)="submitDrawer()">
             <div class="drawer-field">
-              <label class="drawer-label">ASN <span class="required">*</span></label>
+              <label class="drawer-label">LPN Code <span class="required">*</span></label>
               <mat-form-field appearance="outline" class="drawer-form-field">
-                <mat-select required [(ngModel)]="drawerForm.asnId" name="asnId">
-                  @for (asn of asns(); track asnKey(asn)) {
-                    <mat-option [value]="asn.asnId ?? null">
-                      {{ asn.asnNo }} (ID: {{ asn.asnId }} - Số lượng SKU: {{asn.numOfSku}})
-                    </mat-option>
-                  }
+                <input matInput required [(ngModel)]="drawerForm.lpnCode" name="lpnCode" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">LPN Level <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput required [(ngModel)]="drawerForm.lpnLevel" name="lpnLevel" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Số lượng <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="number" required [(ngModel)]="drawerForm.qty" name="qty" min="1" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Status <span class="required">*</span></label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <mat-select required [(ngModel)]="drawerForm.status" name="status">
+                  <mat-option value="NEW">NEW</mat-option>
+                  <mat-option value="CONFIRMED">CONFIRMED</mat-option>
                 </mat-select>
               </mat-form-field>
             </div>
 
             <div class="drawer-field">
-              <label class="drawer-label">SKU <span class="required">*</span></label>
+              <label class="drawer-label">Location</label>
               <mat-form-field appearance="outline" class="drawer-form-field">
-                <mat-select required [(ngModel)]="drawerForm.skuId" name="skuId">
-                  @for (sku of skus(); track skuKey(sku)) {
-                    <mat-option [value]="sku.skuID ?? null">
-                      {{ sku.skuCode }} - {{ sku.skuName }}
-                    </mat-option>
-                  }
-                </mat-select>
+                <input matInput [(ngModel)]="drawerForm.location" name="location" />
               </mat-form-field>
             </div>
 
             <div class="drawer-field">
-              <label class="drawer-label">Số lượng dự kiến <span class="required">*</span></label>
+              <label class="drawer-label">Trọng lượng (Kg)</label>
               <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput type="number" required [(ngModel)]="drawerForm.expectedQty" name="expectedQty" min="1" />
+                <input matInput type="number" [(ngModel)]="drawerForm.weightKg" name="weightKg" min="0" step="0.01" />
               </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Thể tích (M³)</label>
+              <mat-form-field appearance="outline" class="drawer-form-field">
+                <input matInput type="number" [(ngModel)]="drawerForm.volumeM3" name="volumeM3" min="0" step="0.01" />
+              </mat-form-field>
+            </div>
+
+            <div class="drawer-field">
+              <label class="drawer-label">Ngày đóng</label>
+              <div class="datetime-input-wrapper">
+                <input type="datetime-local" [(ngModel)]="drawerForm.closedAt" name="closedAt" class="datetime-input" />
+              </div>
             </div>
 
             <div class="drawer-actions">
@@ -290,84 +328,7 @@ import { AsnLineStore } from './asn-line.store';
                 Hủy
               </button>
               <button mat-raised-button type="submit" class="btn btn-primary" [disabled]="isLoading()">
-                {{ drawerMode() === 'create' ? 'Lưu' : 'Cập nhật' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    }
-
-    @if (lpnDrawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeLpnDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
-          <div class="drawer-header">
-            <h2 class="drawer-title">Tạo Pallet từ ASN Line</h2>
-            <button mat-icon-button class="drawer-close" (click)="closeLpnDrawer()">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
-          <form class="drawer-form" (ngSubmit)="submitLpnDrawer()">
-            <div class="drawer-field">
-              <label class="drawer-label">LPN Code <span class="required">*</span></label>
-              <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput required [(ngModel)]="lpnDrawerForm.lpnCode" name="lpnCode" />
-              </mat-form-field>
-            </div>
-
-            <div class="drawer-field">
-              <label class="drawer-label">LPN Level <span class="required">*</span></label>
-              <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput required [(ngModel)]="lpnDrawerForm.lpnLevel" name="lpnLevel" />
-              </mat-form-field>
-            </div>
-
-            <div class="drawer-field">
-              <label class="drawer-label">Số lượng <span class="required">*</span></label>
-              <mat-form-field appearance="outline" class="drawer-form-field" [class.over-limit]="lpnDrawerForm.qty != null && lpnDrawerForm.qty > 1000">
-                <input matInput type="number" required [(ngModel)]="lpnDrawerForm.qty" name="qty" min="1" />
-              </mat-form-field>
-            </div>
-
-            <div class="drawer-field">
-              <label class="drawer-label">Status <span class="required">*</span></label>
-              <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput required [(ngModel)]="lpnDrawerForm.status" name="status" />
-              </mat-form-field>
-            </div>
-
-            <div class="drawer-field">
-              <label class="drawer-label">Trọng lượng (Kg)</label>
-              <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput type="number" [(ngModel)]="lpnDrawerForm.weightKg" name="weightKg" min="0" step="0.01" />
-              </mat-form-field>
-            </div>
-
-            <div class="drawer-field">
-              <label class="drawer-label">Thể tích (M³)</label>
-              <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput type="number" [(ngModel)]="lpnDrawerForm.volumeM3" name="volumeM3" min="0" step="0.01" />
-              </mat-form-field>
-            </div>
-
-            <div class="drawer-field">
-              <label class="drawer-label">Ngày đóng</label>
-              <div class="datetime-input-wrapper">
-                <input type="datetime-local" [(ngModel)]="lpnDrawerForm.closedAt" name="closedAt" class="datetime-input" />
-              </div>
-            </div>
-
-            <div class="drawer-info">
-              <mat-icon>info</mat-icon>
-              <span>Đang tạo pallet cho {{ selectedAsnLines().length }} ASN Line đã chọn</span>
-            </div>
-
-            <div class="drawer-actions">
-              <button mat-stroked-button type="button" class="btn btn-clear" (click)="closeLpnDrawer()">
-                Hủy
-              </button>
-              <button mat-raised-button type="submit" class="btn btn-success" [disabled]="isLoading()">
-                Tạo Pallet
+                Lưu
               </button>
             </div>
           </form>
@@ -375,17 +336,14 @@ import { AsnLineStore } from './asn-line.store';
       </div>
     }
   `,
-  styleUrl: './asn-line.component.css'
+  styleUrl: './pallet.component.css'
 })
-export class AsnLineComponent {
-  private readonly store = inject(AsnLineStore);
+export class PalletComponent {
+  private readonly store = inject(PalletStore);
 
-  asns = this.store.asns;
-  skus = this.store.skus;
-
-  allAsnLines = this.store.allAsnLines;
-  filteredAsnLines = this.store.filteredAsnLines;
-  selectedAsnLines = this.store.selectedAsnLines;
+  allPallets = this.store.allPallets;
+  filteredPallets = this.store.filteredPallets;
+  selectedPallets = this.store.selectedPallets;
   page = this.store.page;
   pageSize = this.store.pageSize;
   isLastPage = this.store.isLastPage;
@@ -393,7 +351,6 @@ export class AsnLineComponent {
   totalPages = this.store.totalPages;
 
   drawerOpen = this.store.drawerOpen;
-  drawerMode = this.store.drawerMode;
   get drawerForm() {
     return this.store.drawerForm;
   }
@@ -415,6 +372,10 @@ export class AsnLineComponent {
 
   applyFilters(): void {
     this.store.applyFilters();
+  }
+
+  applyClientFilters(): void {
+    this.store.applyClientFilters();
   }
 
   clearFilters(): void {
@@ -461,12 +422,12 @@ export class AsnLineComponent {
     this.store.onDelete();
   }
 
-  openCreateDrawer(): void {
-    this.store.openCreateDrawer();
+  onConfirmPallet(): void {
+    this.store.onConfirmPallet();
   }
 
-  openEditDrawer(): void {
-    this.store.openEditDrawer();
+  openCreateDrawer(): void {
+    this.store.openCreateDrawer();
   }
 
   closeDrawer(): void {
@@ -477,11 +438,7 @@ export class AsnLineComponent {
     this.store.submitDrawer();
   }
 
-  rowKey = (line: any) => this.store.rowKey(line);
-  asnKey = (asn: any) => this.store.asnKey(asn);
-  asnLabel = (id: any) => this.store.asnLabel(id);
-  skuKey = (sku: any) => this.store.skuKey(sku);
-  skuLabel = (id: any) => this.store.skuLabel(id);
+  rowKey = (p: any) => this.store.rowKey(p);
 
   fromIndex(): number {
     return this.store.fromIndex();
@@ -493,26 +450,5 @@ export class AsnLineComponent {
 
   pages(): number[] {
     return this.store.pages();
-  }
-
-  // LPN Methods
-  lpnDrawerOpen = this.store.lpnDrawerOpen;
-  get lpnDrawerForm() {
-    return this.store.lpnDrawerForm;
-  }
-  set lpnDrawerForm(v: any) {
-    this.store.lpnDrawerForm = v;
-  }
-
-  openLpnDrawer(): void {
-    this.store.openLpnDrawer();
-  }
-
-  closeLpnDrawer(): void {
-    this.store.closeLpnDrawer();
-  }
-
-  submitLpnDrawer(): void {
-    this.store.submitLpnDrawer();
   }
 }

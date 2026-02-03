@@ -12,21 +12,21 @@ import './asn.component.css';
 import { AsnStore } from './asn.store';
 
 @Component({
-    selector: 'app-asn',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatTableModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatIconModule
-    ],
-    providers: [AsnStore],
-    template: `
+  selector: 'app-asn',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule
+  ],
+  providers: [AsnStore],
+  template: `
     <div class="asn-container">
       <div class="asn-header">
         <h1 class="asn-title">ASN (Advance Shipping Notice)</h1>
@@ -34,6 +34,10 @@ import { AsnStore } from './asn.store';
           <button mat-raised-button class="btn btn-primary" (click)="openCreateDrawer()">
             <mat-icon>add</mat-icon>
             <span>Thêm</span>
+          </button>
+          <button mat-raised-button class="btn btn-success" (click)="onExportInvoice()" [disabled]="selectedAsns().length !== 1">
+            <mat-icon>receipt</mat-icon>
+            <span>Xuất hóa đơn đầu vào</span>
           </button>
           <button mat-raised-button class="btn btn-danger" (click)="onDelete()" [disabled]="selectedAsns().length === 0">
             <mat-icon>delete</mat-icon>
@@ -60,7 +64,7 @@ import { AsnStore } from './asn.store';
             <label class="filter-label">Warehouse (server)</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.warehouseID" (selectionChange)="applyFilters()">
-                <mat-option [value]="null">Tất cả</mat-option>
+                <mat-option [value]="">Tất cả</mat-option>
                 @for (w of warehouses(); track warehouseKey(w)) {
                   <mat-option [value]="w.warehouseId ?? null">
                     {{ w.warehouseCode }} - {{ w.warehouseName }}
@@ -71,7 +75,7 @@ import { AsnStore } from './asn.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">ASN Type (server)</label>
+            <label class="filter-label">Loại ASN</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.asnType" (selectionChange)="applyFilters()">
                 <mat-option value="">Tất cả</mat-option>
@@ -83,7 +87,7 @@ import { AsnStore } from './asn.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Status (server)</label>
+            <label class="filter-label">Trạng thái</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="filters.status" (selectionChange)="applyFilters()">
                 <mat-option value="">Tất cả</mat-option>
@@ -95,14 +99,14 @@ import { AsnStore } from './asn.store';
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Số Asn (client)</label>
+            <label class="filter-label">Số Asn</label>
             <mat-form-field appearance="outline" class="filter-field">
               <input matInput placeholder="Lọc nhanh theo ASN No..." [(ngModel)]="filters.asnNo" (input)="applyClientFilters()" />
             </mat-form-field>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label">Tên tài xế (client)</label>
+            <label class="filter-label">Tên tài xế</label>
             <mat-form-field appearance="outline" class="filter-field">
               <input matInput placeholder="Lọc nhanh theo driver..." [(ngModel)]="filters.driverName" (input)="applyClientFilters()" />
             </mat-form-field>
@@ -122,7 +126,7 @@ import { AsnStore } from './asn.store';
         <div class="table-header">
           <div class="table-header-top">
             <div class="table-page-size">
-              <span class="page-size-text">Show</span>
+              <span class="page-size-text">Hiển thị</span>
               <mat-form-field appearance="outline" class="page-size-field">
                 <mat-select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
                   <mat-option [value]="10">10</mat-option>
@@ -130,7 +134,7 @@ import { AsnStore } from './asn.store';
                   <mat-option [value]="50">50</mat-option>
                 </mat-select>
               </mat-form-field>
-              <span class="page-size-text">per page</span>
+              <span class="page-size-text">trên trang</span>
             </div>
             <div class="table-info">
               <span>Tổng số: <strong>{{ totalItems() }}</strong></span>
@@ -441,130 +445,134 @@ import { AsnStore } from './asn.store';
       </div>
     }
   `,
-    styleUrl: './asn.component.css'
+  styleUrl: './asn.component.css'
 })
 export class AsnComponent {
-    private readonly store = inject(AsnStore);
+  private readonly store = inject(AsnStore);
 
-    asnTypes = this.store.asnTypes;
-    asnStatuses = this.store.asnStatuses;
+  asnTypes = this.store.asnTypes;
+  asnStatuses = this.store.asnStatuses;
 
-    warehouses = this.store.warehouses;
-    owners = this.store.owners;
+  warehouses = this.store.warehouses;
+  owners = this.store.owners;
 
-    allAsns = this.store.allAsns;
-    filteredAsns = this.store.filteredAsns;
-    selectedAsns = this.store.selectedAsns;
-    page = this.store.page;
-    pageSize = this.store.pageSize;
-    isLastPage = this.store.isLastPage;
-    totalItems = this.store.totalItems;
-    totalPages = this.store.totalPages;
+  allAsns = this.store.allAsns;
+  filteredAsns = this.store.filteredAsns;
+  selectedAsns = this.store.selectedAsns;
+  page = this.store.page;
+  pageSize = this.store.pageSize;
+  isLastPage = this.store.isLastPage;
+  totalItems = this.store.totalItems;
+  totalPages = this.store.totalPages;
 
-    drawerOpen = this.store.drawerOpen;
-    drawerMode = this.store.drawerMode;
-    get drawerForm() {
-        return this.store.drawerForm;
-    }
-    set drawerForm(v: any) {
-        this.store.drawerForm = v;
-    }
+  drawerOpen = this.store.drawerOpen;
+  drawerMode = this.store.drawerMode;
+  get drawerForm() {
+    return this.store.drawerForm;
+  }
+  set drawerForm(v: any) {
+    this.store.drawerForm = v;
+  }
 
-    displayedColumns: string[] = this.store.displayedColumns;
+  displayedColumns: string[] = this.store.displayedColumns;
 
-    get filters() {
-        return this.store.filters;
-    }
-    set filters(v: any) {
-        this.store.filters = v;
-    }
+  get filters() {
+    return this.store.filters;
+  }
+  set filters(v: any) {
+    this.store.filters = v;
+  }
 
-    isLoading = this.store.isLoading;
-    errorMessage = this.store.errorMessage;
+  isLoading = this.store.isLoading;
+  errorMessage = this.store.errorMessage;
 
-    applyFilters(): void {
-        this.store.applyFilters();
-    }
+  applyFilters(): void {
+    this.store.applyFilters();
+  }
 
-    applyClientFilters(): void {
-        this.store.applyClientFilters();
-    }
+  applyClientFilters(): void {
+    this.store.applyClientFilters();
+  }
 
-    clearFilters(): void {
-        this.store.clearFilters();
-    }
+  clearFilters(): void {
+    this.store.clearFilters();
+  }
 
-    toggleSelect(id: string): void {
-        this.store.toggleSelect(id);
-    }
+  toggleSelect(id: string): void {
+    this.store.toggleSelect(id);
+  }
 
-    toggleSelectAll(event: any): void {
-        this.store.toggleSelectAll(event);
-    }
+  toggleSelectAll(event: any): void {
+    this.store.toggleSelectAll(event);
+  }
 
-    isSomeSelected(): boolean {
-        return this.store.isSomeSelected();
-    }
+  isSomeSelected(): boolean {
+    return this.store.isSomeSelected();
+  }
 
-    isSelected(id: string): boolean {
-        return this.store.isSelected(id);
-    }
+  isSelected(id: string): boolean {
+    return this.store.isSelected(id);
+  }
 
-    isAllSelected(): boolean {
-        return this.store.isAllSelected();
-    }
+  isAllSelected(): boolean {
+    return this.store.isAllSelected();
+  }
 
-    prevPage(): void {
-        this.store.prevPage();
-    }
+  prevPage(): void {
+    this.store.prevPage();
+  }
 
-    nextPage(): void {
-        this.store.nextPage();
-    }
+  nextPage(): void {
+    this.store.nextPage();
+  }
 
-    onPageSizeChange(size: number | string): void {
-        this.store.onPageSizeChange(size);
-    }
+  onPageSizeChange(size: number | string): void {
+    this.store.onPageSizeChange(size);
+  }
 
-    goToPage(p: number): void {
-        this.store.goToPage(p);
-    }
+  goToPage(p: number): void {
+    this.store.goToPage(p);
+  }
 
-    onDelete(): void {
-        this.store.onDelete();
-    }
+  onDelete(): void {
+    this.store.onDelete();
+  }
 
-    openCreateDrawer(): void {
-        this.store.openCreateDrawer();
-    }
+  onExportInvoice(): void {
+    this.store.onExportInvoice();
+  }
 
-    openEditDrawer(): void {
-        this.store.openEditDrawer();
-    }
+  openCreateDrawer(): void {
+    this.store.openCreateDrawer();
+  }
 
-    closeDrawer(): void {
-        this.store.closeDrawer();
-    }
+  openEditDrawer(): void {
+    this.store.openEditDrawer();
+  }
 
-    submitDrawer(): void {
-        this.store.submitDrawer();
-    }
+  closeDrawer(): void {
+    this.store.closeDrawer();
+  }
 
-    rowKey = (a: any) => this.store.rowKey(a);
-    warehouseKey = (w: any) => this.store.warehouseKey(w);
-    warehouseLabel = (id: any) => this.store.warehouseLabel(id);
-    ownerKey = (o: any) => this.store.ownerKey(o);
-    ownerLabel = (id: any) => this.store.ownerLabel(id);
+  submitDrawer(): void {
+    this.store.submitDrawer();
+  }
 
-    fromIndex(): number {
-        return this.store.fromIndex();
-    }
+  rowKey = (a: any) => this.store.rowKey(a);
+  warehouseKey = (w: any) => this.store.warehouseKey(w);
+  warehouseLabel = (id: any) => this.store.warehouseLabel(id);
+  ownerKey = (o: any) => this.store.ownerKey(o);
+  ownerLabel = (id: any) => this.store.ownerLabel(id);
 
-    toIndex(): number {
-        return this.store.toIndex();
-    }
+  fromIndex(): number {
+    return this.store.fromIndex();
+  }
 
-    pages(): number[] {
-        return this.store.pages();
-    }
+  toIndex(): number {
+    return this.store.toIndex();
+  }
+
+  pages(): number[] {
+    return this.store.pages();
+  }
 }

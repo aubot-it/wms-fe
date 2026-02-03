@@ -142,6 +142,27 @@ export interface AsnLineDTO {
   asnId: number;
   skuId: number;
   expectedQty: number;
+  createdDate?: string;
+}
+
+export interface LpnDTO {
+  lpnId?: number;
+  lpnCode: string;
+  ownerId?: number;
+  warehouseId?: number;
+  location?: string;
+  parentLpnId?: number | null;
+  lpnLevel: string;
+  qty: number;
+  status: string;
+  weightKg?: number | null;
+  volumeM3?: number | null;
+  closedAt?: string | null;
+  createdDate?: string;
+  createdBy?: string | null;
+  updatedDate?: string | null;
+  updatedBy?: string | null;
+  asnLineIds?: number[];
 }
 
 export type StatusInventory =
@@ -188,5 +209,6 @@ export interface InventoryHistoryDTO {
   createdBy?: string | null;
   refNo?: string | null;
 }
+
 
 
