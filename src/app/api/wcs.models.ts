@@ -144,4 +144,33 @@ export interface AsnLineDTO {
   expectedQty: number;
 }
 
+export type StatusInventory =
+  | 'AVAILABLE'
+  | 'HOLD'
+  | 'DAMAGED'
+  | 'RESERVED'
+  | 'BLOCKED'
+  | 'EXPIRED'
+  | 'COUNTING'
+  | 'MOVING_SCOPE';
+
+export interface InventoryDTO {
+  inventoryId?: number;
+  ownerId?: number;
+  skuCode: string;
+  lotId?: number | null;
+  locationId?: number;
+  onHandQty?: number;
+  availableQty?: number;
+  reservedQty?: number;
+  lotNo?: string | null;
+  expiryDate?: string | null;
+  inventoryStatus?: string | null;
+  createdDate?: string | null;
+  createdBy?: string | null;
+  updatedDate?: string | null;
+  updatedBy?: string | null;
+}
+
+
 
