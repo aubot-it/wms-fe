@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { WcsWarehouseApi } from '../../../api/wcs-warehouse.api';
 import { WarehouseDrawerStore } from './warehouse.drawer.store';
 import { WarehouseTableStore } from './warehouse.table.store';
+import { ToastrService } from 'ngx-toastr';
 
 /**
  * Facade store: orchestrates API interaction + composes smaller stores:
@@ -15,6 +16,7 @@ export class WarehouseStore {
   private readonly api = inject(WcsWarehouseApi);
   private readonly table = inject(WarehouseTableStore);
   private readonly drawer = inject(WarehouseDrawerStore);
+  private readonly toastr = inject(ToastrService);
 
   // Expose signals/state used by component template
   allWarehouses = this.table.allWarehouses;
@@ -45,6 +47,11 @@ export class WarehouseStore {
 
   isLoading = signal<boolean>(false);
   errorMessage = signal<string>('');
+
+  // Xóa kho: confirm dialog state
+  confirmDeleteOpen = signal<boolean>(false);
+  confirmDeleteCount = signal<number>(0);
+  private pendingDeleteIds: number[] = [];
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -137,34 +144,83 @@ export class WarehouseStore {
   rowKey = (w: any) => this.table.rowKey(w);
 
   // ---------- actions ----------
+  /** Bấm nút Xóa: chỉ mở confirm, không gọi API ngay */
   onDelete(): void {
     const selected = this.selectedWarehouses();
-    if (selected.length === 0) return;
-
-    if (!confirm(`Bạn có chắc chắn muốn xóa ${selected.length} kho đã chọn?`)) return;
+    if (selected.length === 0) {
+      this.toastr.warning('Vui lòng chọn ít nhất 1 kho để xóa.');
+      return;
+    }
 
     const ids = selected.map((k) => Number(k)).filter((n) => Number.isFinite(n)) as number[];
     if (ids.length === 0) {
-      alert('Không xác định được warehouseId để xóa (API yêu cầu id dạng số).');
+      this.toastr.error('Không xác định được warehouseId để xóa (API yêu cầu id dạng số).');
+      return;
+    }
+
+    this.pendingDeleteIds = ids;
+    this.confirmDeleteCount.set(ids.length);
+    this.confirmDeleteOpen.set(true);
+  }
+
+  /** Người dùng hủy confirm xóa */
+  cancelDelete(): void {
+    this.confirmDeleteOpen.set(false);
+    this.pendingDeleteIds = [];
+  }
+
+  /** Người dùng xác nhận xóa: gọi API, lấy isSuccess + message để hiện toast */
+  confirmDelete(): void {
+    const ids = this.pendingDeleteIds;
+    if (ids.length === 0) {
+      this.confirmDeleteOpen.set(false);
       return;
     }
 
     this.isLoading.set(true);
     this.errorMessage.set('');
+    this.confirmDeleteOpen.set(false);
+
     let done = 0;
     ids.forEach((id) => {
       this.api.deleteWarehouse(id).subscribe({
-        next: () => {
+        next: (res: any) => {
           done++;
+
+          const success =
+            res && typeof res === 'object' && 'isSuccess' in res ? res.isSuccess !== false : true;
+          const msg = (res && typeof res === 'object' && 'message' in res && res.message) || null;
+
+          if (success) {
+            this.toastr.success(msg || `Xóa kho (ID: ${id}) thành công.`);
+          } else {
+            this.toastr.error(msg || `Xóa kho (ID: ${id}) không thành công.`);
+          }
+
           if (done === ids.length) {
             this.isLoading.set(false);
+            this.pendingDeleteIds = [];
             this.reloadFromApi();
-            alert(`Đã gửi yêu cầu xóa ${ids.length} kho (check backend response).`);
           }
         },
         error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+          done++;
+          const backendMsg =
+            (err?.error &&
+              typeof err.error === 'object' &&
+              'message' in err.error &&
+              (err.error as any).message) ||
+            (err?.error && typeof err.error === 'string' ? err.error : null);
+          const fallback = err?.message || `HTTP ${err?.status ?? ''}`;
+          const msg = backendMsg || fallback || `Lỗi khi xóa kho (ID: ${id}).`;
+          this.errorMessage.set(msg);
+          this.toastr.error(msg);
+
+          if (done === ids.length) {
+            this.isLoading.set(false);
+            this.pendingDeleteIds = [];
+            this.reloadFromApi();
+          }
         }
       });
     });
@@ -187,24 +243,48 @@ export class WarehouseStore {
     if (!isPlatformBrowser(this.platformId)) return;
     const built = this.drawer.buildPayload();
     if (!built.ok) {
-      alert(built.message);
+      this.toastr.warning(built.message);
       return;
     }
 
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const req$ = this.drawerMode() === 'create' ? this.api.createWarehouse(built.payload) : this.api.updateWarehouse(built.payload);
+    const isCreate = this.drawerMode() === 'create';
+    const req$ = isCreate
+      ? this.api.createWarehouse(built.payload)
+      : this.api.updateWarehouse(built.payload);
 
     req$.subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isLoading.set(false);
         this.closeDrawer();
         this.reloadFromApi();
+
+        const success =
+          res && typeof res === 'object' && 'isSuccess' in res ? res.isSuccess !== false : true;
+        const msg = (res && typeof res === 'object' && 'message' in res && res.message) || null;
+
+        if (success) {
+          this.toastr.success(
+            msg || (isCreate ? 'Tạo kho thành công.' : 'Cập nhật kho thành công.')
+          );
+        } else {
+          this.toastr.error(msg || 'Thao tác với kho không thành công.');
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        const backendMsg =
+          (err?.error &&
+            typeof err.error === 'object' &&
+            'message' in err.error &&
+            (err.error as any).message) ||
+          (err?.error && typeof err.error === 'string' ? err.error : null);
+        const fallback = err?.message || `HTTP ${err?.status ?? ''}`;
+        const msg = backendMsg || fallback || 'Lỗi khi lưu kho, vui lòng thử lại.';
+        this.errorMessage.set(msg);
+        this.toastr.error(msg);
       }
     });
   }

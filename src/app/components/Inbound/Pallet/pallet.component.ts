@@ -259,8 +259,8 @@ import { PalletStore } from './pallet.store';
     </div>
 
     @if (drawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">Tạo Pallet mới</h2>
             <button mat-icon-button class="drawer-close" (click)="closeDrawer()">

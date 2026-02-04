@@ -454,8 +454,8 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
     }
 
     @if (drawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">
               {{ drawerMode() === 'create' ? 'Thêm Zone' : 'Cập nhật Zone' }}
@@ -578,8 +578,8 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
     }
 
     @if (locationTypeDrawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeLocationTypeDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">
               {{ locationTypeDrawerMode() === 'create' ? 'Thêm LocationType' : 'Cập nhật LocationType' }}
@@ -762,8 +762,8 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
     }
 
     @if (locationDrawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeLocationDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">Thêm Location</h2>
             <button mat-icon-button class="drawer-close" (click)="closeLocationDrawer()">
