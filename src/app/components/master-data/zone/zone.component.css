@@ -47,6 +47,68 @@
   padding-inline: 0.75rem;
 }
 
+/* Confirm delete modal for Zone */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.confirm-dialog {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.75rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.confirm-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.confirm-message {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.confirm-message strong {
+  color: #dc2626;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.confirm-actions .btn.btn-clear {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.confirm-actions .btn.btn-clear:hover {
+  background-color: #d1d5db;
+}
+
+.confirm-actions .btn.btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.confirm-actions .btn.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
 /* Zone detail: full screen - Trái: Locations | Giữa: Location Types | Phải: Thuộc tính Zone */
 .zone-detail-fullscreen {
   position: fixed;

@@ -577,6 +577,34 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
       </div>
     }
 
+    <!-- Confirm delete Zone -->
+    @if (confirmDeleteOpen()) {
+      <div class="confirm-backdrop">
+        <div class="confirm-dialog" (click)="$event.stopPropagation()">
+          <h2 class="confirm-title">Xác nhận xóa Zone</h2>
+          <p class="confirm-message">
+            Bạn có chắc chắn muốn xóa
+            <strong>{{ confirmDeleteCount() }}</strong>
+            zone đã chọn?
+          </p>
+          <div class="confirm-actions">
+            <button mat-stroked-button type="button" class="btn btn-clear" (click)="cancelDelete()">
+              Hủy
+            </button>
+            <button
+              mat-raised-button
+              type="button"
+              class="btn btn-danger"
+              (click)="confirmDelete()"
+              [disabled]="isLoading()"
+            >
+              Đồng ý xóa
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
     @if (locationTypeDrawerOpen()) {
       <div class="drawer-backdrop">
         <div class="drawer-panel">
@@ -1064,6 +1092,18 @@ export class ZoneComponent {
 
   submitLocationDrawer(): void {
     this.store.submitLocationDrawer();
+  }
+
+  // Xóa Zone: confirm dialog
+  confirmDeleteOpen = this.store.confirmDeleteOpen;
+  confirmDeleteCount = this.store.confirmDeleteCount;
+
+  cancelDelete(): void {
+    this.store.cancelDelete();
+  }
+
+  confirmDelete(): void {
+    this.store.confirmDelete();
   }
 }
 
