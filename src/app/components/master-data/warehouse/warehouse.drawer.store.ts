@@ -38,8 +38,8 @@ export class WarehouseDrawerStore {
     this.drawerForm = {
       warehouseCode: warehouse.warehouseCode,
       warehouseName: warehouse.warehouseName,
-      ownerId: warehouse.ownerId,
-      ownerGroupId: warehouse.ownerGroupId || ''
+      ownerId: warehouse.ownerId != null ? String(warehouse.ownerId) : '',
+      ownerGroupId: warehouse.ownerGroupId != null ? String(warehouse.ownerGroupId) : ''
     };
     this.drawerOpen.set(true);
   }
@@ -59,11 +59,21 @@ export class WarehouseDrawerStore {
       return { ok: false, message: 'Vui lòng nhập đầy đủ các trường bắt buộc' };
     }
 
+    const ownerIdNum = Number(ownerId);
+    if (!Number.isFinite(ownerIdNum)) {
+      return { ok: false, message: 'OwnerId phải là số hợp lệ' };
+    }
+
+    const ownerGroupIdNum = ownerGroupId ? Number(ownerGroupId) : undefined;
+    if (ownerGroupId && !Number.isFinite(ownerGroupIdNum!)) {
+      return { ok: false, message: 'OwnerGroupId phải là số hợp lệ' };
+    }
+
     const payload: WarehouseDTO = {
       warehouseCode: code,
       warehouseName: name,
-      ownerId,
-      ownerGroupId: ownerGroupId || undefined
+      ownerId: ownerIdNum,
+      ownerGroupId: ownerGroupIdNum
     };
 
     if (this.drawerMode() === 'edit' && this.editingWarehouse?.warehouseId != null) {

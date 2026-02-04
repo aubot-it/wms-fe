@@ -2,8 +2,8 @@ export interface WarehouseDTO {
   warehouseId?: number;
   warehouseCode: string;
   warehouseName: string;
-  ownerId: string;
-  ownerGroupId?: string;
+  ownerId: number;
+  ownerGroupId?: number;
 }
 
 export type TemperatureControlType = 'NORMAL' | 'COLD' | 'FROZEN';
