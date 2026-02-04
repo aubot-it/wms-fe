@@ -460,4 +460,313 @@ export class AsnLineStore {
             }
         });
     }
+
+    printReceipt(): void {
+        if (!isPlatformBrowser(this.platformId)) return;
+
+        const selected = this.selectedAsnLines();
+        if (selected.length === 0) {
+            alert('Vui lòng chọn ít nhất 1 ASN Line để in phiếu.');
+            return;
+        }
+
+        // Get selected ASN lines with full details
+        const selectedLines = this.allAsnLines().filter((line) => selected.includes(this.rowKey(line)));
+
+        // Get ASN info from first line (assuming all selected lines are from same ASN)
+        const firstLine = selectedLines[0];
+        const asnInfo = this.asns().find((a) => a.asnId === firstLine.asnId);
+
+        // Generate current date and time
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('vi-VN');
+        const timeStr = now.toLocaleTimeString('vi-VN');
+
+        // Create print content
+        let printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Phiếu Kiểm Đếm Chi Tiết Hàng Nhập</title>
+            <style>
+                @page {
+                    size: A4;
+                    margin: 15mm;
+                }
+                body {
+                    font-family: 'Arial', sans-serif;
+                    font-size: 11pt;
+                    line-height: 1.4;
+                    margin: 0;
+                    padding: 20px;
+                }
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    margin-bottom: 15px;
+                    border-bottom: 2px solid #333;
+                    padding-bottom: 10px;
+                }
+                .logo {
+                    font-size: 20pt;
+                    font-weight: bold;
+                    color: #4CAF50;
+                }
+                .company-info {
+                    text-align: left;
+                    font-size: 9pt;
+                }
+                .title {
+                    text-align: center;
+                    font-size: 16pt;
+                    font-weight: bold;
+                    margin: 15px 0;
+                    text-transform: uppercase;
+                }
+                .subtitle {
+                    text-align: center;
+                    font-size: 12pt;
+                    margin-bottom: 20px;
+                    color: #666;
+                }
+                .info-section {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                    margin-bottom: 15px;
+                    font-size: 10pt;
+                }
+                .info-row {
+                    display: flex;
+                    margin-bottom: 5px;
+                }
+                .info-label {
+                    font-weight: bold;
+                    min-width: 150px;
+                }
+                .info-value {
+                    flex: 1;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                    font-size: 10pt;
+                }
+                th {
+                    background-color: #f0f0f0;
+                    border: 1px solid #333;
+                    padding: 8px;
+                    text-align: center;
+                    font-weight: bold;
+                }
+                td {
+                    border: 1px solid #333;
+                    padding: 8px;
+                    text-align: center;
+                }
+                td.left {
+                    text-align: left;
+                }
+                .footer {
+                    margin-top: 30px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 20px;
+                    page-break-inside: avoid;
+                }
+                .signature-box {
+                    text-align: center;
+                }
+                .signature-title {
+                    font-weight: bold;
+                    margin-bottom: 60px;
+                }
+                .signature-name {
+                    border-top: 1px solid #333;
+                    padding-top: 5px;
+                    margin-top: 60px;
+                }
+                @media print {
+                    body {
+                        padding: 0;
+                    }
+                    .no-print {
+                        display: none;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div>
+                    <div class="logo">VNHO</div>
+                    <div class="company-info">Logistics</div>
+                </div>
+                <div style="text-align: right; font-size: 9pt;">
+                    <div><strong>Ngày:</strong> ${dateStr}</div>
+                    <div><strong>Giờ:</strong> ${timeStr}</div>
+                </div>
+            </div>
+
+            <div class="title">PHIẾU KIỂM ĐẾM CHI TIẾT HÀNG NHẬP</div>
+            <div class="subtitle">INBOUND TALLY SHEET</div>
+
+            <div class="info-section">
+                <div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày:</span>
+                        <span class="info-value">${dateStr}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Số ASN:</span>
+                        <span class="info-value">${asnInfo?.asnNo || '-'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Khách hàng:</span>
+                        <span class="info-value">_______________________</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Hình thức xuống hàng:</span>
+                        <span class="info-value">☐ Mỏ bên trong pallet ☐ Bốc dỡ</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="info-row">
+                        <span class="info-label">Thời gian bắt đầu xuống hàng:</span>
+                        <span class="info-value">_________________</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Thời gian kết thúc xuống hàng:</span>
+                        <span class="info-value">_________________</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Số lượng pallet/kiện hàng:</span>
+                        <span class="info-value">_________________</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Cần đổi cart (gạnh) (C/D/Không):</span>
+                        <span class="info-value">_________________</span>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">STT</th>
+                        <th rowspan="2">Mã hàng</th>
+                        <th rowspan="2">Tên hàng</th>
+                        <th colspan="3">Số lượng</th>
+                        <th rowspan="2">Đơn vị tính</th>
+                        <th rowspan="2">Nơi lưu kho</th>
+                        <th rowspan="2">Ghi chú</th>
+                    </tr>
+                    <tr>
+                        <th>Số lượng<br/>theo đơn</th>
+                        <th>Số lượng<br/>thực nhận</th>
+                        <th>Số lượng<br/>chênh lệch</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        selectedLines.forEach((line, index) => {
+            const sku = this.skus().find((s) => s.skuID === line.skuId);
+            printContent += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="left">${sku?.skuCode || '-'}</td>
+                        <td class="left">${sku?.skuName || '-'}</td>
+                        <td>${line.expectedQty || 0}</td>
+                        <td></td>
+                        <td></td>
+                        <td>${sku?.baseUom || '-'}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            `;
+        });
+
+        // Add empty rows to fill the page
+        const emptyRows = Math.max(0, 10 - selectedLines.length);
+        for (let i = 0; i < emptyRows; i++) {
+            printContent += `
+                    <tr>
+                        <td>${selectedLines.length + i + 1}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            `;
+        }
+
+        printContent += `
+                </tbody>
+            </table>
+
+            <div class="info-section" style="margin-top: 20px;">
+                <div>
+                    <div class="info-row">
+                        <span class="info-label">Số lượng SKU:</span>
+                        <span class="info-value">${selectedLines.length}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Tổng số lượng dự kiến:</span>
+                        <span class="info-value">${selectedLines.reduce((sum, l) => sum + (l.expectedQty || 0), 0)}</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="info-row">
+                        <span class="info-label">Tổng số lượng thực nhận:</span>
+                        <span class="info-value">_________________</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Số lượng chênh lệch:</span>
+                        <span class="info-value">_________________</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="signature-box">
+                    <div class="signature-title">Người lập phiếu</div>
+                    <div class="signature-name">(Ký và ghi rõ họ tên)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-title">Nhân viên kho</div>
+                    <div class="signature-name">(Ký và ghi rõ họ tên)</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-title">Quản lý kho</div>
+                    <div class="signature-name">(Ký và ghi rõ họ tên)</div>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+
+        // Open print window
+        const printWindow = window.open('', '', 'width=800,height=600');
+        if (printWindow) {
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+
+            // Wait for content to load, then print
+            printWindow.onload = () => {
+                printWindow.print();
+                // Don't close automatically - let user close it
+            };
+        } else {
+            alert('Không thể mở cửa sổ in. Vui lòng kiểm tra cài đặt trình duyệt.');
+        }
+    }
 }

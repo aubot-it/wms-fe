@@ -35,6 +35,10 @@ import { AsnLineStore } from './asn-line.store';
             <mat-icon>add</mat-icon>
             <span>Thêm</span>
           </button>
+          <button mat-raised-button class="btn btn-info" (click)="printReceipt()" [disabled]="selectedAsnLines().length === 0">
+            <mat-icon>print</mat-icon>
+            <span>In phiếu nhập</span>
+          </button>
           <button mat-raised-button class="btn btn-success" (click)="openLpnDrawer()" [disabled]="selectedAsnLines().length === 0">
             <mat-icon>inventory</mat-icon>
             <span>Tạo Pallet</span>
@@ -514,5 +518,9 @@ export class AsnLineComponent {
 
   submitLpnDrawer(): void {
     this.store.submitLpnDrawer();
+  }
+
+  printReceipt(): void {
+    this.store.printReceipt();
   }
 }
