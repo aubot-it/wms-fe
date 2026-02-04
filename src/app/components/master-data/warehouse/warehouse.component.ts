@@ -318,6 +318,34 @@ import { WarehouseTableStore } from './warehouse.table.store';
         </div>
       </div>
     }
+
+    <!-- Confirm delete warehouse -->
+    @if (confirmDeleteOpen()) {
+      <div class="confirm-backdrop">
+        <div class="confirm-dialog" (click)="$event.stopPropagation()">
+          <h2 class="confirm-title">Xác nhận xóa Warehouse</h2>
+          <p class="confirm-message">
+            Bạn có chắc chắn muốn xóa
+            <strong>{{ confirmDeleteCount() }}</strong>
+            kho đã chọn?
+          </p>
+          <div class="confirm-actions">
+            <button mat-stroked-button type="button" class="btn btn-clear" (click)="cancelDelete()">
+              Hủy
+            </button>
+            <button
+              mat-raised-button
+              type="button"
+              class="btn btn-danger"
+              (click)="confirmDelete()"
+              [disabled]="isLoading()"
+            >
+              Đồng ý xóa
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styleUrl: './warehouse.component.css'
 })
@@ -444,6 +472,18 @@ export class WarehouseComponent {
 
   pages(): number[] {
     return this.store.pages();
+  }
+
+  // Xóa kho: confirm dialog
+  confirmDeleteOpen = this.store.confirmDeleteOpen;
+  confirmDeleteCount = this.store.confirmDeleteCount;
+
+  cancelDelete(): void {
+    this.store.cancelDelete();
+  }
+
+  confirmDelete(): void {
+    this.store.confirmDelete();
   }
 }
 
