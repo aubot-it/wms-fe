@@ -287,8 +287,8 @@ import { AsnStore } from './asn.store';
     </div>
 
     @if (drawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">
               {{ drawerMode() === 'create' ? 'Thêm ASN' : 'Cập nhật ASN' }}

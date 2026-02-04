@@ -245,8 +245,8 @@ import { AsnLineStore } from './asn-line.store';
     </div>
 
     @if (drawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">
               {{ drawerMode() === 'create' ? 'Phân Loại hàng hóa ASN' : 'Cập nhật ASN Line' }}
@@ -303,8 +303,8 @@ import { AsnLineStore } from './asn-line.store';
     }
 
     @if (lpnDrawerOpen()) {
-      <div class="drawer-backdrop" (click)="closeLpnDrawer()">
-        <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">Tạo Pallet từ ASN Line</h2>
             <button mat-icon-button class="drawer-close" (click)="closeLpnDrawer()">

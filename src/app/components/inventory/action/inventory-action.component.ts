@@ -14,8 +14,8 @@ import { InventoryListStore } from '../list/list.store';
   imports: [CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule],
   template: `
     @if (store.actionDialogOpen()) {
-      <div class="drawer-backdrop" (click)="store.closeActionDialog()">
-        <div class="drawer-panel inventory-action-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-backdrop">
+        <div class="drawer-panel inventory-action-panel">
           <div class="drawer-header">
             <h2 class="drawer-title">
               {{ store.actionType() === 'adjust' ? 'Điều chỉnh tồn' : store.actionType() === 'reserve' ? 'Reserve' : store.actionType() === 'hold' ? 'Hold' : 'Release' }}
