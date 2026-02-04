@@ -29,6 +29,24 @@
         </div>
       </div>
       <div class="sidebar__group">
+        <div class="sidebar__group-header" (click)="toggleMenu('Outbound')">
+          <span class="sidebar__icon">📦</span>
+          <span>Xuất kho</span>
+          <span class="sidebar__arrow" [class.open]="isMenuOpen('Outbound')">▼</span>
+        </div>
+        <div class="sidebar__submenu" [class.open]="isMenuOpen('Outbound')">
+          <a routerLink="/outbound/orders" routerLinkActive="active" class="sidebar__subitem">
+            <span>Quản lý đơn xuất</span>
+          </a>
+          <a routerLink="/outbound/order-lines" routerLinkActive="active" class="sidebar__subitem">
+            <span>Chi tiết đơn xuất</span>
+          </a>
+          <a routerLink="/outbound/picking" routerLinkActive="active" class="sidebar__subitem">
+            <span>Picking</span>
+          </a>
+        </div>
+      </div>
+      <div class="sidebar__group">
         <div class="sidebar__group-header" (click)="toggleMenu('masterData')">
           <span class="sidebar__icon">📋</span>
           <span>Master Data</span>

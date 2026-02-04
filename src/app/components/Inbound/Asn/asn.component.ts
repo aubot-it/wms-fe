@@ -220,9 +220,14 @@ import { AsnStore } from './asn.store';
               <td mat-cell *matCellDef="let a">{{ a.expectedArrival ? (a.expectedArrival | date:'short') : '-' }}</td>
             </ng-container>
 
+            <ng-container matColumnDef="expireDate">
+              <th mat-header-cell *matHeaderCellDef>Ngày quá hạn sản phẩm</th>
+              <td mat-cell *matCellDef="let a">{{ a.expireDate ? (a.expireDate | date:'short') : '-' }}</td>
+            </ng-container>
+
             <!-- Empty State -->
             <ng-container matColumnDef="noData">
-              <td mat-footer-cell *matFooterCellDef colspan="9" class="empty-state">
+              <td mat-footer-cell *matFooterCellDef colspan="10" class="empty-state">
                 <div class="empty-message">
                   <mat-icon>inventory_2</mat-icon>
                   <p>Không tìm thấy ASN nào</p>
@@ -315,7 +320,7 @@ import { AsnStore } from './asn.store';
               <div class="drawer-field">
                 <label class="drawer-label">ASN No <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
-                  <input matInput type="text" required [(ngModel)]="drawerForm.asnNo" name="asnNo" />
+                  <input matInput type="text" required [(ngModel)]="drawerForm.asnNo" name="asnNo" [readonly]="drawerMode() === 'create'" />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
@@ -425,10 +430,21 @@ import { AsnStore } from './asn.store';
                 </div>
               </div>
               <div class="drawer-field">
+                <label class="drawer-label">Ngày quá hạn sản phẩm <span class="required">*</span></label>
+                <div class="datetime-input-wrapper">
+                  <input type="datetime-local" required [(ngModel)]="drawerForm.expireDate" name="expireDate" class="datetime-input" />
+                </div>
+              </div>
+            </div>
+
+            <div class="drawer-row">
+              <div class="drawer-field">
                 <label class="drawer-label">Số lượng</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="number" [(ngModel)]="drawerForm.numOfSku" name="numOfSku" />
                 </mat-form-field>
+              </div>
+              <div class="drawer-field">
               </div>
             </div>
 

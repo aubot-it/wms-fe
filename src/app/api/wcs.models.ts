@@ -110,6 +110,7 @@ export interface AsnDTO {
   expectedDeparture?: string;
   actualArrival?: string;
   numOfSku?: number;
+  expireDate?: string;
 }
 
 

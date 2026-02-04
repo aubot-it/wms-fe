@@ -396,16 +396,53 @@ export class AsnLineStore {
             .filter((line) => selected.includes(this.rowKey(line)))
             .reduce((sum, line) => sum + (line.expectedQty || 0), 0);
 
-        this.lpnDrawerForm = {
-            lpnCode: '',
-            lpnLevel: '',
-            qty: totalQty,
-            status: 'PENDING',
-            weightKg: null,
-            volumeM3: null,
-            closedAt: ''
-        };
-        this.lpnDrawerOpen.set(true);
+        // Fetch LPN total records to auto-generate LPN Code
+        this.lpnApi.getLpnList({ page: 1, pageSize: 20 }).subscribe({
+            next: (result) => {
+                // Generate LPN Code: (totalRecords + 1)-ddMMyyyy
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                const dateStr = `${day}${month}${year}`;
+
+                const totalRecords = result.total ?? 0;
+                const nextNumber = totalRecords + 1;
+                const generatedLpnCode = `${nextNumber}-${dateStr}`;
+
+                this.lpnDrawerForm = {
+                    lpnCode: generatedLpnCode,
+                    lpnLevel: '1', // Default to "1"
+                    qty: totalQty,
+                    status: 'PENDING',
+                    weightKg: null,
+                    volumeM3: null,
+                    closedAt: ''
+                };
+                this.lpnDrawerOpen.set(true);
+            },
+            error: () => {
+                // Fallback if API fails - use current timestamp
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                const dateStr = `${day}${month}${year}`;
+                const generatedLpnCode = `1000-${dateStr}`; // Default to 1 if API fails
+
+                this.lpnDrawerForm = {
+                    lpnCode: generatedLpnCode,
+                    lpnLevel: '1',
+                    qty: totalQty,
+                    status: 'PENDING',
+                    weightKg: null,
+                    volumeM3: null,
+                    closedAt: ''
+                };
+                this.lpnDrawerOpen.set(true);
+                alert('Không thể lấy dữ liệu LPN từ server. Sử dụng giá trị mặc định.');
+            }
+        });
     }
 
     closeLpnDrawer(): void {
@@ -447,7 +484,12 @@ export class AsnLineStore {
         this.isLoading.set(true);
 
         this.lpnApi.createLpn(payload).subscribe({
-            next: () => {
+            next: (response) => {
+                if (!response.isSuccess) {
+                    alert(response.message);
+                    this.isLoading.set(false);
+                    return;
+                }
                 this.isLoading.set(false);
                 this.closeLpnDrawer();
                 this.selectedAsnLines.set([]);

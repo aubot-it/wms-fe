@@ -190,7 +190,12 @@ export class PalletStore {
         let done = 0;
         ids.forEach((id) => {
             this.api.deleteLpn(id).subscribe({
-                next: () => {
+                next: (response) => {
+                    if (!response.isSuccess) {
+                        alert(response.message);
+                        this.isLoading.set(false);
+                        return;
+                    }
                     done++;
                     if (done === ids.length) {
                         this.isLoading.set(false);
@@ -351,5 +356,326 @@ export class PalletStore {
                     this.isLastPage.set(true);
                 }
             });
+    }
+
+    isSelectedPalletConfirmed(): boolean {
+        const selected = this.selectedPallets();
+        if (selected.length !== 1) return false;
+
+        const pallet = this.allPallets().find((p) => this.rowKey(p) === selected[0]);
+        return pallet?.status === 'CONFIRMED';
+    }
+
+    printPallet(): void {
+        if (!isPlatformBrowser(this.platformId)) return;
+
+        const selected = this.selectedPallets();
+        if (selected.length !== 1) {
+            alert('Vui lòng chọn đúng 1 pallet để in.');
+            return;
+        }
+
+        const pallet = this.allPallets().find((p) => this.rowKey(p) === selected[0]);
+        if (!pallet) {
+            alert('Không tìm thấy thông tin pallet.');
+            return;
+        }
+
+        if (pallet.status !== 'CONFIRMED') {
+            alert('Chỉ có thể in phiếu cho pallet đã xác nhận (CONFIRMED).');
+            return;
+        }
+
+        // Generate barcode number from lpnCode (simplified version)
+        const barcodeNumber = pallet.lpnCode || pallet.lpnId?.toString() || '';
+
+        // Generate current date and time
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('vi-VN');
+
+        // Generate a simple barcode using Code 128 format (represented as text)
+        const generateBarcodeText = (code: string) => {
+            // Simple representation - in production you'd use a proper barcode library
+            return `||||| ${code} |||||`;
+        };
+
+        // Create print content - Pallet label with two sections (top and bottom)
+        let printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Pallet Label - ${pallet.lpnCode}</title>
+            <style>
+                @page {
+                    size: A4;
+                    margin: 10mm;
+                }
+                body {
+                    font-family: 'Arial', sans-serif;
+                    font-size: 10pt;
+                    line-height: 1.3;
+                    margin: 0;
+                    padding: 0;
+                }
+                .label-container {
+                    width: 100%;
+                    page-break-inside: avoid;
+                }
+                .label-section {
+                    border: 2px solid #000;
+                    margin-bottom: 20px;
+                    padding: 15px;
+                    box-sizing: border-box;
+                }
+                .label-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 10px;
+                    margin-bottom: 10px;
+                }
+                .label-title {
+                    font-size: 14pt;
+                    font-weight: bold;
+                }
+                .warehouse-info {
+                    text-align: right;
+                    font-size: 9pt;
+                }
+                .main-content {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr;
+                    gap: 15px;
+                    margin-bottom: 15px;
+                }
+                .sku-info {
+                    border: 1px solid #000;
+                    padding: 10px;
+                }
+                .sku-code {
+                    font-size: 18pt;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 5px;
+                }
+                .sku-description {
+                    font-size: 11pt;
+                    text-align: center;
+                    min-height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid #ccc;
+                    padding: 5px;
+                    margin-top: 5px;
+                }
+                .quantity-box {
+                    border: 1px solid #000;
+                    padding: 10px;
+                    text-align: center;
+                }
+                .quantity-label {
+                    font-size: 9pt;
+                    margin-bottom: 5px;
+                }
+                .quantity-value {
+                    font-size: 24pt;
+                    font-weight: bold;
+                }
+                .barcode-section {
+                    text-align: center;
+                    margin: 15px 0;
+                }
+                .barcode {
+                    font-family: 'Courier New', monospace;
+                    font-size: 20pt;
+                    letter-spacing: 2px;
+                    margin: 10px 0;
+                    border: 1px solid #000;
+                    padding: 10px;
+                    background: #fff;
+                }
+                .pallet-number {
+                    font-size: 32pt;
+                    font-weight: bold;
+                    text-align: center;
+                    margin: 15px 0;
+                }
+                .stage-label {
+                    font-size: 28pt;
+                    font-weight: bold;
+                    text-align: center;
+                    border: 2px solid #000;
+                    padding: 10px;
+                    margin: 15px 0;
+                }
+                .detail-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                }
+                .detail-table th,
+                .detail-table td {
+                    border: 1px solid #000;
+                    padding: 5px;
+                    font-size: 9pt;
+                }
+                .detail-table th {
+                    background-color: #f0f0f0;
+                    font-weight: bold;
+                    text-align: center;
+                }
+                .detail-table td {
+                    text-align: center;
+                }
+                .info-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                    margin-top: 10px;
+                }
+                .info-item {
+                    font-size: 9pt;
+                }
+                .info-label {
+                    font-weight: bold;
+                }
+                @media print {
+                    body {
+                        padding: 0;
+                    }
+                    .label-section {
+                        page-break-inside: avoid;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="label-container">
+                <!-- First Label Section -->
+                <div class="label-section">
+                    <div class="label-header">
+                        <div class="label-title">PALLET LABEL</div>
+                        <div class="warehouse-info">
+                            <div>MLC-128 WLCTL LOGISTICS</div>
+                            <div>(WOBBSBN)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="main-content">
+                        <div class="sku-info">
+                            <div class="sku-code">${pallet.lpnCode}</div>
+                            <div class="sku-description">
+                                ${pallet.lpnLevel || 'PALLET'}
+                            </div>
+                        </div>
+                        <div class="quantity-box">
+                            <div class="quantity-label">Số lượng<br/>thực tế<br/>(Quantity)</div>
+                            <div class="quantity-value">${pallet.qty}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Vị trí:</span> ${pallet.location || 'STAGE'}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Ngày:</span> ${dateStr}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Trọng lượng:</span> ${pallet.weightKg ? pallet.weightKg + ' kg' : '-'}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Thể tích:</span> ${pallet.volumeM3 ? pallet.volumeM3 + ' m³' : '-'}
+                        </div>
+                    </div>
+
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã hàng</th>
+                                <th>Số lượng thực tế</th>
+                                <th>ĐVT</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>${pallet.lpnCode}</td>
+                                <td>${pallet.qty}</td>
+                                <td>PCS</td>
+                                <td>${pallet.status}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Second Label Section -->
+                <div class="label-section">
+                    <div class="barcode-section">
+                        <div class="barcode">${generateBarcodeText(barcodeNumber)}</div>
+                        <div style="font-size: 10pt; margin-top: 5px;">
+                            S# pallet: <strong>${pallet.lpnId || '-'}</strong>
+                        </div>
+                        <div style="font-size: 10pt;">
+                            Mã LPN: <strong>${pallet.lpnCode}</strong>
+                        </div>
+                        <div style="font-size: 10pt;">
+                            Số lô: <strong>BBM-STH</strong>
+                        </div>
+                        <div style="font-size: 10pt;">
+                            Cont: <strong>-</strong>
+                        </div>
+                    </div>
+
+                    <div class="pallet-number">${pallet.lpnId || pallet.lpnCode}</div>
+                    <div class="stage-label">STAGE</div>
+
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã hàng</th>
+                                <th>Số lượng thực tế</th>
+                                <th>ĐVT</th>
+                                <th>Vị trí</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>${pallet.lpnCode}</td>
+                                <td>${pallet.qty}</td>
+                                <td>PCS</td>
+                                <td>${pallet.location || 'STAGE'}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+
+        // Open print window
+        const printWindow = window.open('', '', 'width=800,height=600');
+        if (printWindow) {
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+
+            // Wait for content to load, then print
+            printWindow.onload = () => {
+                printWindow.print();
+            };
+        } else {
+            alert('Không thể mở cửa sổ in. Vui lòng kiểm tra cài đặt trình duyệt.');
+        }
     }
 }

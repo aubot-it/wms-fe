@@ -35,6 +35,10 @@ import { PalletStore } from './pallet.store';
             <mat-icon>add</mat-icon>
             <span>Thêm</span>
           </button> -->
+          <button mat-raised-button class="btn btn-info" (click)="printPallet()" [disabled]="selectedPallets().length !== 1 || !isSelectedPalletConfirmed()">
+            <mat-icon>print</mat-icon>
+            <span>In Pallet</span>
+          </button>
           <button mat-raised-button class="btn btn-success" (click)="onConfirmPallet()" [disabled]="selectedPallets().length !== 1">
             <mat-icon>check_circle</mat-icon>
             <span>Xác nhận Pallet</span>
@@ -450,5 +454,13 @@ export class PalletComponent {
 
   pages(): number[] {
     return this.store.pages();
+  }
+
+  printPallet(): void {
+    this.store.printPallet();
+  }
+
+  isSelectedPalletConfirmed(): boolean {
+    return this.store.isSelectedPalletConfirmed();
   }
 }

@@ -176,7 +176,7 @@ import { AsnLineStore } from './asn-line.store';
             </ng-container>
             <ng-container matColumnDef="createdDate">
               <th mat-header-cell *matHeaderCellDef>Ngày tạo</th>
-              <td mat-cell *matCellDef="let line">{{ line.createdDate || '-' }}</td>
+              <td mat-cell *matCellDef="let line">{{ line.createdDate ? (line.createdDate | date:'short') : '-' }}</td>
             </ng-container>
             <!-- Empty State -->
             <ng-container matColumnDef="noData">
@@ -315,14 +315,14 @@ import { AsnLineStore } from './asn-line.store';
             <div class="drawer-field">
               <label class="drawer-label">LPN Code <span class="required">*</span></label>
               <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput required [(ngModel)]="lpnDrawerForm.lpnCode" name="lpnCode" />
+                <input matInput required [(ngModel)]="lpnDrawerForm.lpnCode" name="lpnCode" readonly />
               </mat-form-field>
             </div>
 
             <div class="drawer-field">
               <label class="drawer-label">LPN Level <span class="required">*</span></label>
               <mat-form-field appearance="outline" class="drawer-form-field">
-                <input matInput required [(ngModel)]="lpnDrawerForm.lpnLevel" name="lpnLevel" />
+                <input matInput required [(ngModel)]="lpnDrawerForm.lpnLevel" name="lpnLevel" readonly />
               </mat-form-field>
             </div>
 

@@ -45,6 +45,7 @@ export class AsnStore {
         expectedDeparture: string;
         actualArrival: string;
         numOfSku: number | null;
+        expireDate: string;
     } = {
             ownerID: 1,
             asnNo: '',
@@ -60,7 +61,8 @@ export class AsnStore {
             expectedArrival: '',
             expectedDeparture: '',
             actualArrival: '',
-            numOfSku: null
+            numOfSku: null,
+            expireDate: ''
         };
     private editingAsn: AsnDTO | null = null;
 
@@ -74,7 +76,8 @@ export class AsnStore {
         'driverName',
         'vehicleNo',
         'numOfSku',
-        'expectedArrival'
+        'expectedArrival',
+        'expireDate'
     ];
 
     filters: {
@@ -273,9 +276,22 @@ export class AsnStore {
 
     openCreateDrawer(): void {
         this.drawerMode.set('create');
+
+        // Generate ASN No: (totalRecords + 1)-ddMMyyyy
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const dateStr = `${day}${month}${year}`;
+
+        // Get current total records count
+        const currentTotal = this.totalItems();
+        const nextNumber = currentTotal + 1;
+        const generatedAsnNo = `${nextNumber}-${dateStr}`;
+
         this.drawerForm = {
             ownerID: 1,
-            asnNo: '',
+            asnNo: generatedAsnNo,
             warehouseID: this.filters.warehouseID ?? null,
             asnType: 'PO',
             status: 'CREATED',
@@ -288,7 +304,8 @@ export class AsnStore {
             expectedArrival: '',
             expectedDeparture: '',
             actualArrival: '',
-            numOfSku: null
+            numOfSku: null,
+            expireDate: ''
         };
         this.editingAsn = null;
         this.drawerOpen.set(true);
@@ -318,7 +335,8 @@ export class AsnStore {
             expectedArrival: asn.expectedArrival ?? '',
             expectedDeparture: asn.expectedDeparture ?? '',
             actualArrival: asn.actualArrival ?? '',
-            numOfSku: asn.numOfSku ?? null
+            numOfSku: asn.numOfSku ?? null,
+            expireDate: asn.expireDate ?? ''
         };
         this.drawerOpen.set(true);
     }
@@ -333,9 +351,10 @@ export class AsnStore {
 
         const warehouseID = this.drawerForm.warehouseID;
         const asnNo = (this.drawerForm.asnNo || '').trim();
+        const expireDate = (this.drawerForm.expireDate || '').trim();
 
-        if (warehouseID == null || !Number.isFinite(warehouseID) || !asnNo) {
-            alert('Vui lòng nhập đầy đủ các trường bắt buộc (ASN No, Warehouse)');
+        if (warehouseID == null || !Number.isFinite(warehouseID) || !asnNo || !expireDate) {
+            alert('Vui lòng nhập đầy đủ các trường bắt buộc (ASN No, Warehouse, Ngày quá hạn sản phẩm)');
             return;
         }
 
@@ -354,7 +373,8 @@ export class AsnStore {
             expectedArrival: this.drawerForm.expectedArrival || undefined,
             expectedDeparture: this.drawerForm.expectedDeparture || undefined,
             actualArrival: this.drawerForm.actualArrival || undefined,
-            numOfSku: this.drawerForm.numOfSku ?? undefined
+            numOfSku: this.drawerForm.numOfSku ?? undefined,
+            expireDate: this.drawerForm.expireDate || undefined
         };
 
         this.isLoading.set(true);
