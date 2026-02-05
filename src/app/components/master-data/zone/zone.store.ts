@@ -2,6 +2,7 @@ import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { WcsZoneApi } from '../../../api/wcs-zone.api';
 import { WcsWarehouseApi } from '../../../api/wcs-warehouse.api';
+import { ToastrService } from 'ngx-toastr';
 import {
   LocationDTO,
   LocationTypeDTO,
@@ -19,6 +20,7 @@ export class ZoneStore {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly api = inject(WcsZoneApi);
   private readonly warehouseApi = inject(WcsWarehouseApi);
+  private readonly toastr = inject(ToastrService);
 
   temperatureTypes: TemperatureControlType[] = ['NORMAL', 'COLD', 'FROZEN'];
   zoneUsages: ZoneUsage[] = ['INBOUND', 'OUTBOUND', 'BOTH'];
@@ -96,6 +98,11 @@ export class ZoneStore {
 
   isLoading = signal<boolean>(false);
   errorMessage = signal<string>('');
+
+  // Xóa Zone: confirm dialog state
+  confirmDeleteOpen = signal<boolean>(false);
+  confirmDeleteCount = signal<number>(0);
+  private pendingDeleteIds: number[] = [];
 
   // Detail: current zone in focus + its location types / locations
   detailOpen = signal<boolean>(false);
@@ -281,31 +288,78 @@ export class ZoneStore {
 
   onDelete(): void {
     const selected = this.selectedZones();
-    if (selected.length === 0) return;
-
-    if (!confirm(`Bạn có chắc chắn muốn xóa ${selected.length} zone đã chọn?`)) return;
+    if (selected.length === 0) {
+      this.toastr.warning('Vui lòng chọn ít nhất 1 zone để xóa.');
+      return;
+    }
 
     const ids = selected.map((k) => Number(k)).filter((n) => Number.isFinite(n)) as number[];
     if (ids.length === 0) {
-      alert('Không xác định được zoneID để xóa (API yêu cầu id dạng số).');
+      this.toastr.error('Không xác định được zoneID để xóa (API yêu cầu id dạng số).');
+      return;
+    }
+
+    this.pendingDeleteIds = ids;
+    this.confirmDeleteCount.set(ids.length);
+    this.confirmDeleteOpen.set(true);
+  }
+
+  cancelDelete(): void {
+    this.confirmDeleteOpen.set(false);
+    this.pendingDeleteIds = [];
+  }
+
+  confirmDelete(): void {
+    const ids = this.pendingDeleteIds;
+    if (ids.length === 0) {
+      this.confirmDeleteOpen.set(false);
       return;
     }
 
     this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.confirmDeleteOpen.set(false);
+
     let done = 0;
     ids.forEach((id) => {
       this.api.deleteZone(id).subscribe({
-        next: () => {
+        next: (res: any) => {
           done++;
+
+          const success =
+            res && typeof res === 'object' && 'isSuccess' in res ? res.isSuccess !== false : true;
+          const msg = (res && typeof res === 'object' && 'message' in res && res.message) || null;
+
+          if (success) {
+            this.toastr.success(msg || `Xóa zone (ID: ${id}) thành công.`);
+          } else {
+            this.toastr.error(msg || `Xóa zone (ID: ${id}) không thành công.`);
+          }
+
           if (done === ids.length) {
             this.isLoading.set(false);
+            this.pendingDeleteIds = [];
             this.reloadFromApi();
-            alert(`Đã gửi yêu cầu xóa ${ids.length} zone (check backend response).`);
           }
         },
         error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+          done++;
+          const backendMsg =
+            (err?.error &&
+              typeof err.error === 'object' &&
+              'message' in err.error &&
+              (err.error as any).message) ||
+            (err?.error && typeof err.error === 'string' ? err.error : null);
+          const fallback = err?.message || `HTTP ${err?.status ?? ''}`;
+          const msg = backendMsg || fallback || `Lỗi khi xóa zone (ID: ${id}).`;
+          this.errorMessage.set(msg);
+          this.toastr.error(msg);
+
+          if (done === ids.length) {
+            this.isLoading.set(false);
+            this.pendingDeleteIds = [];
+            this.reloadFromApi();
+          }
         }
       });
     });
@@ -368,7 +422,7 @@ export class ZoneStore {
     const zoneName = (this.drawerForm.zoneName || '').trim();
 
     if (warehouseId == null || !Number.isFinite(warehouseId) || !zoneCode || !zoneName) {
-      alert('Vui lòng nhập đầy đủ các trường bắt buộc');
+      this.toastr.warning('Vui lòng nhập đầy đủ các trường bắt buộc.');
       return;
     }
 
@@ -392,22 +446,41 @@ export class ZoneStore {
 
     this.isLoading.set(true);
 
-    const req$ =
-      this.drawerMode() === 'create'
-        ? this.api.createZone(payload)
-        : this.api.updateZone(
-            this.editingZone?.zoneID != null ? { ...payload, zoneID: this.editingZone.zoneID } : payload
-          );
+    const isCreate = this.drawerMode() === 'create';
+    const req$ = isCreate
+      ? this.api.createZone(payload)
+      : this.api.updateZone(
+          this.editingZone?.zoneID != null ? { ...payload, zoneID: this.editingZone.zoneID } : payload
+        );
 
     req$.subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isLoading.set(false);
         this.closeDrawer();
         this.reloadFromApi();
+
+        const success =
+          res && typeof res === 'object' && 'isSuccess' in res ? res.isSuccess !== false : true;
+        const msg = (res && typeof res === 'object' && 'message' in res && res.message) || null;
+
+        if (success) {
+          this.toastr.success(msg || (isCreate ? 'Tạo Zone thành công.' : 'Cập nhật Zone thành công.'));
+        } else {
+          this.toastr.error(msg || 'Thao tác với Zone không thành công.');
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
+        const backendMsg =
+          (err?.error &&
+            typeof err.error === 'object' &&
+            'message' in err.error &&
+            (err.error as any).message) ||
+          (err?.error && typeof err.error === 'string' ? err.error : null);
+        const fallback = err?.message || `HTTP ${err?.status ?? ''}`;
+        const msg = backendMsg || fallback || 'Lỗi khi lưu Zone, vui lòng thử lại.';
+        this.errorMessage.set(msg);
+        this.toastr.error(msg);
       }
     });
   }
