@@ -391,47 +391,47 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                     <span class="zone-detail-attr__value">{{ zone.zoneID ?? '-' }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Zone Code</span>
+                    <span class="zone-detail-attr__label">Mã Zone</span>
                     <span class="zone-detail-attr__value">{{ zone.zoneCode }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Zone Name</span>
+                    <span class="zone-detail-attr__label">Tên Zone</span>
                     <span class="zone-detail-attr__value">{{ zone.zoneName }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Warehouse</span>
+                    <span class="zone-detail-attr__label">Kho</span>
                     <span class="zone-detail-attr__value">{{ warehouseLabel(zone.warehouseId) }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Temperature</span>
+                    <span class="zone-detail-attr__label">Nhiệt độ</span>
                     <span class="zone-detail-attr__value">{{ zone.temperatureControlType }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Usage</span>
+                    <span class="zone-detail-attr__label">Mục đích</span>
                     <span class="zone-detail-attr__value">{{ zone.zoneUsage }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Zone Type</span>
+                    <span class="zone-detail-attr__label">Loại Zone</span>
                     <span class="zone-detail-attr__value">{{ zone.zoneType ?? '-' }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">ABC Category</span>
+                    <span class="zone-detail-attr__label">Thứ tự ưu tiên</span>
                     <span class="zone-detail-attr__value">{{ zone.abcCategory ?? '-' }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Mixing Strategy</span>
+                    <span class="zone-detail-attr__label">Cho phép trộn hàng ?</span>
                     <span class="zone-detail-attr__value">{{ zone.mixingStrategy ?? '-' }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Operation Mode</span>
+                    <span class="zone-detail-attr__label">Chế độ vận hành</span>
                     <span class="zone-detail-attr__value">{{ zone.operationMode ?? '-' }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">External</span>
+                    <span class="zone-detail-attr__label">Khu bên ngoài</span>
                     <span class="zone-detail-attr__value">{{ zone.isExternal == null ? '-' : (zone.isExternal ? 'Yes' : 'No') }}</span>
                   </div>
                   <div class="zone-detail-attr">
-                    <span class="zone-detail-attr__label">Active</span>
+                    <span class="zone-detail-attr__label">Kích hoạt</span>
                     <span class="zone-detail-attr__value">{{ zone.isActive == null ? '-' : (zone.isActive ? 'Yes' : 'No') }}</span>
                   </div>
                 </div>
@@ -466,7 +466,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
           </div>
           <form class="drawer-form" (ngSubmit)="submitDrawer()">
             <div class="drawer-field">
-              <label class="drawer-label">Warehouse <span class="required">*</span></label>
+              <label class="drawer-label">Kho <span class="required">*</span></label>
               <mat-form-field appearance="outline" class="drawer-form-field">
                 <mat-select required [(ngModel)]="drawerForm.warehouseId" name="warehouseId">
                   @for (w of warehouses(); track warehouseKey(w)) {
@@ -480,13 +480,13 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">ZoneCode <span class="required">*</span></label>
+                <label class="drawer-label">Mã Zone <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="text" required [(ngModel)]="drawerForm.zoneCode" name="zoneCode" />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">ZoneName <span class="required">*</span></label>
+                <label class="drawer-label">Tên Zone <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="text" required [(ngModel)]="drawerForm.zoneName" name="zoneName" />
                 </mat-form-field>
@@ -495,7 +495,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Temperature <span class="required">*</span></label>
+                <label class="drawer-label">Nhiệt độ <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <mat-select required [(ngModel)]="drawerForm.temperatureControlType" name="temperatureControlType">
                     @for (t of temperatureTypes; track t) {
@@ -506,7 +506,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
               </div>
 
               <div class="drawer-field">
-                <label class="drawer-label">Usage <span class="required">*</span></label>
+                <label class="drawer-label">Mục đích <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <mat-select required [(ngModel)]="drawerForm.zoneUsage" name="zoneUsage">
                     @for (u of zoneUsages; track u) {
@@ -519,7 +519,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">ZoneType</label>
+                <label class="drawer-label">Loại Zone</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <mat-select [(ngModel)]="drawerForm.zoneType" name="zoneType">
                     @for (z of zoneTypes; track z) {
@@ -529,7 +529,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">ABC Category</label>
+                <label class="drawer-label">Thứ tự ưu tiên</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="text" [(ngModel)]="drawerForm.abcCategory" name="abcCategory" />
                 </mat-form-field>
@@ -538,7 +538,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">MixingStrategy</label>
+                <label class="drawer-label">Cho phép trộn hàng </label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <mat-select [(ngModel)]="drawerForm.mixingStrategy" name="mixingStrategy">
                     @for (m of mixingStrategies; track m) {
@@ -548,7 +548,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">OperationMode</label>
+                <label class="drawer-label">Chế độ vận hành</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <mat-select [(ngModel)]="drawerForm.operationMode" name="operationMode">
                     @for (o of operationModes; track o) {
@@ -560,8 +560,8 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
             </div>
 
             <div class="drawer-row drawer-row--checks">
-              <mat-checkbox [(ngModel)]="drawerForm.isExternal" name="isExternal">External</mat-checkbox>
-              <mat-checkbox [(ngModel)]="drawerForm.isActive" name="isActive">Active</mat-checkbox>
+              <mat-checkbox [(ngModel)]="drawerForm.isExternal" name="isExternal">Khu bên ngoài</mat-checkbox>
+              <mat-checkbox [(ngModel)]="drawerForm.isActive" name="isActive">Kích hoạt</mat-checkbox>
             </div>
 
             <div class="drawer-actions">
@@ -618,7 +618,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
           </div>
           <form class="drawer-form" (ngSubmit)="submitLocationTypeDrawer()">
             <div class="drawer-field">
-              <label class="drawer-label">LocationTypeCode <span class="required">*</span></label>
+              <label class="drawer-label">Mã LocationType <span class="required">*</span></label>
               <mat-form-field appearance="outline" class="drawer-form-field">
                 <input
                   matInput
@@ -631,7 +631,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
             </div>
 
             <div class="drawer-field">
-              <label class="drawer-label">LocationTypeName <span class="required">*</span></label>
+              <label class="drawer-label"> Tên LocationType <span class="required">*</span></label>
               <mat-form-field appearance="outline" class="drawer-form-field">
                 <input
                   matInput
@@ -645,7 +645,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Height (cm) <span class="required">*</span></label>
+                <label class="drawer-label">Chiều cao (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -657,7 +657,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Width (cm) <span class="required">*</span></label>
+                <label class="drawer-label">Chiều rộng (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -672,7 +672,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Depth (cm) <span class="required">*</span></label>
+                <label class="drawer-label">Chiều sâu (cm) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -684,7 +684,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Max Weight (kg) <span class="required">*</span></label>
+                <label class="drawer-label">Tải trọng tối đa (kg) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -699,7 +699,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Max Volume (m3) <span class="required">*</span></label>
+                <label class="drawer-label">Thể tích tối đa (m3) <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -711,7 +711,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Max Pallets <span class="required">*</span></label>
+                <label class="drawer-label">Số Pallet tối đa <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -726,7 +726,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Max Layers <span class="required">*</span></label>
+                <label class="drawer-label">Số tầng tối đa <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -738,7 +738,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Shelf Type <span class="required">*</span></label>
+                <label class="drawer-label">Loại kệ <span class="required">*</span></label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input
                     matInput
@@ -756,13 +756,13 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
                 [(ngModel)]="locationTypeDrawerForm.oneToManyConfig"
                 name="oneToManyConfig"
               >
-                One-to-Many Config
+                Cho phép gán nhiều vị trí
               </mat-checkbox>
               <mat-checkbox
                 [(ngModel)]="locationTypeDrawerForm.isActive"
                 name="ltIsActive"
               >
-                Active
+                Kích hoạt
               </mat-checkbox>
             </div>
 
@@ -822,13 +822,13 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
             </div>
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Aisle</label>
+                <label class="drawer-label">Lối đi</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="text" [(ngModel)]="locationDrawerForm.aisle" name="aisle" />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">ShelfGroup</label>
+                <label class="drawer-label">Nhóm kệ</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="text" [(ngModel)]="locationDrawerForm.shelfGroup" name="shelfGroup" />
                 </mat-form-field>
@@ -836,13 +836,13 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
             </div>
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Depth</label>
+                <label class="drawer-label">Độ sâu</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="text" [(ngModel)]="locationDrawerForm.depth" name="depth" />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Side</label>
+                <label class="drawer-label">Bên</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="text" [(ngModel)]="locationDrawerForm.side" name="side" />
                 </mat-form-field>
@@ -850,13 +850,13 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
             </div>
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">Layer</label>
+                <label class="drawer-label">Tầng kệ</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="number" [(ngModel)]="locationDrawerForm.layer" name="layer" />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">Bay</label>
+                <label class="drawer-label">Khoang kệ</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="number" [(ngModel)]="locationDrawerForm.bay" name="bay" />
                 </mat-form-field>
@@ -864,26 +864,26 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
             </div>
             <div class="drawer-row">
               <div class="drawer-field">
-                <label class="drawer-label">PickPriority</label>
+                <label class="drawer-label">Ưu tiên lấy hàng</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="number" [(ngModel)]="locationDrawerForm.pickPriority" name="pickPriority" />
                 </mat-form-field>
               </div>
               <div class="drawer-field">
-                <label class="drawer-label">PutawayPriority</label>
+                <label class="drawer-label">Ưu tiên nhập kho</label>
                 <mat-form-field appearance="outline" class="drawer-form-field-half">
                   <input matInput type="number" [(ngModel)]="locationDrawerForm.putawayPriority" name="putawayPriority" />
                 </mat-form-field>
               </div>
             </div>
             <div class="drawer-field">
-              <label class="drawer-label">Status</label>
+              <label class="drawer-label">Trạng thái</label>
               <mat-form-field appearance="outline" class="drawer-form-field">
                 <input matInput type="text" [(ngModel)]="locationDrawerForm.status" name="status" />
               </mat-form-field>
             </div>
             <div class="drawer-row drawer-row--checks">
-              <mat-checkbox [(ngModel)]="locationDrawerForm.isLocked" name="isLocked">IsLocked</mat-checkbox>
+              <mat-checkbox [(ngModel)]="locationDrawerForm.isLocked" name="isLocked">Khóa</mat-checkbox>
             </div>
             <div class="drawer-actions">
               <button mat-stroked-button type="button" class="btn btn-clear" (click)="closeLocationDrawer()">Hủy</button>

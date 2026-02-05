@@ -4,15 +4,18 @@ import { WcsInventoryApi } from '../../../api/wcs-inventory.api';
 import { WcsOwnerApi } from '../../../api/wcs-owner.api';
 import {
   InventoryDTO,
+  InventoryReleaseType,
   OwnerDTO,
   StatusInventory
 } from '../../../api/wcs.models';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
 export class InventoryListStore {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly api = inject(WcsInventoryApi);
   private readonly ownerApi = inject(WcsOwnerApi);
+  private readonly toastr = inject(ToastrService);
 
   statusOptions: StatusInventory[] = [
     'AVAILABLE',
@@ -83,6 +86,8 @@ export class InventoryListStore {
   selectedInventory = signal<InventoryDTO | null>(null);
   actionQty = signal<number>(0);
   actionReason = signal<string>('');
+  // chọn nguồn release
+  releaseType = signal<InventoryReleaseType>('HOLD');
 
   setActionQty(v: number | string): void {
     const n = typeof v === 'string' ? Number(v) : v;
@@ -91,6 +96,11 @@ export class InventoryListStore {
 
   setActionReason(v: string): void {
     this.actionReason.set(v ?? '');
+  }
+
+  setReleaseType(v: InventoryReleaseType | string): void {
+    const val = (v || 'HOLD') as InventoryReleaseType;
+    this.releaseType.set(val === 'RESERVED' ? 'RESERVED' : 'HOLD');
   }
 
   constructor() {
@@ -227,6 +237,9 @@ export class InventoryListStore {
     this.actionType.set(type);
     this.actionQty.set(0);
     this.actionReason.set('');
+    if (type === 'release') {
+      this.releaseType.set('HOLD');
+    }
     this.actionDialogOpen.set(true);
   }
 
@@ -241,19 +254,20 @@ export class InventoryListStore {
     const qty = this.actionQty();
     const reason = this.actionReason();
     if (item?.inventoryId == null) {
-      alert('Không xác định được bản ghi tồn.');
+      this.toastr.error('Không xác định được bản ghi tồn.');
       return;
     }
     const id = item!.inventoryId!;
     if (!Number.isFinite(qty) || qty === 0) {
-      alert('Vui lòng nhập số lượng khác 0.');
+      this.toastr.warning('Vui lòng nhập số lượng khác 0.');
       return;
     }
     if (type !== 'adjust' && qty <= 0) {
-      alert('Số lượng phải lớn hơn 0.');
+      this.toastr.warning('Số lượng phải lớn hơn 0.');
       return;
     }
     this.isLoading.set(true);
+    const releaseType = this.releaseType();
     const req$ =
       type === 'adjust'
         ? this.api.adjust(id, qty, reason?.trim() || undefined)
@@ -261,18 +275,44 @@ export class InventoryListStore {
           ? this.api.reserve(id, qty)
           : type === 'hold'
             ? this.api.hold(id, qty)
-            : this.api.release(id, qty);
+            : this.api.release(id, qty, releaseType);
+
     req$.subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isLoading.set(false);
         this.closeActionDialog();
         this.reloadFromApi();
-        alert(type === 'adjust' ? 'Điều chỉnh thành công.' : type === 'reserve' ? 'Reserve thành công.' : type === 'hold' ? 'Hold thành công.' : 'Release thành công.');
+
+        const success =
+          res && typeof res === 'object' && 'isSuccess' in res ? res.isSuccess !== false : true;
+        const msg = (res && typeof res === 'object' && 'message' in res && res.message) || null;
+
+        if (success) {
+          const fallback =
+            type === 'adjust'
+              ? 'Điều chỉnh tồn kho thành công.'
+              : type === 'reserve'
+                ? 'Reserve thành công.'
+                : type === 'hold'
+                  ? 'Hold thành công.'
+                  : 'Release thành công.';
+          this.toastr.success(msg || fallback);
+        } else {
+          this.toastr.error(msg || 'Thao tác với tồn kho không thành công.');
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err?.message || `HTTP ${err?.status ?? ''}`);
-        alert('Thao tác thất bại, vui lòng kiểm tra log / backend.');
+        const backendMsg =
+          (err?.error &&
+            typeof err.error === 'object' &&
+            'message' in err.error &&
+            (err.error as any).message) ||
+          (err?.error && typeof err.error === 'string' ? err.error : null);
+        const fallback = err?.message || `HTTP ${err?.status ?? ''}`;
+        const msg = backendMsg || fallback || 'Thao tác tồn kho thất bại, vui lòng thử lại.';
+        this.errorMessage.set(msg);
+        this.toastr.error(msg);
       }
     });
   }

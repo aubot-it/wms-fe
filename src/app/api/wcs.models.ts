@@ -188,6 +188,9 @@ export type StatusInventory =
   | 'COUNTING'
   | 'MOVING_SCOPE';
 
+// Nguồn release
+export type InventoryReleaseType = 'HOLD' | 'RESERVED';
+
 export interface InventoryDTO {
   inventoryId?: number;
   ownerId?: number;

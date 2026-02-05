@@ -30,7 +30,7 @@ import { InventoryListStore } from '../list/list.store';
               <span class="inventory-detail-attr__value">{{ inv.skuCode }}</span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">Owner</span>
+              <span class="inventory-detail-attr__label">Chủ sở hữu</span>
               <span class="inventory-detail-attr__value">{{ inv.ownerId != null ? store.ownerLabel(inv.ownerId) : '-' }}</span>
             </div>
             <div class="inventory-detail-attr">
@@ -38,15 +38,15 @@ import { InventoryListStore } from '../list/list.store';
               <span class="inventory-detail-attr__value">{{ inv.locationId ?? '-' }}</span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">On Hand</span>
+              <span class="inventory-detail-attr__label">Tồn thực tế</span>
               <span class="inventory-detail-attr__value">{{ inv.onHandQty ?? 0 }}</span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">Available</span>
+              <span class="inventory-detail-attr__label">Khả dụng</span>
               <span class="inventory-detail-attr__value">{{ inv.availableQty ?? 0 }}</span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">Reserved</span>
+              <span class="inventory-detail-attr__label">Đã giữ</span>
               <span class="inventory-detail-attr__value">{{ inv.reservedQty ?? 0 }}</span>
             </div>
             <div class="inventory-detail-attr">
@@ -54,21 +54,21 @@ import { InventoryListStore } from '../list/list.store';
               <span class="inventory-detail-attr__value">{{ inv.lotNo ?? '-' }}</span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">Expiry</span>
+              <span class="inventory-detail-attr__label">Hạn sử dụng</span>
               <span class="inventory-detail-attr__value">{{ inv.expiryDate ? (inv.expiryDate | date:'short') : '-' }}</span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">Status</span>
+              <span class="inventory-detail-attr__label">Trạng thái</span>
               <span class="inventory-detail-attr__value">{{ inv.inventoryStatus ?? '-' }}</span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">Created</span>
+              <span class="inventory-detail-attr__label">Ngày tạo</span>
               <span class="inventory-detail-attr__value">
                 {{ inv.createdDate ? (inv.createdDate | date:'short') : '-' }} {{ inv.createdBy ? ' · ' + inv.createdBy : '' }}
               </span>
             </div>
             <div class="inventory-detail-attr">
-              <span class="inventory-detail-attr__label">Updated</span>
+              <span class="inventory-detail-attr__label">Đã cập nhật</span>
               <span class="inventory-detail-attr__value">
                 {{ inv.updatedDate ? (inv.updatedDate | date:'short') : '-' }} {{ inv.updatedBy ? ' · ' + inv.updatedBy : '' }}
               </span>
@@ -76,7 +76,7 @@ import { InventoryListStore } from '../list/list.store';
           </div>
 
           <div class="inventory-detail-actions">
-            <button mat-stroked-button type="button" class="btn btn-clear" (click)="store.openActionDialog(inv, 'adjust')">Adjust</button>
+            <button mat-stroked-button type="button" class="btn btn-clear" (click)="store.openActionDialog(inv, 'adjust')">Chỉnh sửa</button>
             <button mat-stroked-button type="button" class="btn btn-clear" (click)="store.openActionDialog(inv, 'reserve')">Reserve</button>
             <button mat-stroked-button type="button" class="btn btn-clear" (click)="store.openActionDialog(inv, 'hold')">Hold</button>
             <button mat-stroked-button type="button" class="btn btn-clear" (click)="store.openActionDialog(inv, 'release')">Release</button>

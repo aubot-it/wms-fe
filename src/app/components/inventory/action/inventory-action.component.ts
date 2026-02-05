@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import './inventory-action.component.css';
 import { InventoryListStore } from '../list/list.store';
@@ -11,7 +12,15 @@ import { InventoryListStore } from '../list/list.store';
 @Component({
   selector: 'app-inventory-action',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule
+  ],
   template: `
     @if (store.actionDialogOpen()) {
       <div class="drawer-backdrop">
@@ -47,6 +56,24 @@ import { InventoryListStore } from '../list/list.store';
                 <label class="drawer-label">Lý do</label>
                 <mat-form-field appearance="outline" class="drawer-form-field">
                   <input matInput type="text" [ngModel]="store.actionReason()" (ngModelChange)="store.setActionReason($event)" placeholder="Tùy chọn" />
+                </mat-form-field>
+              </div>
+            }
+
+            @if (store.actionType() === 'release') {
+              <div class="drawer-field">
+                <label class="drawer-label">
+                  Nguồn Release
+                  <span class="required">*</span>
+                </label>
+                <mat-form-field appearance="outline" class="drawer-form-field">
+                  <mat-select
+                    [ngModel]="store.releaseType()"
+                    (ngModelChange)="store.setReleaseType($event)"
+                  >
+                    <mat-option [value]="'HOLD'">HOLD</mat-option>
+                    <mat-option [value]="'RESERVED'">RESERVED</mat-option>
+                  </mat-select>
                 </mat-form-field>
               </div>
             }

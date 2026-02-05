@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { InventoryDTO, InventoryHistoryDTO, ListResponse, PagedResult, StatusInventory } from './wcs.models';
+import {
+  InventoryDTO,
+  InventoryHistoryDTO,
+  InventoryReleaseType,
+  ListResponse,
+  PagedResult,
+  StatusInventory
+} from './wcs.models';
 
 @Injectable({ providedIn: 'root' })
 export class WcsInventoryApi {
@@ -69,10 +76,15 @@ export class WcsInventoryApi {
     return this.http.post(`${this.baseUrl}/Inventory/Hold`, null, { params });
   }
 
-  release(inventoryId: number, releaseQty: number): Observable<unknown> {
+  release(
+    inventoryId: number,
+    releaseQty: number,
+    typeRelease: InventoryReleaseType
+  ): Observable<unknown> {
     const params = new HttpParams()
       .set('inventoryId', String(inventoryId))
-      .set('releaseQty', String(releaseQty));
+      .set('releaseQty', String(releaseQty))
+      .set('typeRelease', typeRelease);
     return this.http.post(`${this.baseUrl}/Inventory/Release`, null, { params });
   }
 

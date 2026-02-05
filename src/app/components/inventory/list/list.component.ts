@@ -43,7 +43,7 @@ import { InventoryActionComponent } from '../action/inventory-action.component';
             </mat-form-field>
           </div>
           <div class="filter-group">
-            <label class="filter-label">Owner</label>
+            <label class="filter-label">Chủ sở hữu</label>
             <mat-form-field appearance="outline" class="filter-field">
               <mat-select [(ngModel)]="store.filters.ownerId" (selectionChange)="store.applyFilters()">
                 <mat-option [value]="null">Tất cả</mat-option>
@@ -132,27 +132,27 @@ import { InventoryActionComponent } from '../action/inventory-action.component';
               <td mat-cell *matCellDef="let row"><strong>{{ row.skuCode }}</strong></td>
             </ng-container>
             <ng-container matColumnDef="ownerId">
-              <th mat-header-cell *matHeaderCellDef>Owner</th>
+              <th mat-header-cell *matHeaderCellDef>Chủ sở hữu</th>
               <td mat-cell *matCellDef="let row">{{ row.ownerId != null ? store.ownerLabel(row.ownerId) : '-' }}</td>
             </ng-container>
             <ng-container matColumnDef="onHandQty">
-              <th mat-header-cell *matHeaderCellDef>On Hand</th>
+              <th mat-header-cell *matHeaderCellDef>Tồn thực tế</th>
               <td mat-cell *matCellDef="let row">{{ row.onHandQty ?? 0 }}</td>
             </ng-container>
             <ng-container matColumnDef="availableQty">
-              <th mat-header-cell *matHeaderCellDef>Available</th>
+              <th mat-header-cell *matHeaderCellDef>Khả dụng</th>
               <td mat-cell *matCellDef="let row">{{ row.availableQty ?? 0 }}</td>
             </ng-container>
             <ng-container matColumnDef="reservedQty">
-              <th mat-header-cell *matHeaderCellDef>Reserved</th>
+              <th mat-header-cell *matHeaderCellDef>Đã giữ</th>
               <td mat-cell *matCellDef="let row">{{ row.reservedQty ?? 0 }}</td>
             </ng-container>
             <ng-container matColumnDef="expiryDate">
-              <th mat-header-cell *matHeaderCellDef>Expiry</th>
+              <th mat-header-cell *matHeaderCellDef>Hạn sử dụng</th>
               <td mat-cell *matCellDef="let row">{{ row.expiryDate ? (row.expiryDate | date:'short') : '-' }}</td>
             </ng-container>
             <ng-container matColumnDef="inventoryStatus">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <th mat-header-cell *matHeaderCellDef>Trạng thái</th>
               <td mat-cell *matCellDef="let row">{{ row.inventoryStatus ?? '-' }}</td>
             </ng-container>
             <ng-container matColumnDef="actions">
