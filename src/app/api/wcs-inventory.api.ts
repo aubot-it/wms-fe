@@ -107,7 +107,7 @@ export class WcsInventoryApi {
     if (opts?.pageSize) params = params.set('pageSize', String(opts.pageSize));
 
     return this.http
-      .get<ListResponse<InventoryHistoryDTO>>(`${this.baseUrl}/Inventory/GetHistory`, { params })
+      .get<ListResponse<InventoryHistoryDTO>>(`${this.baseUrl}/Inventory/History`, { params })
       .pipe(map((res) => this.unwrapList(res)));
   }
 

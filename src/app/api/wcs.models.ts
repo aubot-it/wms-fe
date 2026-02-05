@@ -211,19 +211,33 @@ export interface InventoryDTO {
 
 /**  lịch sử    */
 export interface InventoryHistoryDTO {
-  id?: number;
-  logId?: number;
-  inventoryId?: number;
+  txId?: number;
+  createdAt?: string | null;
+  ownerId?: number;
+  skuId?: number;
   skuCode?: string | null;
-  locationId?: number | null;
-  actionType?: string | null;
-  quantityChange?: number | null;
-  oldQuantity?: number | null;
-  newQuantity?: number | null;
-  reason?: string | null;
+  lotId?: number | null;
+  lpnId?: number | null;
+  txType?: string | null;
+  qty?: number | null;
+  uom?: string | null;
+  inventoryStatus?: string | null;
+  fromLocation?: string | null;
+  toLocation?: string | null;
+  refType?: string | null;
+  refId?: number | null;
+  reasonCode?: string | null;
+  actorType?: string | null;
+  actorId?: number | null;
+  idempotencyKey?: string | null;
+  onHandQty?: number | null;
+  availableQty?: number | null;
+  reservedQty?: number | null;
+  holdQty?: number | null;
   createdDate?: string | null;
   createdBy?: string | null;
-  refNo?: string | null;
+  updatedDate?: string | null;
+  updatedBy?: string | null;
 }
 
 

@@ -103,15 +103,23 @@ import { InventoryHistoryStore } from './history.store';
           <table mat-table [dataSource]="store.items()" class="history-table">
             <ng-container matColumnDef="createdDate">
               <th mat-header-cell *matHeaderCellDef>Thời gian</th>
-              <td mat-cell *matCellDef="let row">{{ row.createdDate ? (row.createdDate | date:'short') : '-' }}</td>
+              <td mat-cell *matCellDef="let row">
+                {{
+                  (row.createdDate || row.createdAt)
+                    ? ((row.createdDate || row.createdAt) | date:'short')
+                    : '-'
+                }}
+              </td>
             </ng-container>
             <ng-container matColumnDef="actionType">
               <th mat-header-cell *matHeaderCellDef>Loại thao tác</th>
-              <td mat-cell *matCellDef="let row">{{ store.actionTypeLabel(row.actionType) }}</td>
+              <td mat-cell *matCellDef="let row">
+                {{ store.actionTypeLabel(row.txType || row.actionType) }}
+              </td>
             </ng-container>
             <ng-container matColumnDef="inventoryId">
-              <th mat-header-cell *matHeaderCellDef>Inventory ID</th>
-              <td mat-cell *matCellDef="let row">{{ row.inventoryId ?? '-' }}</td>
+              <th mat-header-cell *matHeaderCellDef>Inventory / Tx ID</th>
+              <td mat-cell *matCellDef="let row">{{ row.inventoryId ?? row.txId ?? '-' }}</td>
             </ng-container>
             <ng-container matColumnDef="skuCode">
               <th mat-header-cell *matHeaderCellDef>SKU</th>
@@ -119,14 +127,23 @@ import { InventoryHistoryStore } from './history.store';
             </ng-container>
             <ng-container matColumnDef="locationId">
               <th mat-header-cell *matHeaderCellDef>Location</th>
-              <td mat-cell *matCellDef="let row">{{ row.locationId ?? '-' }}</td>
+              <td mat-cell *matCellDef="let row">
+                {{ row.locationId ?? row.toLocation ?? row.fromLocation ?? '-' }}
+              </td>
             </ng-container>
             <ng-container matColumnDef="quantityChange">
               <th mat-header-cell *matHeaderCellDef>Thay đổi SL</th>
               <td mat-cell *matCellDef="let row">
-                @if (row.quantityChange != null) {
-                  <span [class.qty-positive]="row.quantityChange > 0" [class.qty-negative]="row.quantityChange < 0">
-                    {{ row.quantityChange > 0 ? '+' : '' }}{{ row.quantityChange }}
+                @if (row.quantityChange != null || row.qty != null) {
+                  <span
+                    [class.qty-positive]="(row.quantityChange ?? row.qty) > 0"
+                    [class.qty-negative]="(row.quantityChange ?? row.qty) < 0"
+                  >
+                    {{
+                      (row.quantityChange ?? row.qty) > 0
+                        ? '+'
+                        : ''
+                    }}{{ row.quantityChange ?? row.qty }}
                   </span>
                 } @else if (row.oldQuantity != null && row.newQuantity != null) {
                   {{ row.oldQuantity }} → {{ row.newQuantity }}
@@ -137,7 +154,7 @@ import { InventoryHistoryStore } from './history.store';
             </ng-container>
             <ng-container matColumnDef="reason">
               <th mat-header-cell *matHeaderCellDef>Lý do / Ghi chú</th>
-              <td mat-cell *matCellDef="let row">{{ row.reason ?? '-' }}</td>
+              <td mat-cell *matCellDef="let row">{{ row.reason ?? row.reasonCode ?? '-' }}</td>
             </ng-container>
             <ng-container matColumnDef="createdBy">
               <th mat-header-cell *matHeaderCellDef>Người thực hiện</th>
