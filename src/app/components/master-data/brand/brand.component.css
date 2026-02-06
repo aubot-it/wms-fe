@@ -1,0 +1,3 @@
+/* Brand uses the exact same styling as SKU */
+@import '../sku/sku.component.css';
+
