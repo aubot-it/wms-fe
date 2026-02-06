@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { LpnDTO, PagedResult, ListResponse } from './wcs.models';
+import { APP_CONFIG } from '../config/app-config';
 
 interface ApiResponse {
     isSuccess: boolean;
@@ -15,7 +16,7 @@ interface ApiResponse {
 @Injectable({ providedIn: 'root' })
 export class WcsLpnApi {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = '/wcs';
+    private readonly baseUrl = inject(APP_CONFIG).apiBaseUrl;
 
     getLpnList(opts?: {
         keyword?: string;

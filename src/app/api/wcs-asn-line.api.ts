@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PagedResult, AsnLineDTO } from './wcs.models';
+import { APP_CONFIG } from '../config/app-config';
 
 interface AsnLineApiResponse {
     isSuccess: boolean;
@@ -24,7 +25,7 @@ interface ApiResponse {
 @Injectable({ providedIn: 'root' })
 export class WcsAsnLineApi {
     private readonly http = inject(HttpClient);
-    private readonly baseUrl = '/wcs';
+    private readonly baseUrl = inject(APP_CONFIG).apiBaseUrl;
 
     getAsnLineList(opts?: {
         keyword?: string;

@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import './asn.component.css';
 import { AsnStore } from './asn.store';
+import { APP_CONFIG } from '../../../config/app-config';
 
 @Component({
   selector: 'app-asn',
@@ -152,7 +153,11 @@ import { AsnStore } from './asn.store';
           <div class="notice notice--error">
             <div><strong>Không tải được dữ liệu.</strong></div>
             <div class="notice__sub">{{ errorMessage() }}</div>
-            <div class="notice__sub"><a href="http://wcs.aubot.vn:5437/swagger/index.html" target="_blank" rel="noreferrer">Mở Swagger</a></div>
+            @if (swaggerUrl) {
+              <div class="notice__sub">
+                <a [href]="swaggerUrl" target="_blank" rel="noreferrer">Mở Swagger</a>
+              </div>
+            }
           </div>
         }
 
@@ -449,6 +454,7 @@ import { AsnStore } from './asn.store';
 })
 export class AsnComponent {
   private readonly store = inject(AsnStore);
+  readonly swaggerUrl = inject(APP_CONFIG).swaggerUrl;
 
   asnTypes = this.store.asnTypes;
   asnStatuses = this.store.asnStatuses;

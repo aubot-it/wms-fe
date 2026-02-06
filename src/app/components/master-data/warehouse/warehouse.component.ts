@@ -14,6 +14,7 @@ import './warehouse.component.css';
 import { WarehouseStore } from './warehouse.store';
 import { WarehouseDrawerStore } from './warehouse.drawer.store';
 import { WarehouseTableStore } from './warehouse.table.store';
+import { APP_CONFIG } from '../../../config/app-config';
 
 @Component({
   selector: 'app-warehouse',
@@ -141,7 +142,11 @@ import { WarehouseTableStore } from './warehouse.table.store';
           <div class="notice notice--error">
             <div><strong>Không tải được dữ liệu .</strong></div>
             <div class="notice__sub">{{ errorMessage() }}</div>
-            <div class="notice__sub"><a href="http://wcs.aubot.vn:5437/swagger/index.html" target="_blank" rel="noreferrer">Mở Swagger</a></div>
+            @if (swaggerUrl) {
+              <div class="notice__sub">
+                <a [href]="swaggerUrl" target="_blank" rel="noreferrer">Mở Swagger</a>
+              </div>
+            }
           </div>
         }
 
@@ -351,6 +356,7 @@ import { WarehouseTableStore } from './warehouse.table.store';
 })
 export class WarehouseComponent {
   private readonly store = inject(WarehouseStore);
+  readonly swaggerUrl = inject(APP_CONFIG).swaggerUrl;
 
 
   allWarehouses = this.store.allWarehouses;

@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import './zone.component.css';
 import { ZoneStore } from './zone.store';
 import type { LocationTypeDTO } from '../../../api/wcs.models';
+import { APP_CONFIG } from '../../../config/app-config';
 
 @Component({
   selector: 'app-zone',
@@ -149,7 +150,11 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
           <div class="notice notice--error">
             <div><strong>Không tải được dữ liệu.</strong></div>
             <div class="notice__sub">{{ errorMessage() }}</div>
-            <div class="notice__sub"><a href="http://wcs.aubot.vn:5437/swagger/index.html" target="_blank" rel="noreferrer">Mở Swagger</a></div>
+            @if (swaggerUrl) {
+              <div class="notice__sub">
+                <a [href]="swaggerUrl" target="_blank" rel="noreferrer">Mở Swagger</a>
+              </div>
+            }
           </div>
         }
 
@@ -898,6 +903,7 @@ import type { LocationTypeDTO } from '../../../api/wcs.models';
 })
 export class ZoneComponent {
   private readonly store = inject(ZoneStore);
+  readonly swaggerUrl = inject(APP_CONFIG).swaggerUrl;
 
   temperatureTypes = this.store.temperatureTypes;
   zoneUsages = this.store.zoneUsages;

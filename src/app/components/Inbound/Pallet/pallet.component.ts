@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import './pallet.component.css';
 import { PalletStore } from './pallet.store';
+import { APP_CONFIG } from '../../../config/app-config';
 
 @Component({
   selector: 'app-pallet',
@@ -121,7 +122,11 @@ import { PalletStore } from './pallet.store';
           <div class="notice notice--error">
             <div><strong>Không tải được dữ liệu.</strong></div>
             <div class="notice__sub">{{ errorMessage() }}</div>
-            <div class="notice__sub"><a href="http://wcs.aubot.vn:5437/swagger/index.html" target="_blank" rel="noreferrer">Mở Swagger</a></div>
+            @if (swaggerUrl) {
+              <div class="notice__sub">
+                <a [href]="swaggerUrl" target="_blank" rel="noreferrer">Mở Swagger</a>
+              </div>
+            }
           </div>
         }
 
@@ -340,6 +345,7 @@ import { PalletStore } from './pallet.store';
 })
 export class PalletComponent {
   private readonly store = inject(PalletStore);
+  readonly swaggerUrl = inject(APP_CONFIG).swaggerUrl;
 
   allPallets = this.store.allPallets;
   filteredPallets = this.store.filteredPallets;

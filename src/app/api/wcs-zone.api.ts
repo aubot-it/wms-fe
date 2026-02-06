@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import {
@@ -10,10 +10,11 @@ import {
   ZoneDTO,
   ZoneUsage
 } from './wcs.models';
+import { APP_CONFIG } from '../config/app-config';
 
 @Injectable({ providedIn: 'root' })
 export class WcsZoneApi {
-  private readonly baseUrl = '/wcs';
+  private readonly baseUrl = inject(APP_CONFIG).apiBaseUrl;
 
   constructor(private http: HttpClient) {}
 

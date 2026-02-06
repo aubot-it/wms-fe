@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { ListResponse, PagedResult, SkuDTO } from './wcs.models';
+import { APP_CONFIG } from '../config/app-config';
 
 @Injectable({ providedIn: 'root' })
 export class WcsSkuApi {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/wcs';
+  private readonly baseUrl = inject(APP_CONFIG).apiBaseUrl;
 
   getSkuList(opts?: {
     keyword?: string;

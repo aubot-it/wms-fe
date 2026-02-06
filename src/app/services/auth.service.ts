@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { OAuthService, AuthConfig } from 'angular-oauth2-oidc';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { APP_CONFIG } from '../config/app-config';
 
 export interface UserInfo {
   sub?: string;
@@ -17,6 +18,7 @@ export interface UserInfo {
 })
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly cfg = inject(APP_CONFIG);
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -24,15 +26,10 @@ export class AuthService {
   private userInfoSubject = new BehaviorSubject<UserInfo | null>(null);
   public userInfo$ = this.userInfoSubject.asObservable();
 
-  // OIDC Configuration - Cập nhật các giá trị này theo OIDC provider
+  // OIDC Configuration - loaded from runtime config (ENV variables)
   private authConfig: AuthConfig = {
-    // Issuer URL - Thay bằng URL của OIDC provider
-    issuer: 'http://localhost:8080/realms/dev',
-
-    // Redirect URI sau khi đăng nhập thành công
-    redirectUri: 'http://localhost:4200',
-
-    // Client ID từ OIDC provider
+    issuer: '',
+    redirectUri: '',
     clientId: 'angular-client',
 
     // Response type
@@ -41,11 +38,8 @@ export class AuthService {
     // Scope
     scope: 'openid profile email',
 
-    // Show debug information
-    showDebugInformation: true,
-
-    // Require HTTPS (tắt trong development)
-    requireHttps: false,
+    showDebugInformation: false,
+    requireHttps: true,
 
     // Disable PKCE (nếu provider không hỗ trợ)
     disablePKCE: false,
@@ -64,6 +58,11 @@ export class AuthService {
   ) {
     // SSR-safe: chỉ khởi tạo OIDC trên browser
     if (isPlatformBrowser(this.platformId)) {
+      this.authConfig.issuer = this.cfg.oidc.issuer;
+      this.authConfig.clientId = this.cfg.oidc.clientId;
+      this.authConfig.requireHttps = this.cfg.oidc.requireHttps ?? true;
+      this.authConfig.showDebugInformation = this.cfg.oidc.showDebugInformation ?? false;
+
       this.authConfig.redirectUri = window.location.origin + '/dashboard';
       this.authConfig.silentRefreshRedirectUri = window.location.origin + '/silent-refresh.html';
       this.configureOAuth();
@@ -72,6 +71,11 @@ export class AuthService {
   }
 
   private configureOAuth(): void {
+    if (!this.authConfig.issuer) {
+      // Config not provided (e.g., deployment without OIDC). Do not init login flow.
+      this.isAuthenticatedSubject.next(false);
+      return;
+    }
     this.oauthService.configure(this.authConfig);
     this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
       this.checkAuthStatus();
