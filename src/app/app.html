@@ -41,6 +41,12 @@
           <a routerLink="/master-data/zone" routerLinkActive="active" class="sidebar__subitem">
             <span>Zone</span>
           </a>
+          <a routerLink="/master-data/sku" routerLinkActive="active" class="sidebar__subitem">
+            <span>SKU</span>
+          </a>
+          <a routerLink="/master-data/brand" routerLinkActive="active" class="sidebar__subitem">
+            <span>Brand</span>
+          </a>
         </div>
       </div>
 
@@ -53,9 +59,6 @@
         <div class="sidebar__submenu" [class.open]="isMenuOpen('inventory')">
           <a routerLink="/inventory/list" routerLinkActive="active" class="sidebar__subitem">
             <span>Danh sách</span>
-          </a>
-          <a routerLink="/inventory/stock" routerLinkActive="active" class="sidebar__subitem">
-            <span>Xem tồn</span>
           </a>
           <a routerLink="/inventory/history" routerLinkActive="active" class="sidebar__subitem">
             <span>Lịch sử</span>

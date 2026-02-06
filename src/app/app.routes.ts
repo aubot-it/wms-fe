@@ -18,6 +18,14 @@ export const routes: Routes = [
         loadComponent: () => import('./components/master-data/zone/zone.component').then(m => m.ZoneComponent)
       },
       {
+        path: 'sku',
+        loadComponent: () => import('./components/master-data/sku/sku.component').then(m => m.SkuComponent)
+      },
+      {
+        path: 'brand',
+        loadComponent: () => import('./components/master-data/brand/brand.component').then(m => m.BrandComponent)
+      },
+      {
         path: '',
         redirectTo: 'warehouse',
         pathMatch: 'full'
@@ -54,10 +62,6 @@ export const routes: Routes = [
       {
         path: 'list',
         loadComponent: () => import('./components/inventory/list/list.component').then(m => m.InventoryListComponent)
-      },
-      {
-        path: 'stock',
-        loadComponent: () => import('./components/inventory/stock/stock.component').then(m => m.InventoryStockComponent)
       },
       {
         path: 'history',
