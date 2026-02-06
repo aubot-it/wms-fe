@@ -1,5 +1,24 @@
 version: '3.8'
 services:
+  wms-fe:
+    build: .
+    ports:
+      - "4200:4200"
+    environment:
+      PORT: "4200"
+      # Backend API base URL used by Angular HttpClient
+
+      API_BASE_URL: "/wcs"
+
+      # Optional: show Swagger link in UI error messages
+      # SWAGGER_URL: ""
+
+      # Optional: OIDC config (public info only)
+      # OIDC_ISSUER: "https://sso.example.com/realms/prod"
+      # OIDC_CLIENT_ID: "angular-client"
+      OIDC_REQUIRE_HTTPS: "true"
+      OIDC_SHOW_DEBUG: "false"
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.1
     command: start-dev
