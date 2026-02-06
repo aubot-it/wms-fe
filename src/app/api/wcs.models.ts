@@ -125,12 +125,28 @@ export interface OwnerDTO {
   updatedBy?: string;
 }
 
+export interface BrandDTO {
+  brandId?: number;
+  brandCode: string;
+  brandName: string;
+  country?: string | null;
+  manufacturer?: string | null;
+  status?: string | null;
+  isActive?: boolean | null;
+  createdDate?: string | null;
+  createdBy?: string | null;
+  updatedDate?: string | null;
+  updatedBy?: string | null;
+}
+
+
+export type TemperatureType = 'NORMAL' | 'COLD' | 'FROZEN';
 
 export interface SkuDTO {
   skuID?: number;
   brandId?: number;
   ownerId?: number;
-  temperatureType?: string;
+  temperatureType?: TemperatureType | string;
   skuCode: string;
   skuName: string;
   baseUom?: string;
