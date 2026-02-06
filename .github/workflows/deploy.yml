@@ -32,8 +32,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/wms:latest
-            ghcr.io/${{ github.repository }}/wms:${{ github.sha }}
+            ghcr.io/aubot-it/wms-fe:latest
+            ghcr.io/aubot-it/wms-fe:${{ github.sha }}
 
       - name: Deploy on remote server via SSH
         uses: appleboy/ssh-action@v1.2.0
